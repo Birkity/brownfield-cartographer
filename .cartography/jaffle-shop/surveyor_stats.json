@@ -1,0 +1,36 @@
+{
+  "target": "https://github.com/dbt-labs/jaffle-shop",
+  "repo_root": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop",
+  "files_scanned": 33,
+  "files_parsed_ok": 18,
+  "grammar_not_available": 15,
+  "parse_errors": 0,
+  "import_edges": 0,
+  "circular_dependency_clusters": 0,
+  "dead_code_candidates": 0,
+  "top_hubs": [
+    [
+      ".pre-commit-config.yaml",
+      0.030303030303030287
+    ],
+    [
+      "dbt_project.yml",
+      0.030303030303030287
+    ],
+    [
+      "macros/cents_to_dollars.sql",
+      0.030303030303030287
+    ],
+    [
+      "macros/generate_schema_name.sql",
+      0.030303030303030287
+    ],
+    [
+      "models/marts/customers.sql",
+      0.030303030303030287
+    ]
+  ],
+  "high_velocity_files": [],
+  "pareto_core": [],
+  "elapsed_seconds": 4.26
+}

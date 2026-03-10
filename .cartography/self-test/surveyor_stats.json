@@ -1,0 +1,52 @@
+{
+  "target": ".",
+  "repo_root": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer",
+  "files_scanned": 16,
+  "files_parsed_ok": 16,
+  "parse_errors": 0,
+  "import_edges": 14,
+  "circular_dependency_clusters": 0,
+  "dead_code_candidates": 7,
+  "top_hubs": [
+    [
+      "src/models/nodes.py",
+      0.22049192301339776
+    ],
+    [
+      "src/utils/repo_loader.py",
+      0.08467294357536598
+    ],
+    [
+      "src/agents/surveyor.py",
+      0.06695127851231877
+    ],
+    [
+      "src/analyzers/language_router.py",
+      0.0642569167986698
+    ],
+    [
+      "src/orchestrator.py",
+      0.059419694466396354
+    ]
+  ],
+  "high_velocity_files": [
+    [
+      "RECONNAISSANCE.md",
+      2
+    ],
+    [
+      "TRP1_challenge_week4_the_brownfield_cartographer.md",
+      1
+    ],
+    [
+      ".gitignore",
+      1
+    ]
+  ],
+  "pareto_core": [
+    "RECONNAISSANCE.md",
+    "TRP1_challenge_week4_the_brownfield_cartographer.md",
+    ".gitignore"
+  ],
+  "elapsed_seconds": 4.38
+}

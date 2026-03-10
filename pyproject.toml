@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "brownfield-cartographer"
+version = "0.1.0"
+description = "Multi-agent codebase intelligence system for brownfield FDE onboarding"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # Core tree-sitter — >=0.24 required for grammar ABI version 15
+    "tree-sitter>=0.24.0",
+    "tree-sitter-python>=0.21.0",
+    "tree-sitter-yaml>=0.6.0",
+    "tree-sitter-javascript>=0.21.0",
+    "tree-sitter-typescript>=0.21.0",
+    # Graph analytics
+    "networkx[default]>=3.2",
+    # Data modeling
+    "pydantic>=2.5",
+    # CLI
+    "click>=8.1",
+    "rich>=13.7",
+    # Git integration
+    "gitpython>=3.1",
+    # HTTP (for GitHub URL cloning fallback info)
+    "requests>=2.31",
+    # SQL parsing — used by Hydrologist (Phase 2), listed here so Phase 1 can import
+    "sqlglot>=23.0",
+]
+
+[project.optional-dependencies]
+# tree-sitter-sql is optional: ships no pre-built wheels for all platforms.
+# The analyzer falls back gracefully if not installed.
+sql-grammar = ["tree-sitter-sql>=0.1.0"]
+
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.1",
+    "mypy>=1.7",
+]
+
+[project.scripts]
+cartographer = "src.cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
