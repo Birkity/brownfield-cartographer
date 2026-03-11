@@ -34,21 +34,48 @@ DEFAULT_OUTPUT_DIR = Path(".cartography")
 
 
 class CartographyArtifacts:
-    """Paths to all files written by the orchestrator for a given run."""
+    """
+    Paths to all files written by the orchestrator for a given run.
+
+    Directory layout::
+
+        .cartography/
+        ├── cartography_trace.jsonl      # shared audit log (all agents)
+        ├── module_graph/                # Surveyor — static code structure
+        │   ├── module_graph.json
+        │   ├── module_graph_modules.json
+        │   ├── module_graph.png
+        │   └── surveyor_stats.json
+        └── data_lineage/                # Hydrologist — data flow & lineage
+            ├── lineage_graph.json
+            ├── lineage_graph.html
+            └── hydrologist_stats.json
+    """
 
     def __init__(self, output_dir: Path) -> None:
         self.output_dir = output_dir
-        self.module_graph_json = output_dir / "module_graph.json"
-        self.module_graph_modules_json = output_dir / "module_graph_modules.json"
+        self.module_graph_dir = output_dir / "module_graph"
+        self.data_lineage_dir = output_dir / "data_lineage"
+
+        # Shared
         self.trace_jsonl = output_dir / "cartography_trace.jsonl"
-        self.stats_json = output_dir / "surveyor_stats.json"
-        self.viz_png = output_dir / "module_graph.png"
-        # Phase 2 artifacts
-        self.lineage_graph_json = output_dir / "lineage_graph.json"
-        self.lineage_viz_html = output_dir / "lineage_graph.html"
-        self.hydrologist_stats_json = output_dir / "hydrologist_stats.json"
-        # TODO Phase 4: self.codebase_md = output_dir / "CODEBASE.md"
-        # TODO Phase 4: self.onboarding_brief_md = output_dir / "onboarding_brief.md"
+
+        # Surveyor — static code structure
+        self.module_graph_json = self.module_graph_dir / "module_graph.json"
+        self.module_graph_modules_json = self.module_graph_dir / "module_graph_modules.json"
+        self.stats_json = self.module_graph_dir / "surveyor_stats.json"
+        self.viz_png = self.module_graph_dir / "module_graph.png"
+
+        # Hydrologist — data flow & lineage
+        self.lineage_graph_json = self.data_lineage_dir / "lineage_graph.json"
+        self.lineage_viz_html = self.data_lineage_dir / "lineage_graph.html"
+        self.hydrologist_stats_json = self.data_lineage_dir / "hydrologist_stats.json"
+
+    def ensure_dirs(self) -> None:
+        """Create all output subdirectories if they don't exist."""
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.module_graph_dir.mkdir(parents=True, exist_ok=True)
+        self.data_lineage_dir.mkdir(parents=True, exist_ok=True)
 
 
 def run_phase1(
@@ -87,6 +114,7 @@ def run_phase1(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     artifacts = CartographyArtifacts(output_dir)
+    artifacts.ensure_dirs()
 
     # ---- Run Surveyor ---------------------------------------------------
     surveyor = Surveyor(velocity_days=velocity_days)

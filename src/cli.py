@@ -38,7 +38,15 @@ from rich import print as rprint
 from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2
 from src.utils.repo_loader import RepoLoadError
 
-console = Console()
+console = Console(highlight=False)
+
+# Ensure UTF-8 output on Windows (prevents charmap codec errors for ✓ etc.)
+import sys as _sys
+if _sys.stdout and hasattr(_sys.stdout, "reconfigure"):
+    try:
+        _sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -263,9 +271,9 @@ def _print_summary(artifacts, hydro_result=None) -> None:
     for name in artifact_names:
         p = getattr(artifacts, name)
         if p.exists():
-            console.print(f"  [green]✓[/] {p.resolve()}")
+            console.print(f"  [green][OK][/] {p.resolve()}")
         else:
-            console.print(f"  [red]✗[/] {p.resolve()} (not found)")
+            console.print(f"  [red][--][/] {p.resolve()} (not found)")
 
 
 # ---------------------------------------------------------------------------
