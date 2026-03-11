@@ -781,10 +781,10 @@ def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNod
             ]
 
         elif language == Language.YAML:
-            # YAML: store top-level keys as synthetic imports (structural hint)
+            # YAML: store top-level keys so Phase 2 can identify file roles
+            # without re-parsing (sources / models / name / packages / …)
             keys = _parse_yaml_top_keys(root)
-            # Don't force-fit YAML keys into imports — just record count
-            node.lines_of_code = count_lines(source)
+            node.yaml_keys = keys
 
         elif language in (Language.JAVASCRIPT, Language.TYPESCRIPT):
             node.imports = _parse_js_imports(root, language)
