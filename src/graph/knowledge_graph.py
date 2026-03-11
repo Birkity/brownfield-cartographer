@@ -27,7 +27,7 @@ from typing import Any, Optional
 
 import networkx as nx
 
-from src.models.nodes import ModuleNode
+from src.models.nodes import DatasetNode, ModuleNode, TransformationNode
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,9 @@ class KnowledgeGraph:
         self._g: nx.DiGraph = nx.DiGraph()
         # Rich module objects, keyed by rel_path
         self._modules: dict[str, ModuleNode] = {}
+        # Phase 2 (Hydrologist): lineage objects
+        self._datasets: dict[str, DatasetNode] = {}
+        self._transformations: dict[str, TransformationNode] = {}
 
     # ------------------------------------------------------------------
     # Node management
@@ -100,9 +103,69 @@ class KnowledgeGraph:
         else:
             self._g.add_edge(source, target, edge_type=edge_type, import_count=1)
 
-    # TODO Phase 2 (Hydrologist): add_produces_edge(transformation_id, dataset_name)
-    # TODO Phase 2 (Hydrologist): add_consumes_edge(dataset_name, transformation_id)
-    # TODO Phase 2 (Hydrologist): add_dataset_node(DatasetNode)
+    def add_dataset_node(self, dataset: DatasetNode) -> None:
+        """Add or update a DatasetNode in the graph."""
+        # Don't overwrite a higher-confidence entry with a lower one
+        existing = self._datasets.get(dataset.name)
+        if existing and existing.confidence >= dataset.confidence:
+            # Merge columns if the new one has more info
+            if dataset.columns and not existing.columns:
+                existing.columns = dataset.columns
+            if dataset.description and not existing.description:
+                existing.description = dataset.description
+            return
+        self._datasets[dataset.name] = dataset
+        self._g.add_node(
+            dataset.name,
+            node_type="dataset",
+            dataset_type=dataset.dataset_type,
+            storage_type=dataset.storage_type.value,
+            confidence=dataset.confidence,
+        )
+
+    def add_transformation_node(self, transformation: TransformationNode) -> None:
+        """Add or update a TransformationNode in the graph."""
+        self._transformations[transformation.id] = transformation
+        self._g.add_node(
+            transformation.id,
+            node_type="transformation",
+            transformation_type=transformation.transformation_type,
+            source_file=transformation.source_file,
+            confidence=transformation.confidence,
+            is_dynamic=transformation.is_dynamic,
+        )
+
+    def add_produces_edge(self, transformation_id: str, dataset_name: str) -> None:
+        """Record that *transformation_id* produces *dataset_name*."""
+        if not self._g.has_node(dataset_name):
+            self._g.add_node(dataset_name, node_type="dataset")
+        if not self._g.has_node(transformation_id):
+            self._g.add_node(transformation_id, node_type="transformation")
+        self._g.add_edge(
+            transformation_id, dataset_name, edge_type="PRODUCES"
+        )
+
+    def add_consumes_edge(self, transformation_id: str, dataset_name: str) -> None:
+        """Record that *transformation_id* consumes *dataset_name*."""
+        if not self._g.has_node(dataset_name):
+            self._g.add_node(dataset_name, node_type="dataset")
+        if not self._g.has_node(transformation_id):
+            self._g.add_node(transformation_id, node_type="transformation")
+        self._g.add_edge(
+            dataset_name, transformation_id, edge_type="CONSUMES"
+        )
+
+    def get_dataset(self, name: str) -> Optional[DatasetNode]:
+        """Return a DatasetNode by name, or None."""
+        return self._datasets.get(name)
+
+    def all_datasets(self) -> list[DatasetNode]:
+        """Return all registered DatasetNodes."""
+        return list(self._datasets.values())
+
+    def all_transformations(self) -> list[TransformationNode]:
+        """Return all registered TransformationNodes."""
+        return list(self._transformations.values())
 
     # ------------------------------------------------------------------
     # Graph analytics
@@ -333,6 +396,134 @@ class KnowledgeGraph:
             logger.warning("matplotlib visualization also failed: %s", exc)
             return False
 
+    def export_lineage_viz(self, output_path: Path) -> bool:
+        """
+        Export the data-lineage subgraph as an interactive PyVis HTML file.
+
+        Only includes dataset and transformation nodes (not module import edges).
+        Returns True if the HTML was written, False on failure.
+        """
+        if not self._datasets and not self._transformations:
+            logger.warning("No lineage data — skipping PyVis visualization")
+            return False
+
+        try:
+            from pyvis.network import Network  # type: ignore[import]
+        except ImportError:
+            logger.warning("pyvis not installed — skipping lineage visualization")
+            return False
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        net = Network(
+            height="800px",
+            width="100%",
+            directed=True,
+            bgcolor="#ffffff",
+            font_color="#333333",
+        )
+        net.barnes_hut(gravity=-3000, central_gravity=0.3, spring_length=200)
+
+        # Colour scheme
+        _DS_COLORS = {
+            "dbt_source": "#FF6B6B",
+            "dbt_model":  "#4ECDC4",
+            "dbt_seed":   "#45B7D1",
+            "table_ref":  "#96CEB4",
+            "file_read":  "#DDA0DD",
+            "file_write": "#DDA0DD",
+            "api_call":   "#FFD93D",
+            "unknown":    "#CCCCCC",
+        }
+        _XFORM_COLOR = "#FFA07A"
+
+        # Add dataset nodes
+        for ds in self._datasets.values():
+            label = ds.name.split(".")[-1] if "." in ds.name else ds.name
+            title = (
+                f"<b>{ds.name}</b><br>"
+                f"Type: {ds.dataset_type}<br>"
+                f"Source: {ds.source_file or 'N/A'}<br>"
+                f"Confidence: {ds.confidence}"
+            )
+            if ds.description:
+                title += f"<br>Description: {ds.description}"
+            if ds.columns:
+                title += f"<br>Columns: {', '.join(ds.columns[:10])}"
+
+            net.add_node(
+                ds.name,
+                label=label,
+                title=title,
+                color=_DS_COLORS.get(ds.dataset_type, "#CCCCCC"),
+                shape="ellipse",
+                size=20,
+            )
+
+        # Add transformation nodes
+        for xform in self._transformations.values():
+            label = xform.source_file.split("/")[-1] if "/" in xform.source_file else xform.source_file
+            title = (
+                f"<b>{xform.id}</b><br>"
+                f"Type: {xform.transformation_type}<br>"
+                f"File: {xform.source_file}<br>"
+                f"Confidence: {xform.confidence}"
+            )
+            if xform.is_dynamic:
+                title += "<br><i>⚠ Dynamic/unresolved</i>"
+
+            net.add_node(
+                xform.id,
+                label=label,
+                title=title,
+                color=_XFORM_COLOR,
+                shape="box",
+                size=15,
+            )
+
+        # Add edges — only PRODUCES and CONSUMES
+        for u, v, data in self._g.edges(data=True):
+            edge_type = data.get("edge_type", "")
+            if edge_type == "PRODUCES":
+                net.add_edge(u, v, color="#2ECC71", title="produces", arrows="to")
+            elif edge_type == "CONSUMES":
+                net.add_edge(u, v, color="#E74C3C", title="consumes", arrows="to")
+
+        try:
+            net.save_graph(str(output_path))
+            logger.info("Saved lineage visualization (PyVis) → %s", output_path)
+            return True
+        except Exception as exc:
+            logger.warning("PyVis save failed: %s", exc)
+            return False
+
+    # ------------------------------------------------------------------
+    # Lineage analytics
+    # ------------------------------------------------------------------
+
+    def lineage_summary(self) -> dict[str, Any]:
+        """Return summary statistics for the lineage subgraph."""
+        produces_edges = sum(
+            1 for _, _, d in self._g.edges(data=True) if d.get("edge_type") == "PRODUCES"
+        )
+        consumes_edges = sum(
+            1 for _, _, d in self._g.edges(data=True) if d.get("edge_type") == "CONSUMES"
+        )
+        by_type: dict[str, int] = {}
+        for ds in self._datasets.values():
+            by_type[ds.dataset_type] = by_type.get(ds.dataset_type, 0) + 1
+
+        return {
+            "total_datasets": len(self._datasets),
+            "total_transformations": len(self._transformations),
+            "produces_edges": produces_edges,
+            "consumes_edges": consumes_edges,
+            "datasets_by_type": by_type,
+            "dynamic_transformations": sum(
+                1 for t in self._transformations.values() if t.is_dynamic
+            ),
+        }
+
     # ------------------------------------------------------------------
     # Serialization
     # ------------------------------------------------------------------
@@ -361,6 +552,33 @@ class KnowledgeGraph:
         with modules_path.open("w", encoding="utf-8") as fh:
             json.dump(modules_data, fh, indent=2, default=str)
         logger.info("Saved module details → %s", modules_path)
+
+    def save_lineage(self, output_path: Path) -> None:
+        """
+        Save lineage data (datasets + transformations) to a JSON file.
+
+        Separate from the module graph so Phase 2 artifacts are cleanly isolated.
+        """
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        lineage_data = {
+            "datasets": {
+                name: ds.model_dump(mode="json")
+                for name, ds in self._datasets.items()
+            },
+            "transformations": {
+                tid: xform.model_dump(mode="json")
+                for tid, xform in self._transformations.items()
+            },
+            "edges": [
+                {"source": u, "target": v, **d}
+                for u, v, d in self._g.edges(data=True)
+                if d.get("edge_type") in ("PRODUCES", "CONSUMES")
+            ],
+        }
+        with output_path.open("w", encoding="utf-8") as fh:
+            json.dump(lineage_data, fh, indent=2, default=str)
+        logger.info("Saved lineage graph → %s", output_path)
 
     @classmethod
     def load(cls, input_path: Path) -> "KnowledgeGraph":

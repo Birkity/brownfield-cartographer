@@ -43,7 +43,10 @@ class CartographyArtifacts:
         self.trace_jsonl = output_dir / "cartography_trace.jsonl"
         self.stats_json = output_dir / "surveyor_stats.json"
         self.viz_png = output_dir / "module_graph.png"
-        # TODO Phase 2: self.lineage_graph_json = output_dir / "lineage_graph.json"
+        # Phase 2 artifacts
+        self.lineage_graph_json = output_dir / "lineage_graph.json"
+        self.lineage_viz_html = output_dir / "lineage_graph.html"
+        self.hydrologist_stats_json = output_dir / "hydrologist_stats.json"
         # TODO Phase 4: self.codebase_md = output_dir / "CODEBASE.md"
         # TODO Phase 4: self.onboarding_brief_md = output_dir / "onboarding_brief.md"
 
@@ -54,7 +57,7 @@ def run_phase1(
     velocity_days: int = 30,
     clone_base: Optional[Path] = None,
     full_history: bool = False,
-) -> CartographyArtifacts:
+) -> tuple["CartographyArtifacts", "KnowledgeGraph", Path]:
     """
     Run the full Phase 1 pipeline (Surveyor only).
 
@@ -67,7 +70,7 @@ def run_phase1(
                        Ignored for local paths.  Default: shallow --depth=50.
 
     Returns:
-        CartographyArtifacts with paths to all written files.
+        Tuple of (CartographyArtifacts, KnowledgeGraph, repo_root).
 
     Raises:
         RepoLoadError: if the target cannot be resolved.
@@ -103,11 +106,55 @@ def run_phase1(
         "Phase 1 complete.  Artifacts written to: %s",
         output_dir.resolve(),
     )
-    return artifacts
+    return artifacts, result.graph, repo_root
 
 
 # ---------------------------------------------------------------------------
-# TODO Phase 2: add run_phase2(artifacts, repo_root) that calls Hydrologist
+# Phase 2: Hydrologist (data lineage)
+# ---------------------------------------------------------------------------
+
+
+def run_phase2(
+    artifacts: CartographyArtifacts,
+    graph: "KnowledgeGraph",
+    repo_root: Path,
+) -> "HydrologistResult":
+    """
+    Run Phase 2 (Hydrologist) — data-flow and lineage analysis.
+
+    Must be called after run_phase1() with the same graph instance.
+    """
+    from src.agents.hydrologist import Hydrologist, HydrologistResult
+    from src.graph.knowledge_graph import KnowledgeGraph
+
+    logger.info("=== Brownfield Cartographer — Phase 2 (Hydrologist) ===")
+
+    hydrologist = Hydrologist()
+    result: HydrologistResult = hydrologist.run(graph, repo_root)
+
+    # ---- Persist lineage graph -----------------------------------------
+    graph.save_lineage(artifacts.lineage_graph_json)
+
+    # ---- Persist lineage visualization ---------------------------------
+    graph.export_lineage_viz(artifacts.lineage_viz_html)
+
+    # ---- Append trace entries ------------------------------------------
+    _write_trace_entries(artifacts.trace_jsonl, result.trace)
+
+    # ---- Write stats ----------------------------------------------------
+    _write_hydrologist_stats(artifacts.hydrologist_stats_json, result.stats)
+
+    # ---- Re-save the unified graph (now with lineage edges) ------------
+    graph.save(artifacts.module_graph_json)
+
+    logger.info(
+        "Phase 2 complete.  Lineage artifacts written to: %s",
+        artifacts.output_dir.resolve(),
+    )
+    return result
+
+
+# ---------------------------------------------------------------------------
 # TODO Phase 3: add run_phase3(artifacts, repo_root) that calls Semanticist
 # TODO Phase 4: add run_phase4(artifacts, repo_root) that calls Archivist
 # These will be chained inside a run_full_pipeline() function.
@@ -137,3 +184,18 @@ def _write_stats(
     with stats_path.open("w", encoding="utf-8") as fh:
         json.dump(payload, fh, indent=2, default=str)
     logger.info("Wrote surveyor stats → %s", stats_path)
+
+
+def _write_trace_entries(trace_path: Path, trace: list) -> None:
+    """Append TraceEntry records from any agent to the JSONL audit log."""
+    with trace_path.open("a", encoding="utf-8") as fh:
+        for entry in trace:
+            fh.write(entry.model_dump_json() + "\n")
+    logger.info("Wrote %d trace entries → %s", len(trace), trace_path)
+
+
+def _write_hydrologist_stats(stats_path: Path, stats: dict) -> None:
+    """Write the Hydrologist stats summary to a JSON file."""
+    with stats_path.open("w", encoding="utf-8") as fh:
+        json.dump(stats, fh, indent=2, default=str)
+    logger.info("Wrote hydrologist stats → %s", stats_path)
