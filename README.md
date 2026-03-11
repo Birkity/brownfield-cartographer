@@ -17,6 +17,28 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 
 ---
 
+## Supported Languages
+
+| Language | Extensions | Analysis method | What is extracted |
+|----------|-----------|-----------------|-------------------|
+| Python | `.py`, `.pyi` | tree-sitter AST | imports, functions, classes, cyclomatic complexity |
+| SQL | `.sql` | regex (dbt Jinja) | `{{ ref() }}` / `{{ source() }}` model dependencies |
+| YAML | `.yml`, `.yaml` | tree-sitter AST | top-level keys |
+| JavaScript | `.js`, `.mjs`, `.cjs` | tree-sitter AST | imports, functions |
+| TypeScript | `.ts`, `.tsx` | tree-sitter AST | imports, functions |
+| Java | `.java` | regex | `import` statements |
+| Kotlin | `.kt`, `.kts` | regex | `import` statements |
+| Scala | `.scala`, `.sc` | regex | `import` statements |
+| Go | `.go` | regex | `import` paths |
+| Rust | `.rs` | regex | `use` declarations |
+| C# | `.cs` | regex | `using` directives |
+| Ruby | `.rb` | regex | `require` / `require_relative` |
+| Shell | `.sh`, `.bash`, `.zsh` | LOC only | file inventoried |
+
+> Regex-based languages need **no extra installation** — they work immediately after `uv pip install -e .`
+
+---
+
 ## Prerequisites
 
 - Python 3.11+
@@ -38,6 +60,9 @@ This installs all required dependencies including:
 - `pydantic` for typed data models
 - `click` + `rich` for the CLI
 - `sqlglot` (ready for Phase 2 SQL lineage analysis)
+
+> **Java, Kotlin, Scala, Go, Rust, C#, Ruby, Shell** are supported out of the box via regex-based
+> import extraction — no additional grammar packages needed for these languages.
 
 > **Note on `tree-sitter-sql`**: The SQL tree-sitter grammar is optional.
 > If you want it: `uv pip install -e ".[sql-grammar]"`.
@@ -102,7 +127,7 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 | `module_graph.json` | NetworkX node-link JSON of the import graph (IMPORTS + DBT_REF edges) |
 | `module_graph_modules.json` | Full ModuleNode records (imports, dbt_refs, functions, classes, complexity, velocity) |
 | `cartography_trace.jsonl` | Audit log: one JSON line per agent action |
-| `surveyor_stats.json` | Summary: hub counts, import edges, dbt_ref_edges, cycles, velocity, elapsed |
+| `surveyor_stats.json` | Summary: hub counts, import edges, dbt_ref_edges, cycles, velocity, elapsed, **project_type** |
 | `module_graph.png` | Visual graph export (matplotlib; pydot/Graphviz used if installed) |
 
 ### Expected output for jaffle-shop
@@ -114,6 +139,7 @@ Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 now finds:
 - **Import graph**: **11 DBT_REF edges** (was 0 before) connecting marts → staging models
 - **PageRank**: staging models correctly identified as architectural hubs
 - **Complexity scores**: populated for all Python files (0.0 for SQL/YAML)
+- **Project type**: `dbt` (detected from `dbt_project.yml`)
 
 ---
 
@@ -126,8 +152,8 @@ src/
 ├── models/
 │   └── nodes.py               # Pydantic schemas: ModuleNode, FunctionNode, TraceEntry…
 ├── analyzers/
-│   ├── language_router.py     # Extension → Language routing + skip logic
-│   ├── tree_sitter_analyzer.py# AST parsing + cyclomatic complexity for Python/SQL/YAML/JS/TS
+│   ├── language_router.py     # Extension → Language routing (28 extensions, 14 languages)
+│   ├── tree_sitter_analyzer.py# AST parsing (Python/YAML/JS/TS) + regex extraction (Java/Go/Rust/C#/Ruby/Kotlin/Scala/Shell)
 │   └── dbt_helpers.py         # Regex extraction of {{ ref() }} and {{ source() }} from SQL
 ├── agents/
 │   └── surveyor.py            # Surveyor: file scan → graph → PageRank/SCC
@@ -149,6 +175,28 @@ uv run cartographer analyze /path/to/your/week1-code --output-dir .cartography/s
 
 Compare the generated `module_graph_modules.json` against your own `ARCHITECTURE_NOTES.md`
 to see what the automated analysis found vs. what you documented manually.
+
+---
+
+## Running on Any Repo Type
+
+Phase 1 v3 automatically detects the project type and supports 14 languages. Run it on anything:
+
+```bash
+# Go microservice
+uv run cartographer analyze /path/to/go-service
+
+# Java Spring Boot app
+uv run cartographer analyze /path/to/java-app
+
+# React front-end
+uv run cartographer analyze /path/to/react-app
+
+# Rust CLI tool
+uv run cartographer analyze /path/to/rust-project
+```
+
+The CLI overview table will show a **Project type** row (e.g. `go`, `java-maven`, `react`, `rust`, `django`, `nextjs`) detected from root config files (`go.mod`, `pom.xml`, `package.json`, etc.).
 
 ---
 

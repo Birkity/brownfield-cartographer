@@ -4,7 +4,7 @@
 **Date**: March 11, 2026 (updated)
 **Phase**: 1 of 4 — Static Structure Analysis (Surveyor)  
 **Primary Target**: https://github.com/dbt-labs/jaffle-shop  
-**Status**: Complete and validated (v2 — five improvements applied)
+**Status**: Complete and validated (v3 — universal repo support added)
 
 ---
 
@@ -20,7 +20,8 @@
 8. [How to Install and Test](#8-how-to-install-and-test)  
 9. [Known Limitations and Why They Are Acceptable](#9-known-limitations-and-why-they-are-acceptable)  
 10. [How to Improve Phase 1](#10-how-to-improve-phase-1)  
-11. [Phase 1 v2 — Five Improvements Applied](#11-phase-1-v2--five-improvements-applied)
+11. [Phase 1 v2 — Five Improvements Applied](#11-phase-1-v2--five-improvements-applied)  
+12. [Phase 1 v3 — Universal Repo Support](#12-phase-1-v3--universal-repo-support)
 
 ---
 
@@ -39,16 +40,16 @@ The central question Phase 1 answers is:
 | A directed `IMPORTS` graph | Edges: A → B means "module A imports module B" |
 | PageRank scores | Identifies architectural hubs — the most imported, most central modules |
 | Strongly Connected Component analysis | Detects circular import dependencies |
-| Dead-code candidates | Python modules with no in-edges (never imported by anything tracked) |
+| Dead-code candidates | Python, JS/TS, and SQL modules with no in-edges (never imported/referenced) |
 | Git change velocity | Per-file commit counts for the last N days |
-| Four serialized artifacts | `module_graph.json`, `module_graph_modules.json`, `cartography_trace.jsonl`, `surveyor_stats.json` |
+| Project type detection | Auto-detects dbt, React, Django, Go, Rust, Java, etc. from config files |
+| Five serialized artifacts | `module_graph.json`, `module_graph_modules.json`, `cartography_trace.jsonl`, `surveyor_stats.json`, `module_graph.png` |
 
 ### What is NOT in Phase 1 (by design)
 
 | Feature | Phase it belongs to |
 |---------|---------------------|
-| SQL data lineage (which table feeds which) | Phase 2 — Hydrologist (sqlglot) |
-| dbt `{{ ref() }}` DAG extraction | Phase 2 — Hydrologist |
+| Deep SQL data lineage (table-to-table via sqlglot) | Phase 2 — Hydrologist |
 | LLM-generated purpose statements | Phase 3 — Semanticist |
 | Documentation drift detection | Phase 3 — Semanticist |
 | CODEBASE.md generation | Phase 4 — Archivist |
@@ -73,8 +74,9 @@ brownfield-cartographer/
     │   └── nodes.py                       # ALL Pydantic schemas
     ├── analyzers/
     │   ├── __init__.py
-    │   ├── language_router.py             # Extension → Language + skip logic
-    │   └── tree_sitter_analyzer.py        # AST parsing for all supported languages
+    │   ├── language_router.py             # Extension → Language + skip logic (28 extensions, 14 languages)
+    │   ├── tree_sitter_analyzer.py        # AST parsing (Python/YAML/JS/TS) + regex extraction (Java/Go/Rust/C#/Ruby/Kotlin/Scala/Shell)
+    │   └── dbt_helpers.py                 # Regex extraction of {{ ref() }} and {{ source() }} from SQL
     ├── agents/
     │   ├── __init__.py
     │   └── surveyor.py                    # Surveyor agent: orchestrates analysis loop
@@ -109,9 +111,11 @@ All schemas live in `src/models/nodes.py`. Pydantic v2 is used throughout, givin
 
 ### `Language` (Enum)
 
-Values: `PYTHON`, `SQL`, `YAML`, `JAVASCRIPT`, `TYPESCRIPT`, `UNKNOWN`
+Values: `PYTHON`, `SQL`, `YAML`, `JAVASCRIPT`, `TYPESCRIPT`, `JAVA`, `SCALA`, `KOTLIN`, `GO`, `RUST`, `CSHARP`, `RUBY`, `SHELL`, `UNKNOWN`
 
 Used by `LanguageRouter` to classify files and by `ModuleNode` to record what was parsed.
+
+> **v3 note**: Java, Scala, Kotlin, Go, Rust, C#, Ruby, and Shell were added in Phase 1 v3. These eight languages use regex-based import extraction — no tree-sitter grammar is required.
 
 ### `ImportInfo` (embedded in ModuleNode)
 
@@ -283,13 +287,14 @@ This is the most complex module. It encapsulates all AST parsing via tree-sitter
 
 #### `analyze_file(abs_path, rel_path, language) → ModuleNode`
 
-**What it does**: Reads the file, parses it with the correct tree-sitter grammar, extracts all structural elements, and returns a populated `ModuleNode`. **Never raises** — all failures go into `ModuleNode.parse_error`.
+**What it does**: Reads the file, parses it with the correct tree-sitter grammar or regex extractor, extracts all structural elements, and returns a populated `ModuleNode`. **Never raises** — all failures go into `ModuleNode.parse_error`.
 
 **Internal pipeline**:
 1. `abs_path.read_bytes()` — always binary to handle encoding issues
-2. `_get_grammar(lang_key)` — loads (or returns cached) tree-sitter `Language` object
-3. `Parser(language).parse(source)` — produces an AST tree
-4. Language-specific extractor (`_parse_python_imports`, etc.) — runs S-expression queries against the AST
+2. **Regex-first route** (JAVA, SCALA, KOTLIN, GO, RUST, CSHARP, RUBY, SHELL): calls `_extract_imports_by_regex()` and returns immediately — no tree-sitter grammar needed.
+3. `_get_grammar(lang_key)` — loads (or returns cached) tree-sitter `Language` object for Python/YAML/JS/TS
+4. `Parser(language).parse(source)` — produces an AST tree
+5. Language-specific extractor (`_parse_python_imports`, etc.) — runs S-expression queries against the AST
 
 #### `_get_grammar(lang_name) → Language | None`
 
@@ -347,7 +352,10 @@ Wraps a `networkx.DiGraph` with a typed API. Internally maintains two parallel s
 
 **`strongly_connected_components()`**: Runs `networkx.strongly_connected_components()`. Returns only components with >1 node (the trivial SCC of a single node is not a circular dependency). Result is sorted by component size descending.
 
-**`dead_code_candidates()`**: Returns Python module paths with `in_degree() == 0` in the graph. Only Python files are considered — SQL and YAML files are data artifacts, not importable modules, so "never imported" is meaningless for them.
+**`dead_code_candidates()`**: Returns module paths with `in_degree() == 0` in the graph. Three language classes are checked:
+- **Python**: any `.py` file with no in-edges.
+- **JS/TS**: any `.js/.ts/.tsx` file with no in-edges, excluding common entry-point filenames (`index.*`, `main.*`, `app.*`, `server.*`, etc.).
+- **SQL (dbt)**: any SQL model with no DBT_REF in-edges, excluding `seeds/` and `macros/` directories (dbt entry-point exemptions). Only activated when at least one SQL file has dbt_refs > 0.
 
 **`hub_modules(top_n)`**: Returns the top-N tracked modules (excludes external packages) by PageRank score.
 
@@ -797,6 +805,28 @@ javascript : OK
 typescript : OK
 ```
 
+> **Note**: Java, Scala, Kotlin, Go, Rust, C#, Ruby, and Shell do **not** use tree-sitter grammars. They use regex-based import extraction and will always work without any grammar installation.
+
+### Test 1b: Regex language support
+
+```bash
+python -c "
+from pathlib import Path
+from src.analyzers.tree_sitter_analyzer import analyze_file
+from src.models.nodes import Language
+
+# Java test (requires a .java file)
+# result = analyze_file(Path('MyClass.java'), 'MyClass.java', Language.JAVA)
+# print('Java imports:', len(result.imports))
+
+from src.analyzers.language_router import LanguageRouter
+router = LanguageRouter()
+for ext in ['.java', '.kt', '.go', '.rs', '.cs', '.rb', '.scala', '.sh']:
+    result = router.route(Path('test' + ext))
+    print(ext, '->', result.language)
+"
+```
+
 ### Test 2: Single file analysis
 
 ```bash
@@ -911,11 +941,11 @@ python -m src.cli analyze --help
 
 **Resolution**: Phase 2 replaces tree-sitter SQL extraction entirely with sqlglot's `ast.parse()` and `lineage.lineage()` APIs.
 
-### Limitation 2: Import edges are 0 for dbt/SQL repos
+### Limitation 2: ~~Import edges are 0 for dbt/SQL repos~~ (Resolved in v2)
 
-**What happens**: The jaffle-shop analysis shows 0 import edges because dbt models don't use Python `import` statements. Dependencies are expressed via `{{ ref('stg_orders') }}` inside SQL templates.
+**Fixed in Phase 1 v2**: dbt `{{ ref() }}` parsing was added via `src/analyzers/dbt_helpers.py`. Jaffle-shop now shows **11 DBT_REF edges** and staging models correctly rank as PageRank hubs. See Section 11 for full details.
 
-**Why acceptable**: The import graph is a **Python-centric** structural view. For dbt projects, the equivalent structural view is the dbt DAG: which model's SQL output feeds which other model. This is exactly what Phase 2 builds. Phase 1 still correctly inventories all SQL files, records their LOC, and sets the stage.
+**Remaining scope**: Deep SQL data lineage (which column from table A flows into table B, across CTEs and subqueries) is still a Phase 2 (Hydrologist / sqlglot) concern.
 
 ### Limitation 3: Shallow clone git velocity
 
@@ -1041,18 +1071,19 @@ Phase 1 builds a complete, production-quality structural foundation:
 
 | Capability | Status |
 |-----------|--------|
-| Multi-language file inventory | ✅ Python, SQL, YAML, JS, TS |
-| Per-file AST parsing | ✅ tree-sitter 0.25, graceful fallback |
-| Import extraction | ✅ absolute, relative, aliased |
-| Function + class extraction | ✅ with signatures, docstrings, inheritance |
+| Multi-language file inventory | ✅ Python, SQL, YAML, JS, TS, Java, Kotlin, Scala, Go, Rust, C#, Ruby, Shell |
+| Per-file AST parsing | ✅ tree-sitter 0.25 (Python/YAML/JS/TS) + regex (8 JVM/systems languages) |
+| Import extraction | ✅ absolute, relative, aliased; regex for non-Python languages |
+| Function + class extraction | ✅ with signatures, docstrings, inheritance (Python/JS/TS) |
 | Git change velocity | ✅ with Pareto core detection |
-| Module import graph (NetworkX) | ✅ directed, typed edges |
+| Module import graph (NetworkX) | ✅ directed, typed edges (`IMPORTS` + `DBT_REF`) |
 | PageRank (hub detection) | ✅ validated against own codebase |
 | Circular dependency detection | ✅ via SCC |
-| Dead-code candidate detection | ✅ Python-only, correct |
-| JSON serialization (4 artifacts) | ✅ node-link JSON + modules + trace + stats |
+| Dead-code candidate detection | ✅ Python + SQL + JS/TS (with entry-point exemptions) |
+| Project type detection | ✅ dbt/React/Django/Go/Rust/Java-Maven/Java-Gradle/… |
+| JSON serialization (5 artifacts) | ✅ node-link JSON + modules + trace + stats + PNG |
 | Audit trace (JSONL) | ✅ every action logged |
-| CLI (click + rich) | ✅ with summary tables |
+| CLI (click + rich) | ✅ with summary tables; project type shown |
 | GitHub URL cloning | ✅ with SSRF protection + caching |
 | Graceful failure handling | ✅ no crash on missing grammars/git |
 | Phase 2/3/4 integration stubs | ✅ TODO markers at every hook point |
@@ -1258,3 +1289,151 @@ A SQL model is flagged as a dead-code candidate if:
 | `src/cli.py` | Modified | `--full-history` flag; `dbt_ref_edges` in summary; `viz_png` in artifacts |
 | `pyproject.toml` | Modified | Added `matplotlib>=3.8` dependency |
 | `README.md` | Modified | Updated examples, artifact table, project structure |
+
+---
+
+## 12. Phase 1 v3 — Universal Repo Support
+
+**Date applied**: March 2026  
+**Summary**: Extended Phase 1 to handle any kind of repository — not just Python or dbt projects — by adding 8 new languages via regex-based extraction, automatic project-type detection, and improved JS/TS import resolution.
+
+---
+
+### Change 1: 8 New Languages via Regex Extraction
+
+**Problem**: Phase 1 only analysed Python, SQL, YAML, JavaScript, and TypeScript. Running cartographer on a Java service, a Go microservice, or a Rust codebase produced only LOC counts with no import graph.
+
+**Solution**: Added regex-based import extraction for 8 additional languages. These bypass the tree-sitter pipeline entirely — no grammar package installation required.
+
+| Language | Extensions | Regex pattern | What is extracted |
+|----------|-----------|---------------|-------------------|
+| Java | `.java` | `import X;` / `import static X;` | Package-qualified class names |
+| Kotlin | `.kt`, `.kts` | `import X` | Package-qualified names |
+| Scala | `.scala`, `.sc` | `import X` | Package-qualified names |
+| Go | `.go` | quoted strings in `import ( ... )` blocks | Module paths (`"github.com/…"`) |
+| Rust | `.rs` | `use X;` / `use X::Y;` | Module paths |
+| C# | `.cs` | `using X;` | Namespace names |
+| Ruby | `.rb` | `require 'X'` / `require_relative 'X'` | File or gem names |
+| Shell | `.sh`, `.bash`, `.zsh` | (no imports extracted) | File inventoried, LOC counted |
+
+**Implementation**: `_REGEX_ONLY_LANGUAGES` set in `tree_sitter_analyzer.py` triggers an early-exit path in `analyze_file()` before any grammar loading. `_init_regex_patterns()` compiles patterns once at module load; `_extract_imports_by_regex(source_text, language)` dispatches per-language.
+
+**New `EXTENSION_TO_LANGUAGE` entries**: 12 new extension mappings added to `LanguageRouter` (`.java`, `.scala`, `.sc`, `.kt`, `.kts`, `.go`, `.rs`, `.cs`, `.rb`, `.sh`, `.bash`, `.zsh`).
+
+---
+
+### Change 2: Automatic Project Type Detection
+
+**Problem**: The CLI summary showed codebase metrics without any context about what *kind* of project was being analysed. An FDE couldn't tell from the output whether they were looking at a Django API, a React app, or a Go service.
+
+**Solution**: Added `Surveyor._detect_project_type(repo_root) → str` which reads config files in the repository root in priority order:
+
+| Config file detected | `project_type` value |
+|---------------------|---------------------|
+| `dbt_project.yml` | `"dbt"` |
+| `go.mod` | `"go"` |
+| `Cargo.toml` | `"rust"` |
+| `pom.xml` | `"java-maven"` |
+| `build.gradle` / `build.gradle.kts` | `"java-gradle"` |
+| `package.json` + `"next"` dep | `"nextjs"` |
+| `package.json` + `"@angular/core"` dep | `"angular"` |
+| `package.json` + `"vue"` dep | `"vue"` |
+| `package.json` + `"react"` dep | `"react"` |
+| `package.json` + `"express"` dep | `"express"` |
+| `requirements.txt` / `pyproject.toml` + `"django"` | `"django"` |
+| `requirements.txt` / `pyproject.toml` + `"fastapi"` | `"fastapi"` |
+| `requirements.txt` / `pyproject.toml` + `"flask"` | `"flask"` |
+| `requirements.txt` / `pyproject.toml` + `"apache-airflow"` | `"airflow"` |
+| `requirements.txt` / `pyproject.toml` + `"pyspark"` | `"pyspark"` |
+| `manage.py` present | `"django"` |
+| Majority file-extension count | language name (e.g. `"python"`, `"java"`) |
+| None of the above | `"unknown"` |
+
+**`project_type` is stored in `surveyor_stats.json`** and shown as the first row of the CLI overview table (in cyan, displayed only when `project_type != "unknown"`).
+
+---
+
+### Change 3: JS/TS Import Path Resolution Fix
+
+**Problem**: JavaScript/TypeScript relative imports (`../utils/helpers`, `./components/Button`) were not being resolved to file paths. Relative `../` traversals produced incorrect paths, and the graph showed 0 JS/TS import edges even for repos with clear internal dependencies.
+
+**Solution**: Rewrote `Surveyor._resolve_js_import()` using `posixpath.normpath` for correct `../` resolution:
+
+```python
+def _resolve_js_import(self, importing_file: str, import_path: str, ...) -> str | None:
+    if import_path.startswith("."):
+        base = posixpath.dirname(importing_file)
+        resolved = posixpath.normpath(posixpath.join(base, import_path))
+        # Try extensions: .ts, .tsx, .js, .jsx
+        for ext in (".ts", ".tsx", ".js", ".jsx"):
+            if resolved + ext in module_index:
+                return resolved + ext
+        # Try index file fallback: resolved/index.ts etc.
+        for ext in (".ts", ".tsx", ".js", ".jsx"):
+            candidate = posixpath.join(resolved, "index" + ext)
+            if candidate in module_index:
+                return candidate
+        return None
+    else:
+        return None  # External package — skip
+```
+
+External package imports (no leading `.`) return `None` and are silently skipped, matching the Python import resolution behaviour.
+
+---
+
+### Change 4: JS/TS Dead-Code Detection
+
+**New**: `dead_code_candidates()` now checks JS/TS files. Entry-point filenames are exempt:
+
+```python
+_JS_ENTRY_POINTS = frozenset({
+    "index", "main", "app", "server", "entry", "bootstrap",
+    "index.min", "bundle"
+})
+```
+
+A JS/TS file is a dead-code candidate if its stem (filename without extension) is not in `_JS_ENTRY_POINTS` and its import in-degree is 0.
+
+---
+
+### Change 5: 9 New Language Colors in PNG Visualization
+
+Added language-specific node colors to `KnowledgeGraph.export_viz()`:
+
+| Language | Color | Hex |
+|----------|-------|-----|
+| Java | Blue | `#5382A1` |
+| Kotlin | Purple | `#7F52FF` |
+| Scala | Dark red | `#DC322F` |
+| Go | Teal | `#00ACD7` |
+| Rust | Orange | `#CE422B` |
+| C# | Dark green | `#178600` |
+| Ruby | Red | `#CC342D` |
+| Shell | Olive | `#89E051` |
+| TypeScript | Blue | `#2B7489` |
+
+---
+
+### Before / After Summary
+
+| Metric | Phase 1 v2 | Phase 1 v3 |
+|--------|-----------|-----------|
+| Languages supported | 5 (Python, SQL, YAML, JS, TS) | **14** (+Java, Kotlin, Scala, Go, Rust, C#, Ruby, Shell) |
+| Import extraction method | tree-sitter only | tree-sitter **+ regex** (no grammar install needed) |
+| JS/TS edge resolution | Broken (`../` paths failed) | **Fixed** (`posixpath.normpath` + extension tries) |
+| Dead-code detection | Python + SQL | **Python + SQL + JS/TS** |
+| Project type | Not detected | **Auto-detected** from config files |
+| CLI overview | Generic | **Shows `Project type:` row** |
+| PNG node colors | 4 languages | **14 languages** |
+
+### Files changed in v3
+
+| File | Change type | Summary |
+|------|-------------|---------|
+| `src/models/nodes.py` | Modified | Added 8 values to `Language` enum |
+| `src/analyzers/language_router.py` | Modified | 12 new extension entries in `EXTENSION_TO_LANGUAGE` |
+| `src/analyzers/tree_sitter_analyzer.py` | Modified | `_REGEX_ONLY_LANGUAGES`, `_init_regex_patterns()`, `_extract_imports_by_regex()`, early-exit path in `analyze_file()` |
+| `src/agents/surveyor.py` | Modified | `_resolve_js_import()` rewrite; `_detect_project_type()`; `project_type` in stats |
+| `src/graph/knowledge_graph.py` | Modified | JS/TS dead-code with entry-point exemption; 9 new language colors |
+| `src/cli.py` | Modified | `Project type` row in overview table |
