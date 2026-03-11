@@ -1,99 +1,4 @@
 {
-  "_test_dbt.py": {
-    "path": "_test_dbt.py",
-    "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\_test_dbt.py",
-    "language": "python",
-    "imports": [
-      {
-        "module": "src.analyzers.dbt_helpers",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 1
-      }
-    ],
-    "functions": [],
-    "classes": [],
-    "lines_of_code": 5,
-    "complexity_score": 1.0,
-    "change_velocity_30d": 0,
-    "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null,
-    "dbt_refs": []
-  },
-  "_test_improvements.py": {
-    "path": "_test_improvements.py",
-    "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\_test_improvements.py",
-    "language": "python",
-    "imports": [
-      {
-        "module": "json",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 2
-      },
-      {
-        "module": "tempfile",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 17
-      },
-      {
-        "module": "os",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 17
-      },
-      {
-        "module": "pathlib",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 3
-      },
-      {
-        "module": "src.analyzers.tree_sitter_analyzer",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 4
-      },
-      {
-        "module": "src.models.nodes",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 5
-      },
-      {
-        "module": "src.graph.knowledge_graph",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 30
-      },
-      {
-        "module": "src.models.nodes",
-        "names": [],
-        "alias": null,
-        "is_relative": false,
-        "line": 31
-      }
-    ],
-    "functions": [],
-    "classes": [],
-    "lines_of_code": 52,
-    "complexity_score": 2.0,
-    "change_velocity_30d": 0,
-    "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null,
-    "dbt_refs": []
-  },
   "src/__init__.py": {
     "path": "src/__init__.py",
     "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\src\\__init__.py",
@@ -135,6 +40,34 @@
         "alias": null,
         "is_relative": false,
         "line": 25
+      },
+      {
+        "module": "posixpath",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 327
+      },
+      {
+        "module": "json",
+        "names": [],
+        "alias": "_json",
+        "is_relative": false,
+        "line": 450
+      },
+      {
+        "module": "tomllib",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 517
+      },
+      {
+        "module": "tomli",
+        "names": [],
+        "alias": "tomllib",
+        "is_relative": false,
+        "line": 521
       },
       {
         "module": "datetime",
@@ -193,18 +126,32 @@
         "line": 34
       },
       {
-        "module": "src.models.nodes",
+        "module": "pathlib",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 368
+        "line": 326
       },
       {
         "module": "pathlib",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 374
+        "line": 422
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 577
+      },
+      {
+        "module": "pathlib",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 583
       }
     ],
     "functions": [
@@ -235,7 +182,7 @@
         "signature": "def run(\r\n        self,\r\n        repo_root: Path,\r\n        velocity_days: Optional[int] = None,\r\n    ) -> SurveyorResult",
         "is_public_api": true,
         "line": 79,
-        "end_line": 256,
+        "end_line": 258,
         "docstring": "Execute the full Surveyor analysis on *repo_root*.\r\n\r\n        Args:\r\n            repo_root:      Absolute path to the local repository.\r\n            velocity_days:  Override the default window for git velocity analysis.\r\n\r\n        Returns:\r\n            SurveyorResult containing the KnowledgeGraph and audit trace."
       },
       {
@@ -244,9 +191,19 @@
         "parent_module": "src/agents/surveyor.py",
         "signature": "def _build_import_edges(self, graph: KnowledgeGraph, repo_root: Path) -> int",
         "is_public_api": false,
-        "line": 262,
-        "end_line": 303,
-        "docstring": "Resolve imports in each Python module to graph edges.\r\n\r\n        For absolute imports (e.g. `import src.utils.git_tools`), we try to\r\n        match against known module paths.  For relative imports we resolve\r\n        relative to the importing file's directory.\r\n\r\n        Returns the total number of edges added."
+        "line": 264,
+        "end_line": 305,
+        "docstring": "Resolve imports in each module to graph edges.\r\n\r\n        Python: dotted-name lookup + relative import resolution.\r\n        JS/TS:  relative path resolution (./Foo, ../utils/bar).\r\n        Other languages (Java, Go, Rust, etc.): dotted/path suffix matching.\r\n\r\n        Returns the total number of edges added."
+      },
+      {
+        "name": "_resolve_js_import",
+        "qualified_name": "_resolve_js_import",
+        "parent_module": "src/agents/surveyor.py",
+        "signature": "def _resolve_js_import(\r\n        self,\r\n        module: str,\r\n        source_path: str,\r\n        tracked_paths: set[str],\r\n    ) -> Optional[str]",
+        "is_public_api": false,
+        "line": 307,
+        "end_line": 353,
+        "docstring": "Resolve a JS/TS import specifier to a known module path.\r\n\r\n        Handles:\r\n          - Relative paths: ./Button, ../utils/helpers\r\n          - Extension-less paths (tries .ts, .tsx, .js, .jsx)\r\n          - Index files: ./components \u2192 ./components/index.tsx\r\n\r\n        Returns None for bare package names (react, lodash, @scope/pkg)."
       },
       {
         "name": "_resolve_import",
@@ -254,8 +211,8 @@
         "parent_module": "src/agents/surveyor.py",
         "signature": "def _resolve_import(\r\n        self,\r\n        import_module: str,\r\n        source_path: str,\r\n        tracked_paths: set[str],\r\n        dotted_to_path: dict[str, str],\r\n    ) -> Optional[str]",
         "is_public_api": false,
-        "line": 305,
-        "end_line": 353,
+        "line": 355,
+        "end_line": 403,
         "docstring": "Try to resolve an import string to a known module path.\r\n\r\n        Resolution order:\r\n        1. Exact dotted-name match in our index\r\n        2. Relative import resolution from source file's directory\r\n        3. Partial (suffix) match as a last resort\r\n\r\n        Returns None for third-party or unresolvable imports."
       },
       {
@@ -264,9 +221,19 @@
         "parent_module": "src/agents/surveyor.py",
         "signature": "def _build_dbt_ref_edges(self, graph: KnowledgeGraph) -> int",
         "is_public_api": false,
-        "line": 355,
-        "end_line": 391,
+        "line": 405,
+        "end_line": 439,
         "docstring": "Create DBT_REF edges from {{ ref('model_name') }} calls in SQL files.\r\n\r\n        Algorithm:\r\n        1. Index all SQL modules by their file stem:\r\n           e.g. \"models/staging/stg_orders.sql\" \u2192 key \"stg_orders\"\r\n        2. For each SQL module, iterate its dbt_refs (populated by dbt_helpers)\r\n        3. Resolve each ref name to a SQL file path via the stem index\r\n        4. Add a DBT_REF edge: current_file \u2192 referenced_model\r\n\r\n        Returns the number of edges added."
+      },
+      {
+        "name": "_detect_project_type",
+        "qualified_name": "_detect_project_type",
+        "parent_module": "src/agents/surveyor.py",
+        "signature": "def _detect_project_type(self, repo_root: Path) -> str",
+        "is_public_api": false,
+        "line": 441,
+        "end_line": 600,
+        "docstring": "Detect the primary project type by scanning for well-known config files.\r\n\r\n        Returns a lowercase string such as: \"dbt\", \"django\", \"fastapi\",\r\n        \"apache-airflow\", \"react\", \"nextjs\", \"angular\", \"vue\", \"express\",\r\n        \"go\", \"rust\", \"java-maven\", \"java-gradle\", \"ruby-rails\", \"pyspark\",\r\n        \"python\", \"node\", or \"unknown\"."
       }
     ],
     "classes": [
@@ -288,22 +255,24 @@
         "parent_module": "src/agents/surveyor.py",
         "bases": [],
         "line": 60,
-        "end_line": 391,
+        "end_line": 600,
         "methods": [
           "__init__",
           "run",
           "_build_import_edges",
+          "_resolve_js_import",
           "_resolve_import",
-          "_build_dbt_ref_edges"
+          "_build_dbt_ref_edges",
+          "_detect_project_type"
         ],
         "docstring": "Analyzes a repository's static structure and builds the module import graph.\r\n\r\n    Usage::\r\n\r\n        surveyor = Surveyor()\r\n        result = surveyor.run(repo_root=Path(\"/path/to/repo\"), velocity_days=30)\r\n        result.graph.save(Path(\".cartography/module_graph.json\"))"
       }
     ],
-    "lines_of_code": 335,
-    "complexity_score": 13.0,
-    "change_velocity_30d": 1,
+    "lines_of_code": 518,
+    "complexity_score": 27.0,
+    "change_velocity_30d": 2,
     "is_dead_code_candidate": false,
-    "last_modified": "2026-03-10T14:48:55+03:00",
+    "last_modified": "2026-03-11T10:39:31+03:00",
     "parse_error": null,
     "dbt_refs": []
   },
@@ -360,9 +329,9 @@
     "classes": [],
     "lines_of_code": 35,
     "complexity_score": 1.0,
-    "change_velocity_30d": 0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
+    "last_modified": "2026-03-11T10:39:31+03:00",
     "parse_error": null,
     "dbt_refs": []
   },
@@ -407,8 +376,8 @@
         "parent_module": "src/analyzers/language_router.py",
         "signature": "def route(self, path: Path) -> RouterResult",
         "is_public_api": true,
-        "line": 133,
-        "end_line": 168,
+        "line": 148,
+        "end_line": 183,
         "docstring": "Classify *path* by language.\r\n\r\n        Returns a RouterResult where ``supported=True`` means the Cartographer\r\n        has a grammar for this file type.  ``supported=False`` is not an error \u2014\r\n        it just means we skip this file silently (logged at DEBUG level)."
       },
       {
@@ -417,8 +386,8 @@
         "parent_module": "src/analyzers/language_router.py",
         "signature": "def should_skip_dir(self, dir_name: str) -> bool",
         "is_public_api": true,
-        "line": 170,
-        "end_line": 172,
+        "line": 185,
+        "end_line": 187,
         "docstring": "Return True if this directory name should be excluded from analysis."
       }
     ],
@@ -428,8 +397,8 @@
         "qualified_name": "RouterResult",
         "parent_module": "src/analyzers/language_router.py",
         "bases": [],
-        "line": 115,
-        "end_line": 122,
+        "line": 130,
+        "end_line": 137,
         "methods": [],
         "docstring": "Outcome of routing a single file path."
       },
@@ -438,8 +407,8 @@
         "qualified_name": "LanguageRouter",
         "parent_module": "src/analyzers/language_router.py",
         "bases": [],
-        "line": 130,
-        "end_line": 172,
+        "line": 145,
+        "end_line": 187,
         "methods": [
           "route",
           "should_skip_dir"
@@ -447,7 +416,7 @@
         "docstring": "Routes files to their Language and decides which directories to skip."
       }
     ],
-    "lines_of_code": 145,
+    "lines_of_code": 160,
     "complexity_score": 4.0,
     "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
@@ -468,95 +437,109 @@
         "line": 24
       },
       {
-        "module": "tree_sitter_python",
-        "names": [],
-        "alias": "mod",
-        "is_relative": false,
-        "line": 49
-      },
-      {
-        "module": "tree_sitter_yaml",
-        "names": [],
-        "alias": "mod",
-        "is_relative": false,
-        "line": 53
-      },
-      {
-        "module": "tree_sitter_javascript",
-        "names": [],
-        "alias": "mod",
-        "is_relative": false,
-        "line": 57
-      },
-      {
-        "module": "tree_sitter_typescript",
-        "names": [],
-        "alias": "mod",
-        "is_relative": false,
-        "line": 61
-      },
-      {
-        "module": "tree_sitter_sql",
-        "names": [],
-        "alias": "mod",
-        "is_relative": false,
-        "line": 66
-      },
-      {
-        "module": "pathlib",
+        "module": "re",
         "names": [],
         "alias": null,
         "is_relative": false,
         "line": 25
       },
       {
-        "module": "typing",
+        "module": "tree_sitter_python",
+        "names": [],
+        "alias": "mod",
+        "is_relative": false,
+        "line": 50
+      },
+      {
+        "module": "tree_sitter_yaml",
+        "names": [],
+        "alias": "mod",
+        "is_relative": false,
+        "line": 54
+      },
+      {
+        "module": "tree_sitter_javascript",
+        "names": [],
+        "alias": "mod",
+        "is_relative": false,
+        "line": 58
+      },
+      {
+        "module": "tree_sitter_typescript",
+        "names": [],
+        "alias": "mod",
+        "is_relative": false,
+        "line": 62
+      },
+      {
+        "module": "tree_sitter_sql",
+        "names": [],
+        "alias": "mod",
+        "is_relative": false,
+        "line": 67
+      },
+      {
+        "module": "pathlib",
         "names": [],
         "alias": null,
         "is_relative": false,
         "line": 26
       },
       {
+        "module": "typing",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 27
+      },
+      {
         "module": "src.models.nodes",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 28
+        "line": 29
       },
       {
         "module": "tree_sitter",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 46
+        "line": 47
       },
       {
         "module": "tree_sitter",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 88
+        "line": 89
       },
       {
         "module": "tree_sitter",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 108
+        "line": 109
       },
       {
         "module": "tree_sitter",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 129
+        "line": 130
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 631
       },
       {
         "module": "src.analyzers.dbt_helpers",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 652
+        "line": 720
       }
     ],
     "functions": [
@@ -566,8 +549,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _load_ts_language(lang_name: str) -> Optional[Any]",
         "is_public_api": false,
-        "line": 38,
-        "end_line": 75,
+        "line": 39,
+        "end_line": 76,
         "docstring": "Attempt to load a tree-sitter Language object for *lang_name*.\r\n\r\n    Returns None (not raises) when the grammar package is not installed,\r\n    so that the rest of the codebase degrades gracefully."
       },
       {
@@ -576,8 +559,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _make_query_cursor(language: Any, query_str: str) -> Any",
         "is_public_api": false,
-        "line": 78,
-        "end_line": 93,
+        "line": 79,
+        "end_line": 94,
         "docstring": "Create a (query, cursor) pair using the tree-sitter 0.25 API.\r\n\r\n    In 0.24/0.25 the query execution was split:\r\n      - Query(language, str) compiles the S-expression pattern.\r\n      - QueryCursor(query)   executes it against a specific node.\r\n    Returns None if the Query constructor raises (bad query string)."
       },
       {
@@ -586,8 +569,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _get_grammar(lang_name: str) -> Optional[Any]",
         "is_public_api": false,
-        "line": 100,
-        "end_line": 103,
+        "line": 101,
+        "end_line": 104,
         "docstring": null
       },
       {
@@ -596,8 +579,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _make_parser(language: Any) -> Any",
         "is_public_api": false,
-        "line": 106,
-        "end_line": 109,
+        "line": 107,
+        "end_line": 110,
         "docstring": "Create a tree-sitter Parser for *language*."
       },
       {
@@ -606,8 +589,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _run_query(language: Any, query_str: str, root_node: Any) -> dict[str, list[Any]]",
         "is_public_api": false,
-        "line": 117,
-        "end_line": 140,
+        "line": 118,
+        "end_line": 141,
         "docstring": "Execute a tree-sitter S-expression query and return all captures merged.\r\n\r\n    Uses the tree-sitter 0.25 API:\r\n        Query(lang, str) \u2192 compiles the pattern\r\n        QueryCursor(query).matches(root) \u2192 [(pattern_idx, {name: [Node]}), ...]\r\n\r\n    Returns:\r\n        {capture_name: [Node, ...]} \u2014 empty dict on any failure."
       },
       {
@@ -616,8 +599,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _text(node: Any) -> str",
         "is_public_api": false,
-        "line": 143,
-        "end_line": 150,
+        "line": 144,
+        "end_line": 151,
         "docstring": "Decode node bytes to str, replacing invalid bytes."
       },
       {
@@ -626,8 +609,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_python_imports(root_node: Any, rel_path: str) -> list[ImportInfo]",
         "is_public_api": false,
-        "line": 184,
-        "end_line": 198,
+        "line": 185,
+        "end_line": 199,
         "docstring": null
       },
       {
@@ -636,8 +619,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _extract_import_statement(node: Any) -> list[ImportInfo]",
         "is_public_api": false,
-        "line": 201,
-        "end_line": 225,
+        "line": 202,
+        "end_line": 226,
         "docstring": "Parse `import os`, `import os.path`, `import numpy as np`."
       },
       {
@@ -646,8 +629,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _extract_import_from_statement(node: Any) -> list[ImportInfo]",
         "is_public_api": false,
-        "line": 228,
-        "end_line": 266,
+        "line": 229,
+        "end_line": 267,
         "docstring": "Parse `from foo import bar`, `from . import baz`, `from foo import *`."
       },
       {
@@ -656,8 +639,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_python_functions(\r\n    root_node: Any, rel_path: str\r\n) -> list[FunctionNode]",
         "is_public_api": false,
-        "line": 269,
-        "end_line": 318,
+        "line": 270,
+        "end_line": 319,
         "docstring": null
       },
       {
@@ -666,8 +649,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_python_classes(root_node: Any, rel_path: str) -> list[ClassNode]",
         "is_public_api": false,
-        "line": 321,
-        "end_line": 373,
+        "line": 322,
+        "end_line": 374,
         "docstring": null
       },
       {
@@ -676,8 +659,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _extract_class_methods(class_node: Any) -> list[str]",
         "is_public_api": false,
-        "line": 376,
-        "end_line": 387,
+        "line": 377,
+        "end_line": 388,
         "docstring": "Return names of methods directly inside a class_definition node."
       },
       {
@@ -686,8 +669,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _extract_docstring(fn_or_class_node: Any) -> Optional[str]",
         "is_public_api": false,
-        "line": 390,
-        "end_line": 403,
+        "line": 391,
+        "end_line": 404,
         "docstring": "Extract the first docstring from a function_definition or class_definition."
       },
       {
@@ -696,8 +679,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _count_branch_nodes(root: Any) -> int",
         "is_public_api": false,
-        "line": 425,
-        "end_line": 437,
+        "line": 426,
+        "end_line": 438,
         "docstring": "Count decision-point AST nodes under *root* using an iterative traversal\r\n    (avoids hitting Python's recursion limit on deeply nested files)."
       },
       {
@@ -706,8 +689,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _compute_python_complexity(root_node: Any) -> float",
         "is_public_api": false,
-        "line": 440,
-        "end_line": 463,
+        "line": 441,
+        "end_line": 464,
         "docstring": "Compute a rough cyclomatic complexity score for an entire Python file.\r\n\r\n    Algorithm:\r\n    - For each function_definition, compute: 1 + branch_count(function_body)\r\n    - Complexity of the file = max complexity across all functions\r\n    - If no functions are defined (e.g. pure script), compute file-level score\r\n\r\n    Returns 0.0 when the Python grammar is unavailable."
       },
       {
@@ -716,8 +699,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_sql_table_refs(root_node: Any) -> list[str]",
         "is_public_api": false,
-        "line": 482,
-        "end_line": 495,
+        "line": 483,
+        "end_line": 496,
         "docstring": "Extract table names referenced in SQL (best-effort, grammar-dependent)."
       },
       {
@@ -726,8 +709,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_yaml_top_keys(root_node: Any) -> list[str]",
         "is_public_api": false,
-        "line": 514,
-        "end_line": 534,
+        "line": 515,
+        "end_line": 535,
         "docstring": "Extract top-level YAML mapping keys for structural awareness."
       },
       {
@@ -736,8 +719,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_js_imports(root_node: Any, language: Language) -> list[ImportInfo]",
         "is_public_api": false,
-        "line": 563,
-        "end_line": 583,
+        "line": 564,
+        "end_line": 584,
         "docstring": null
       },
       {
@@ -746,9 +729,29 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_js_functions(\r\n    root_node: Any, language: Language, rel_path: str\r\n) -> list[FunctionNode]",
         "is_public_api": false,
-        "line": 586,
-        "end_line": 617,
+        "line": 587,
+        "end_line": 618,
         "docstring": null
+      },
+      {
+        "name": "_init_regex_patterns",
+        "qualified_name": "_init_regex_patterns",
+        "parent_module": "src/analyzers/tree_sitter_analyzer.py",
+        "signature": "def _init_regex_patterns() -> None",
+        "is_public_api": false,
+        "line": 629,
+        "end_line": 661,
+        "docstring": "Initialise patterns lazily (avoids import-time cost)."
+      },
+      {
+        "name": "_extract_imports_by_regex",
+        "qualified_name": "_extract_imports_by_regex",
+        "parent_module": "src/analyzers/tree_sitter_analyzer.py",
+        "signature": "def _extract_imports_by_regex(text: str, language: \"Language\") -> list[ImportInfo]",
+        "is_public_api": false,
+        "line": 664,
+        "end_line": 685,
+        "docstring": "Extract imports from source text using language-specific regex patterns.\r\n\r\n    Works for Java, Kotlin, Scala, Go, Rust, C# and Ruby \u2014 languages that\r\n    have no tree-sitter grammar bundled with this tool."
       },
       {
         "name": "count_lines",
@@ -756,8 +759,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def count_lines(source: bytes) -> int",
         "is_public_api": true,
-        "line": 625,
-        "end_line": 627,
+        "line": 693,
+        "end_line": 695,
         "docstring": "Count non-empty lines of actual content."
       },
       {
@@ -766,17 +769,17 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNode",
         "is_public_api": true,
-        "line": 630,
-        "end_line": 715,
+        "line": 698,
+        "end_line": 797,
         "docstring": "Parse a single source file and return a populated ModuleNode.\r\n\r\n    This is the primary entry point called by the Surveyor agent.\r\n    Never raises: all failures are captured in ``ModuleNode.parse_error``."
       }
     ],
     "classes": [],
-    "lines_of_code": 584,
+    "lines_of_code": 654,
     "complexity_score": 17.0,
-    "change_velocity_30d": 1,
+    "change_velocity_30d": 2,
     "is_dead_code_candidate": false,
-    "last_modified": "2026-03-10T14:48:55+03:00",
+    "last_modified": "2026-03-11T10:39:31+03:00",
     "parse_error": null,
     "dbt_refs": []
   },
@@ -891,7 +894,7 @@
         "signature": "def _print_summary(artifacts) -> None",
         "is_public_api": false,
         "line": 152,
-        "end_line": 221,
+        "end_line": 224,
         "docstring": "Print a Rich-formatted summary after a successful Phase 1 run."
       },
       {
@@ -900,17 +903,17 @@
         "parent_module": "src/cli.py",
         "signature": "def query(cartography_dir: str) -> None",
         "is_public_api": true,
-        "line": 236,
-        "end_line": 249,
+        "line": 239,
+        "end_line": 252,
         "docstring": "[TODO Phase 4] Interactive query interface (Navigator agent).\r\n\r\n    Launches a conversational agent with four tools:\r\n      find_implementation(concept)\r\n      trace_lineage(dataset, direction)\r\n      blast_radius(module_path)\r\n      explain_module(path)"
       }
     ],
     "classes": [],
-    "lines_of_code": 213,
-    "complexity_score": 12.0,
-    "change_velocity_30d": 1,
+    "lines_of_code": 216,
+    "complexity_score": 14.0,
+    "change_velocity_30d": 2,
     "is_dead_code_candidate": true,
-    "last_modified": "2026-03-10T14:48:55+03:00",
+    "last_modified": "2026-03-11T10:39:31+03:00",
     "parse_error": null,
     "dbt_refs": []
   },
@@ -960,14 +963,14 @@
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 241
+        "line": 270
       },
       {
         "module": "matplotlib.pyplot",
         "names": [],
         "alias": "plt",
         "is_relative": false,
-        "line": 243
+        "line": 272
       },
       {
         "module": "pathlib",
@@ -995,21 +998,28 @@
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 151
+        "line": 159
+      },
+      {
+        "module": "pathlib",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 194
       },
       {
         "module": "src.models.nodes",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 183
+        "line": 212
       },
       {
         "module": "networkx.drawing.nx_pydot",
         "names": [],
         "alias": null,
         "is_relative": false,
-        "line": 231
+        "line": 260
       }
     ],
     "functions": [
@@ -1090,8 +1100,8 @@
         "signature": "def dead_code_candidates(self) -> list[str]",
         "is_public_api": true,
         "line": 138,
-        "end_line": 170,
-        "docstring": "Return module paths whose in-degree is 0 within the tracked set.\r\n\r\n        Python files:\r\n            Any Python module with in-degree == 0 is a candidate (may be an\r\n            entry-point script, standalone utility, or genuinely dead code).\r\n\r\n        SQL files:\r\n            A SQL model with in-degree == 0 AND not located in seeds/ or macros/\r\n            is likely an unreferenced terminal model or an unused model.\r\n            Seeds and macros are exempted \u2014 they are not meant to be ref'd by others."
+        "end_line": 199,
+        "docstring": "Return module paths whose in-degree is 0 within the tracked set.\r\n\r\n        Python:\r\n            Any Python module with in-degree == 0 is a candidate.\r\n\r\n        SQL:\r\n            A SQL model with in-degree == 0 AND not in seeds/ or macros/\r\n            is a candidate.  Only activated when dbt ref edges have been built.\r\n\r\n        JavaScript / TypeScript:\r\n            Any JS/TS file with in-degree == 0 that is not a known entry-point\r\n            filename (index.js, main.ts, app.ts \u2026) is a candidate.\r\n            Only activated when at least one JS/TS file has imports (i.e. the\r\n            import-resolution step has run).\r\n\r\n        Other languages (Java, Go, Rust, \u2026):\r\n            Flagged when in-degree == 0 and the graph has non-trivial edges\r\n            (i.e. some import resolution actually ran)."
       },
       {
         "name": "hub_modules",
@@ -1099,8 +1109,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def hub_modules(self, top_n: int = 10) -> list[tuple[str, float]]",
         "is_public_api": true,
-        "line": 172,
-        "end_line": 179,
+        "line": 201,
+        "end_line": 208,
         "docstring": "Return the top-N modules by PageRank score."
       },
       {
@@ -1109,8 +1119,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def summary(self) -> dict[str, Any]",
         "is_public_api": true,
-        "line": 181,
-        "end_line": 207,
+        "line": 210,
+        "end_line": 236,
         "docstring": "Return a human-readable summary dict for logging and the Archivist."
       },
       {
@@ -1119,8 +1129,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def export_viz(self, output_path: Path) -> bool",
         "is_public_api": true,
-        "line": 213,
-        "end_line": 297,
+        "line": 242,
+        "end_line": 334,
         "docstring": "Export the import graph to a PNG image.\r\n\r\n        Attempts two rendering engines in order:\r\n        1. pydot / Graphviz dot (better hierarchical layout \u2014 needs graphviz binary)\r\n        2. matplotlib spring-layout (always works if matplotlib is installed)\r\n\r\n        Returns True if the PNG was written, False if both engines failed."
       },
       {
@@ -1129,8 +1139,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def save(self, output_path: Path) -> None",
         "is_public_api": true,
-        "line": 303,
-        "end_line": 326,
+        "line": 340,
+        "end_line": 363,
         "docstring": "Serialise the graph to *output_path* as NetworkX node-link JSON.\r\n\r\n        Also writes a companion `<stem>_modules.json` with the full ModuleNode\r\n        records so agents in later phases don't have to re-parse."
       },
       {
@@ -1139,8 +1149,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def load(cls, input_path: Path) -> \"KnowledgeGraph\"",
         "is_public_api": true,
-        "line": 329,
-        "end_line": 357,
+        "line": 366,
+        "end_line": 394,
         "docstring": "Load a previously-saved graph from node-link JSON.\r\n\r\n        Also attempts to reload the companion `_modules.json` if present."
       }
     ],
@@ -1151,7 +1161,7 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "bases": [],
         "line": 35,
-        "end_line": 357,
+        "end_line": 394,
         "methods": [
           "__init__",
           "add_module",
@@ -1169,11 +1179,11 @@
         "docstring": "Central graph store.  One instance is shared across all agents in a run.\r\n\r\n    Usage::\r\n\r\n        graph = KnowledgeGraph()\r\n        graph.add_module(module_node)\r\n        graph.add_import_edge(\"src/foo.py\", \"src/bar.py\")\r\n        graph.save(Path(\".cartography/module_graph.json\"))"
       }
     ],
-    "lines_of_code": 300,
-    "complexity_score": 9.0,
-    "change_velocity_30d": 1,
+    "lines_of_code": 329,
+    "complexity_score": 13.0,
+    "change_velocity_30d": 2,
     "is_dead_code_candidate": false,
-    "last_modified": "2026-03-10T14:48:55+03:00",
+    "last_modified": "2026-03-11T10:39:31+03:00",
     "parse_error": null,
     "dbt_refs": []
   },
@@ -1238,7 +1248,7 @@
           "BaseModel"
         ],
         "line": 28,
-        "end_line": 36,
+        "end_line": 47,
         "methods": [],
         "docstring": "Supported source-file languages."
       },
@@ -1251,8 +1261,8 @@
           "Enum",
           "BaseModel"
         ],
-        "line": 39,
-        "end_line": 45,
+        "line": 50,
+        "end_line": 56,
         "methods": [],
         "docstring": "Type of data artifact tracked in the lineage graph."
       },
@@ -1265,8 +1275,8 @@
           "Enum",
           "BaseModel"
         ],
-        "line": 48,
-        "end_line": 54,
+        "line": 59,
+        "end_line": 65,
         "methods": [],
         "docstring": "How a particular piece of intelligence was derived."
       },
@@ -1277,8 +1287,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 62,
-        "end_line": 78,
+        "line": 73,
+        "end_line": 89,
         "methods": [],
         "docstring": "A single import statement found in a module."
       },
@@ -1289,8 +1299,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 81,
-        "end_line": 103,
+        "line": 92,
+        "end_line": 114,
         "methods": [],
         "docstring": "A function or method definition found in a module."
       },
@@ -1301,8 +1311,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 106,
-        "end_line": 124,
+        "line": 117,
+        "end_line": 135,
         "methods": [],
         "docstring": "A class definition found in a module."
       },
@@ -1313,8 +1323,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 132,
-        "end_line": 172,
+        "line": 143,
+        "end_line": 183,
         "methods": [],
         "docstring": "Represents a single source file in the codebase.\r\n\r\n    Populated progressively by agents:\r\n    - Phase 1 (Surveyor):    path, language, imports, functions, classes,\r\n                              lines_of_code, change_velocity_30d, last_modified\r\n    - Phase 3 (Semanticist): purpose_statement, domain_cluster, doc_drift_detected"
       },
@@ -1325,8 +1335,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 175,
-        "end_line": 187,
+        "line": 186,
+        "end_line": 198,
         "methods": [],
         "docstring": "Represents a data artifact (table, file, stream, API endpoint).\r\n\r\n    TODO Phase 2 (Hydrologist): populate from PythonDataFlowAnalyzer + SQLLineageAnalyzer."
       },
@@ -1337,8 +1347,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 190,
-        "end_line": 204,
+        "line": 201,
+        "end_line": 215,
         "methods": [],
         "docstring": "A data transformation between datasets.\r\n\r\n    TODO Phase 2 (Hydrologist): populate from SQL/Python analysis."
       },
@@ -1349,8 +1359,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 212,
-        "end_line": 218,
+        "line": 223,
+        "end_line": 229,
         "methods": [],
         "docstring": "Edge: source_module \u2192 target_module via an import statement."
       },
@@ -1361,8 +1371,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 221,
-        "end_line": 225,
+        "line": 232,
+        "end_line": 236,
         "methods": [],
         "docstring": "Edge: transformation \u2192 dataset (data lineage). Phase 2."
       },
@@ -1373,8 +1383,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 228,
-        "end_line": 232,
+        "line": 239,
+        "end_line": 243,
         "methods": [],
         "docstring": "Edge: transformation \u2190 dataset (upstream dependency). Phase 2."
       },
@@ -1385,17 +1395,17 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 240,
-        "end_line": 267,
+        "line": 251,
+        "end_line": 278,
         "methods": [],
         "docstring": "One entry in the cartography_trace.jsonl audit log.\r\n\r\n    Every agent action that produces intelligence must emit a TraceEntry.\r\n    The distinction between static_analysis and llm_inference matters for\r\n    trust calibration when reading the Onboarding Brief."
       }
     ],
-    "lines_of_code": 181,
+    "lines_of_code": 192,
     "complexity_score": 1.0,
-    "change_velocity_30d": 1,
+    "change_velocity_30d": 2,
     "is_dead_code_candidate": false,
-    "last_modified": "2026-03-10T14:48:55+03:00",
+    "last_modified": "2026-03-11T10:39:31+03:00",
     "parse_error": null,
     "dbt_refs": []
   },
@@ -1505,9 +1515,9 @@
     ],
     "lines_of_code": 109,
     "complexity_score": 3.0,
-    "change_velocity_30d": 1,
+    "change_velocity_30d": 2,
     "is_dead_code_candidate": false,
-    "last_modified": "2026-03-10T14:48:55+03:00",
+    "last_modified": "2026-03-11T10:39:31+03:00",
     "parse_error": null,
     "dbt_refs": []
   },
@@ -1876,9 +1886,236 @@
     ],
     "lines_of_code": 96,
     "complexity_score": 10.0,
-    "change_velocity_30d": 1,
+    "change_velocity_30d": 2,
     "is_dead_code_candidate": false,
-    "last_modified": "2026-03-10T14:48:55+03:00",
+    "last_modified": "2026-03-11T10:39:31+03:00",
+    "parse_error": null,
+    "dbt_refs": []
+  },
+  "tests/test_js_and_project_type.py": {
+    "path": "tests/test_js_and_project_type.py",
+    "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\tests\\test_js_and_project_type.py",
+    "language": "python",
+    "imports": [
+      {
+        "module": "json",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 53
+      },
+      {
+        "module": "json",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 61
+      },
+      {
+        "module": "tempfile",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 93
+      },
+      {
+        "module": "pathlib",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 2
+      },
+      {
+        "module": "src.agents.surveyor",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 3
+      },
+      {
+        "module": "src.graph.knowledge_graph",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 4
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 5
+      }
+    ],
+    "functions": [
+      {
+        "name": "test_js_relative_resolution",
+        "qualified_name": "test_js_relative_resolution",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def test_js_relative_resolution()",
+        "is_public_api": true,
+        "line": 7,
+        "end_line": 27,
+        "docstring": null
+      },
+      {
+        "name": "test_js_index_resolution",
+        "qualified_name": "test_js_index_resolution",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def test_js_index_resolution()",
+        "is_public_api": true,
+        "line": 29,
+        "end_line": 38,
+        "docstring": null
+      },
+      {
+        "name": "test_project_type_dbt",
+        "qualified_name": "test_project_type_dbt",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def test_project_type_dbt(tmp_path)",
+        "is_public_api": true,
+        "line": 40,
+        "end_line": 44,
+        "docstring": null
+      },
+      {
+        "name": "test_project_type_go",
+        "qualified_name": "test_project_type_go",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def test_project_type_go(tmp_path)",
+        "is_public_api": true,
+        "line": 46,
+        "end_line": 50,
+        "docstring": null
+      },
+      {
+        "name": "test_project_type_react",
+        "qualified_name": "test_project_type_react",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def test_project_type_react(tmp_path)",
+        "is_public_api": true,
+        "line": 52,
+        "end_line": 58,
+        "docstring": null
+      },
+      {
+        "name": "test_project_type_nextjs",
+        "qualified_name": "test_project_type_nextjs",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def test_project_type_nextjs(tmp_path)",
+        "is_public_api": true,
+        "line": 60,
+        "end_line": 66,
+        "docstring": null
+      },
+      {
+        "name": "test_dead_code_js",
+        "qualified_name": "test_dead_code_js",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def test_dead_code_js()",
+        "is_public_api": true,
+        "line": 68,
+        "end_line": 90,
+        "docstring": null
+      },
+      {
+        "name": "make_mod",
+        "qualified_name": "make_mod",
+        "parent_module": "tests/test_js_and_project_type.py",
+        "signature": "def make_mod(path, lang, imports=None)",
+        "is_public_api": true,
+        "line": 71,
+        "end_line": 72,
+        "docstring": null
+      }
+    ],
+    "classes": [],
+    "lines_of_code": 94,
+    "complexity_score": 3.0,
+    "change_velocity_30d": 0,
+    "is_dead_code_candidate": true,
+    "last_modified": null,
+    "parse_error": null,
+    "dbt_refs": []
+  },
+  "tests/test_new_langs.py": {
+    "path": "tests/test_new_langs.py",
+    "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\tests\\test_new_langs.py",
+    "language": "python",
+    "imports": [
+      {
+        "module": "src.analyzers.tree_sitter_analyzer",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 2
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 3
+      }
+    ],
+    "functions": [
+      {
+        "name": "test_java",
+        "qualified_name": "test_java",
+        "parent_module": "tests/test_new_langs.py",
+        "signature": "def test_java()",
+        "is_public_api": true,
+        "line": 5,
+        "end_line": 10,
+        "docstring": null
+      },
+      {
+        "name": "test_go",
+        "qualified_name": "test_go",
+        "parent_module": "tests/test_new_langs.py",
+        "signature": "def test_go()",
+        "is_public_api": true,
+        "line": 12,
+        "end_line": 16,
+        "docstring": null
+      },
+      {
+        "name": "test_rust",
+        "qualified_name": "test_rust",
+        "parent_module": "tests/test_new_langs.py",
+        "signature": "def test_rust()",
+        "is_public_api": true,
+        "line": 18,
+        "end_line": 22,
+        "docstring": null
+      },
+      {
+        "name": "test_csharp",
+        "qualified_name": "test_csharp",
+        "parent_module": "tests/test_new_langs.py",
+        "signature": "def test_csharp()",
+        "is_public_api": true,
+        "line": 24,
+        "end_line": 28,
+        "docstring": null
+      },
+      {
+        "name": "test_ruby",
+        "qualified_name": "test_ruby",
+        "parent_module": "tests/test_new_langs.py",
+        "signature": "def test_ruby()",
+        "is_public_api": true,
+        "line": 30,
+        "end_line": 35,
+        "docstring": null
+      }
+    ],
+    "classes": [],
+    "lines_of_code": 37,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 0,
+    "is_dead_code_candidate": true,
+    "last_modified": null,
     "parse_error": null,
     "dbt_refs": []
   }

@@ -41,6 +41,21 @@ EXTENSION_TO_LANGUAGE: dict[str, Language] = {
     # TypeScript
     ".ts": Language.TYPESCRIPT,
     ".tsx": Language.TYPESCRIPT,
+    # JVM / compiled (regex-based import extraction)
+    ".java": Language.JAVA,
+    ".scala": Language.SCALA,
+    ".sc": Language.SCALA,
+    ".kt": Language.KOTLIN,
+    ".kts": Language.KOTLIN,
+    # Systems languages
+    ".go": Language.GO,
+    ".rs": Language.RUST,
+    ".cs": Language.CSHARP,
+    # Scripting
+    ".rb": Language.RUBY,
+    ".sh": Language.SHELL,
+    ".bash": Language.SHELL,
+    ".zsh": Language.SHELL,
 }
 
 # Extensions we explicitly skip (not an error, just not useful to analyze)

@@ -5,32 +5,6 @@
   "nodes": [
     {
       "language": "python",
-      "lines_of_code": 5,
-      "change_velocity_30d": 0,
-      "is_dead_code_candidate": true,
-      "parse_error": null,
-      "function_count": 0,
-      "class_count": 0,
-      "import_count": 1,
-      "dbt_ref_count": 0,
-      "complexity_score": 1.0,
-      "id": "_test_dbt.py"
-    },
-    {
-      "language": "python",
-      "lines_of_code": 52,
-      "change_velocity_30d": 0,
-      "is_dead_code_candidate": true,
-      "parse_error": null,
-      "function_count": 0,
-      "class_count": 0,
-      "import_count": 8,
-      "dbt_ref_count": 0,
-      "complexity_score": 2.0,
-      "id": "_test_improvements.py"
-    },
-    {
-      "language": "python",
       "lines_of_code": 1,
       "change_velocity_30d": 1,
       "is_dead_code_candidate": true,
@@ -57,15 +31,15 @@
     },
     {
       "language": "python",
-      "lines_of_code": 335,
-      "change_velocity_30d": 1,
+      "lines_of_code": 518,
+      "change_velocity_30d": 2,
       "is_dead_code_candidate": false,
       "parse_error": null,
-      "function_count": 6,
+      "function_count": 8,
       "class_count": 2,
-      "import_count": 11,
+      "import_count": 17,
       "dbt_ref_count": 0,
-      "complexity_score": 13.0,
+      "complexity_score": 27.0,
       "id": "src/agents/surveyor.py"
     },
     {
@@ -84,7 +58,7 @@
     {
       "language": "python",
       "lines_of_code": 35,
-      "change_velocity_30d": 0,
+      "change_velocity_30d": 1,
       "is_dead_code_candidate": false,
       "parse_error": null,
       "function_count": 2,
@@ -96,7 +70,7 @@
     },
     {
       "language": "python",
-      "lines_of_code": 145,
+      "lines_of_code": 160,
       "change_velocity_30d": 1,
       "is_dead_code_candidate": false,
       "parse_error": null,
@@ -109,28 +83,28 @@
     },
     {
       "language": "python",
-      "lines_of_code": 584,
-      "change_velocity_30d": 1,
+      "lines_of_code": 654,
+      "change_velocity_30d": 2,
       "is_dead_code_candidate": false,
       "parse_error": null,
-      "function_count": 21,
+      "function_count": 23,
       "class_count": 0,
-      "import_count": 14,
+      "import_count": 16,
       "dbt_ref_count": 0,
       "complexity_score": 17.0,
       "id": "src/analyzers/tree_sitter_analyzer.py"
     },
     {
       "language": "python",
-      "lines_of_code": 213,
-      "change_velocity_30d": 1,
+      "lines_of_code": 216,
+      "change_velocity_30d": 2,
       "is_dead_code_candidate": true,
       "parse_error": null,
       "function_count": 4,
       "class_count": 0,
       "import_count": 11,
       "dbt_ref_count": 0,
-      "complexity_score": 12.0,
+      "complexity_score": 14.0,
       "id": "src/cli.py"
     },
     {
@@ -148,15 +122,15 @@
     },
     {
       "language": "python",
-      "lines_of_code": 300,
-      "change_velocity_30d": 1,
+      "lines_of_code": 329,
+      "change_velocity_30d": 2,
       "is_dead_code_candidate": false,
       "parse_error": null,
       "function_count": 13,
       "class_count": 1,
-      "import_count": 11,
+      "import_count": 12,
       "dbt_ref_count": 0,
-      "complexity_score": 9.0,
+      "complexity_score": 13.0,
       "id": "src/graph/knowledge_graph.py"
     },
     {
@@ -174,8 +148,8 @@
     },
     {
       "language": "python",
-      "lines_of_code": 181,
-      "change_velocity_30d": 1,
+      "lines_of_code": 192,
+      "change_velocity_30d": 2,
       "is_dead_code_candidate": false,
       "parse_error": null,
       "function_count": 0,
@@ -188,7 +162,7 @@
     {
       "language": "python",
       "lines_of_code": 109,
-      "change_velocity_30d": 1,
+      "change_velocity_30d": 2,
       "is_dead_code_candidate": false,
       "parse_error": null,
       "function_count": 4,
@@ -240,7 +214,7 @@
     {
       "language": "python",
       "lines_of_code": 96,
-      "change_velocity_30d": 1,
+      "change_velocity_30d": 2,
       "is_dead_code_candidate": false,
       "parse_error": null,
       "function_count": 3,
@@ -249,33 +223,35 @@
       "dbt_ref_count": 0,
       "complexity_score": 10.0,
       "id": "src/utils/repo_loader.py"
+    },
+    {
+      "language": "python",
+      "lines_of_code": 94,
+      "change_velocity_30d": 0,
+      "is_dead_code_candidate": true,
+      "parse_error": null,
+      "function_count": 8,
+      "class_count": 0,
+      "import_count": 7,
+      "dbt_ref_count": 0,
+      "complexity_score": 3.0,
+      "id": "tests/test_js_and_project_type.py"
+    },
+    {
+      "language": "python",
+      "lines_of_code": 37,
+      "change_velocity_30d": 0,
+      "is_dead_code_candidate": true,
+      "parse_error": null,
+      "function_count": 5,
+      "class_count": 0,
+      "import_count": 2,
+      "dbt_ref_count": 0,
+      "complexity_score": 1.0,
+      "id": "tests/test_new_langs.py"
     }
   ],
   "edges": [
-    {
-      "edge_type": "IMPORTS",
-      "import_count": 1,
-      "source": "_test_dbt.py",
-      "target": "src/analyzers/dbt_helpers.py"
-    },
-    {
-      "edge_type": "IMPORTS",
-      "import_count": 1,
-      "source": "_test_improvements.py",
-      "target": "src/analyzers/tree_sitter_analyzer.py"
-    },
-    {
-      "edge_type": "IMPORTS",
-      "import_count": 2,
-      "source": "_test_improvements.py",
-      "target": "src/models/nodes.py"
-    },
-    {
-      "edge_type": "IMPORTS",
-      "import_count": 1,
-      "source": "_test_improvements.py",
-      "target": "src/graph/knowledge_graph.py"
-    },
     {
       "edge_type": "IMPORTS",
       "import_count": 1,
@@ -314,7 +290,7 @@
     },
     {
       "edge_type": "IMPORTS",
-      "import_count": 1,
+      "import_count": 2,
       "source": "src/analyzers/tree_sitter_analyzer.py",
       "target": "src/models/nodes.py"
     },
@@ -364,6 +340,36 @@
       "edge_type": "IMPORTS",
       "import_count": 1,
       "source": "src/utils/file_inventory.py",
+      "target": "src/models/nodes.py"
+    },
+    {
+      "edge_type": "IMPORTS",
+      "import_count": 1,
+      "source": "tests/test_js_and_project_type.py",
+      "target": "src/agents/surveyor.py"
+    },
+    {
+      "edge_type": "IMPORTS",
+      "import_count": 1,
+      "source": "tests/test_js_and_project_type.py",
+      "target": "src/graph/knowledge_graph.py"
+    },
+    {
+      "edge_type": "IMPORTS",
+      "import_count": 1,
+      "source": "tests/test_js_and_project_type.py",
+      "target": "src/models/nodes.py"
+    },
+    {
+      "edge_type": "IMPORTS",
+      "import_count": 1,
+      "source": "tests/test_new_langs.py",
+      "target": "src/analyzers/tree_sitter_analyzer.py"
+    },
+    {
+      "edge_type": "IMPORTS",
+      "import_count": 1,
+      "source": "tests/test_new_langs.py",
       "target": "src/models/nodes.py"
     }
   ]

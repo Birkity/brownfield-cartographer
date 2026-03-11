@@ -22,6 +22,7 @@ Design principles:
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import Any, Optional
 
@@ -618,6 +619,73 @@ def _parse_js_functions(
 
 
 # ---------------------------------------------------------------------------
+# Regex-based import extraction for languages without tree-sitter grammars
+# ---------------------------------------------------------------------------
+
+# Each pattern must have exactly one capture group for the module/path string.
+_REGEX_IMPORT_PATTERNS: dict["Language", re.Pattern[str]] = {}
+
+
+def _init_regex_patterns() -> None:
+    """Initialise patterns lazily (avoids import-time cost)."""
+    from src.models.nodes import Language as _L  # local to avoid cycle at load time
+
+    _REGEX_IMPORT_PATTERNS[_L.JAVA] = re.compile(
+        r"^\s*import\s+(?:static\s+)?([a-zA-Z_][\w.]*)\s*;",
+        re.MULTILINE,
+    )
+    _REGEX_IMPORT_PATTERNS[_L.KOTLIN] = re.compile(
+        r"^\s*import\s+([a-zA-Z_][\w.]+(?:\.\*)?)",
+        re.MULTILINE,
+    )
+    _REGEX_IMPORT_PATTERNS[_L.SCALA] = re.compile(
+        r"^\s*import\s+([a-zA-Z_][\w.]+(?:\.\{[^}]*\}|\._|\.[\w*]+)?)",
+        re.MULTILINE,
+    )
+    # Go import strings are double-quoted paths on their own line inside import blocks
+    _REGEX_IMPORT_PATTERNS[_L.GO] = re.compile(
+        r'^\s*"([a-zA-Z][a-zA-Z0-9_.\-/]+)"',
+        re.MULTILINE,
+    )
+    _REGEX_IMPORT_PATTERNS[_L.RUST] = re.compile(
+        r"^\s*use\s+([\w:]+(?:::[\w*{}|, ]+)?)",
+        re.MULTILINE,
+    )
+    _REGEX_IMPORT_PATTERNS[_L.CSHARP] = re.compile(
+        r"^\s*using\s+(?:static\s+)?(?!var\b)([a-zA-Z_][\w.]*)\s*;",
+        re.MULTILINE,
+    )
+    _REGEX_IMPORT_PATTERNS[_L.RUBY] = re.compile(
+        r"^\s*require(?:_relative)?\s+['\"]([^'\"]+)['\"]",
+        re.MULTILINE,
+    )
+
+
+def _extract_imports_by_regex(text: str, language: "Language") -> list[ImportInfo]:
+    """
+    Extract imports from source text using language-specific regex patterns.
+
+    Works for Java, Kotlin, Scala, Go, Rust, C# and Ruby — languages that
+    have no tree-sitter grammar bundled with this tool.
+    """
+    if not _REGEX_IMPORT_PATTERNS:
+        _init_regex_patterns()
+
+    pattern = _REGEX_IMPORT_PATTERNS.get(language)
+    if pattern is None:
+        return []
+
+    imports: list[ImportInfo] = []
+    for match in pattern.finditer(text):
+        module = match.group(1).strip()
+        if not module:
+            continue
+        line = text[: match.start()].count("\n") + 1
+        imports.append(ImportInfo(module=module, is_relative=False, line=line))
+    return imports
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -651,6 +719,20 @@ def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNod
     if language == Language.SQL:
         from src.analyzers.dbt_helpers import extract_dbt_refs  # local import avoids cycles
         node.dbt_refs = extract_dbt_refs(source.decode("utf-8", errors="replace"))
+
+    # ---- Regex-based analysis for languages without tree-sitter grammar --
+    # These return after LOC + import extraction — no AST parsing needed.
+    _REGEX_ONLY_LANGUAGES = {
+        Language.JAVA, Language.KOTLIN, Language.SCALA,
+        Language.GO, Language.RUST, Language.CSHARP,
+        Language.RUBY, Language.SHELL,
+    }
+    if language in _REGEX_ONLY_LANGUAGES:
+        if language != Language.SHELL:  # Shell has no reliable import syntax
+            node.imports = _extract_imports_by_regex(
+                source.decode("utf-8", errors="replace"), language
+            )
+        return node  # No grammar parsing for these languages
 
     # ---- Select grammar key ---
     grammar_key_map = {

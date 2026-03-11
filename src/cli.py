@@ -166,6 +166,9 @@ def _print_summary(artifacts) -> None:
     overview.add_column("Metric", style="dim")
     overview.add_column("Value", style="bold")
 
+    project_type = stats.get("project_type")
+    if project_type and project_type != "unknown":
+        overview.add_row("[cyan]Project type[/cyan]", project_type)
     overview.add_row("Files scanned", str(stats.get("files_scanned", "?")))
     overview.add_row("Files parsed OK", str(stats.get("files_parsed_ok", "?")))
     grammar_missing = stats.get("grammar_not_available", 0)

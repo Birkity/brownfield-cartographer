@@ -33,6 +33,17 @@ class Language(str, Enum):
     YAML = "yaml"
     JAVASCRIPT = "javascript"
     TYPESCRIPT = "typescript"
+    # JVM / compiled languages
+    JAVA = "java"
+    SCALA = "scala"
+    KOTLIN = "kotlin"
+    # Systems languages
+    GO = "go"
+    RUST = "rust"
+    CSHARP = "csharp"
+    # Scripting
+    RUBY = "ruby"
+    SHELL = "shell"
     UNKNOWN = "unknown"
 
 

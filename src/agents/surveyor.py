@@ -29,7 +29,7 @@ from typing import Optional
 
 from src.analyzers.tree_sitter_analyzer import analyze_file
 from src.graph.knowledge_graph import KnowledgeGraph
-from src.models.nodes import AnalysisMethod, ModuleNode, TraceEntry
+from src.models.nodes import AnalysisMethod, Language, ModuleNode, TraceEntry
 from src.utils.file_inventory import FileInventory
 from src.utils.git_tools import GitVelocityResult, extract_git_velocity, get_last_commit_date
 
@@ -184,7 +184,7 @@ class Surveyor:
                 target=str(repo_root),
                 result=(
                     f"Added {edge_count} Python import edges and "
-                    f"{dbt_edge_count} dbt {{ ref() }} edges"
+                    f"{dbt_edge_count} dbt {{{{ ref() }}}} edges"
                 ),
                 analysis_method=AnalysisMethod.STATIC_ANALYSIS,
             )
@@ -231,7 +231,9 @@ class Surveyor:
         )
 
         elapsed = (datetime.utcnow() - start_time).total_seconds()
+        project_type = self._detect_project_type(repo_root)
         stats = {
+            "project_type": project_type,
             "files_scanned": len(items),
             "files_parsed_ok": parsed_ok,
             "grammar_not_available": grammar_missing,
@@ -261,23 +263,21 @@ class Surveyor:
 
     def _build_import_edges(self, graph: KnowledgeGraph, repo_root: Path) -> int:
         """
-        Resolve imports in each Python module to graph edges.
+        Resolve imports in each module to graph edges.
 
-        For absolute imports (e.g. `import src.utils.git_tools`), we try to
-        match against known module paths.  For relative imports we resolve
-        relative to the importing file's directory.
+        Python: dotted-name lookup + relative import resolution.
+        JS/TS:  relative path resolution (./Foo, ../utils/bar).
+        Other languages (Java, Go, Rust, etc.): dotted/path suffix matching.
 
         Returns the total number of edges added.
         """
         tracked_paths = {mod.path for mod in graph.all_modules()}
 
-        # Build a lookup: dotted module name → rel_path
-        # e.g. "src.utils.git_tools" → "src/utils/git_tools.py"
+        # Build dotted-name → path index (used by Python and JVM languages)
         dotted_to_path: dict[str, str] = {}
         for path in tracked_paths:
-            # Convert POSIX path to dotted module name (strip .py / .pyi)
             dotted = path.replace("/", ".").replace("\\", ".")
-            for suffix in (".py", ".pyi"):
+            for suffix in (".py", ".pyi", ".java", ".kt", ".kts", ".scala", ".go", ".rs", ".cs", ".rb"):
                 if dotted.endswith(suffix):
                     dotted = dotted[: -len(suffix)]
             dotted_to_path[dotted] = path
@@ -290,17 +290,67 @@ class Surveyor:
         edges_added = 0
         for module in graph.all_modules():
             for imp in module.imports:
-                target = self._resolve_import(
-                    imp.module,
-                    module.path,
-                    tracked_paths,
-                    dotted_to_path,
-                )
+                if module.language in (Language.JAVASCRIPT, Language.TYPESCRIPT):
+                    target = self._resolve_js_import(
+                        imp.module, module.path, tracked_paths
+                    )
+                else:
+                    target = self._resolve_import(
+                        imp.module, module.path, tracked_paths, dotted_to_path
+                    )
                 if target:
                     graph.add_import_edge(module.path, target)
                     edges_added += 1
 
         return edges_added
+
+    def _resolve_js_import(
+        self,
+        module: str,
+        source_path: str,
+        tracked_paths: set[str],
+    ) -> Optional[str]:
+        """
+        Resolve a JS/TS import specifier to a known module path.
+
+        Handles:
+          - Relative paths: ./Button, ../utils/helpers
+          - Extension-less paths (tries .ts, .tsx, .js, .jsx)
+          - Index files: ./components → ./components/index.tsx
+
+        Returns None for bare package names (react, lodash, @scope/pkg).
+        """
+        if not module.startswith("."):
+            return None  # External / scoped package — can't resolve to local file
+
+        from pathlib import PurePosixPath
+        import posixpath
+
+        source_dir = "/".join(source_path.replace("\\", "/").split("/")[:-1])
+        try:
+            raw = str(PurePosixPath(source_dir) / module)
+            # Normalise ../ segments so "src/components/../utils" → "src/utils"
+            resolved = posixpath.normpath(raw).replace("\\", "/")
+        except Exception:
+            return None
+
+        # Try each JS/TS file extension
+        for ext in (".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"):
+            candidate = resolved + ext
+            if candidate in tracked_paths:
+                return candidate
+
+        # Try as a directory index file
+        for ext in (".ts", ".tsx", ".js", ".jsx"):
+            candidate = resolved + "/index" + ext
+            if candidate in tracked_paths:
+                return candidate
+
+        # Exact match (import already includes extension)
+        if resolved in tracked_paths:
+            return resolved
+
+        return None
 
     def _resolve_import(
         self,
@@ -353,6 +403,165 @@ class Surveyor:
         return None  # third-party or unresolvable
 
     def _build_dbt_ref_edges(self, graph: KnowledgeGraph) -> int:
+        """
+        Create DBT_REF edges from {{ ref('model_name') }} calls in SQL files.
+
+        Algorithm:
+        1. Index all SQL modules by their file stem:
+           e.g. "models/staging/stg_orders.sql" → key "stg_orders"
+        2. For each SQL module, iterate its dbt_refs (populated by dbt_helpers)
+        3. Resolve each ref name to a SQL file path via the stem index
+        4. Add a DBT_REF edge: current_file → referenced_model
+
+        Returns the number of edges added.
+        """
+        # Build stem → path index for SQL modules
+        stem_to_path: dict[str, str] = {}
+        for mod in graph.all_modules():
+            if mod.language == Language.SQL:
+                from pathlib import PurePosixPath
+                stem = PurePosixPath(mod.path).stem  # "stg_orders" from "models/staging/stg_orders.sql"
+                stem_to_path[stem] = mod.path
+
+        if not stem_to_path:
+            return 0  # No SQL files tracked — skip
+
+        edges_added = 0
+        for module in graph.all_modules():
+            if not module.dbt_refs:
+                continue
+            for ref_name in module.dbt_refs:
+                target = stem_to_path.get(ref_name)
+                if target and target != module.path:
+                    graph.add_import_edge(module.path, target, edge_type="DBT_REF")
+                    edges_added += 1
+
+        return edges_added
+
+    def _detect_project_type(self, repo_root: Path) -> str:
+        """
+        Detect the primary project type by scanning for well-known config files.
+
+        Returns a lowercase string such as: "dbt", "django", "fastapi",
+        "apache-airflow", "react", "nextjs", "angular", "vue", "express",
+        "go", "rust", "java-maven", "java-gradle", "ruby-rails", "pyspark",
+        "python", "node", or "unknown".
+        """
+        import json as _json
+
+        # Ordered list of (filename, project_type) for direct config-file detection
+        _ROOT_INDICATORS: list[tuple[str, str]] = [
+            ("dbt_project.yml",    "dbt"),
+            ("dbt_project.yaml",   "dbt"),
+            ("airflow.cfg",        "apache-airflow"),
+            ("pom.xml",            "java-maven"),
+            ("build.gradle",       "java-gradle"),
+            ("build.gradle.kts",   "java-gradle"),
+            ("go.mod",             "go"),
+            ("Cargo.toml",         "rust"),
+            ("Gemfile",            "ruby"),
+            ("mix.exs",            "elixir"),
+        ]
+
+        for filename, ptype in _ROOT_INDICATORS:
+            if (repo_root / filename).exists():
+                return ptype
+
+        # package.json — check for known JS frameworks
+        pkg_json = repo_root / "package.json"
+        if pkg_json.exists():
+            try:
+                pkg = _json.loads(pkg_json.read_text(encoding="utf-8", errors="replace"))
+                deps: set[str] = {
+                    *pkg.get("dependencies", {}),
+                    *pkg.get("devDependencies", {}),
+                }
+                for dep, ptype in [
+                    ("next",           "nextjs"),
+                    ("@angular/core",  "angular"),
+                    ("vue",            "vue"),
+                    ("react",          "react"),
+                    ("express",        "express"),
+                    ("fastify",        "fastify-node"),
+                ]:
+                    if dep in deps:
+                        return ptype
+            except Exception:
+                pass
+            return "node"
+
+        # requirements.txt — detect Python web/data frameworks
+        req_txt = repo_root / "requirements.txt"
+        if req_txt.exists():
+            try:
+                reqs = req_txt.read_text(encoding="utf-8", errors="replace").lower()
+                for keyword, ptype in [
+                    ("django",           "django"),
+                    ("fastapi",          "fastapi"),
+                    ("flask",            "flask"),
+                    ("apache-airflow",   "apache-airflow"),
+                    ("pyspark",          "pyspark"),
+                    ("dagster",          "dagster"),
+                    ("prefect",          "prefect"),
+                ]:
+                    if keyword in reqs:
+                        return ptype
+            except Exception:
+                pass
+            return "python"
+
+        # pyproject.toml — detect Python frameworks from dependencies
+        pyproject = repo_root / "pyproject.toml"
+        if pyproject.exists():
+            try:
+                import tomllib
+                data = tomllib.loads(pyproject.read_text(encoding="utf-8", errors="replace"))
+            except ImportError:
+                try:
+                    import tomli as tomllib  # type: ignore[no-redef]
+                    data = tomllib.loads(pyproject.read_text(encoding="utf-8", errors="replace"))
+                except ImportError:
+                    data = {}
+            except Exception:
+                data = {}
+
+            deps_str = str(data.get("project", {}).get("dependencies", [])).lower()
+            opts_str = str(data.get("project", {}).get("optional-dependencies", {})).lower()
+            all_deps = deps_str + " " + opts_str
+            for keyword, ptype in [
+                ("django",          "django"),
+                ("fastapi",         "fastapi"),
+                ("flask",           "flask"),
+                ("apache-airflow",  "apache-airflow"),
+                ("pyspark",         "pyspark"),
+                ("dagster",         "dagster"),
+                ("prefect",         "prefect"),
+            ]:
+                if keyword in all_deps:
+                    return ptype
+            return "python"
+
+        # manage.py at root → Django (even without requirements.txt)
+        if (repo_root / "manage.py").exists():
+            return "django"
+
+        # Last resort: infer from dominant file extension
+        py_count  = sum(1 for _ in repo_root.rglob("*.py")  if ".venv" not in str(_))
+        java_count = sum(1 for _ in repo_root.rglob("*.java") if not any(s in str(_) for s in (".git", "target")))
+        go_count  = sum(1 for _ in repo_root.rglob("*.go")  if ".git" not in str(_))
+        rs_count  = sum(1 for _ in repo_root.rglob("*.rs")  if "target" not in str(_))
+        ts_count  = sum(1 for _ in repo_root.rglob("*.ts")  if "node_modules" not in str(_))
+        js_count  = sum(1 for _ in repo_root.rglob("*.js")  if "node_modules" not in str(_))
+
+        ranked = sorted(
+            [(py_count, "python"), (java_count, "java"), (go_count, "go"),
+             (rs_count, "rust"), (ts_count + js_count, "node")],
+            reverse=True,
+        )
+        if ranked[0][0] > 0:
+            return ranked[0][1]
+        return "unknown"
+
         """
         Create DBT_REF edges from {{ ref('model_name') }} calls in SQL files.
 

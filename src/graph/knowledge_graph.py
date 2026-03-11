@@ -139,34 +139,63 @@ class KnowledgeGraph:
         """
         Return module paths whose in-degree is 0 within the tracked set.
 
-        Python files:
-            Any Python module with in-degree == 0 is a candidate (may be an
-            entry-point script, standalone utility, or genuinely dead code).
+        Python:
+            Any Python module with in-degree == 0 is a candidate.
 
-        SQL files:
-            A SQL model with in-degree == 0 AND not located in seeds/ or macros/
-            is likely an unreferenced terminal model or an unused model.
-            Seeds and macros are exempted — they are not meant to be ref'd by others.
+        SQL:
+            A SQL model with in-degree == 0 AND not in seeds/ or macros/
+            is a candidate.  Only activated when dbt ref edges have been built.
+
+        JavaScript / TypeScript:
+            Any JS/TS file with in-degree == 0 that is not a known entry-point
+            filename (index.js, main.ts, app.ts …) is a candidate.
+            Only activated when at least one JS/TS file has imports (i.e. the
+            import-resolution step has run).
+
+        Other languages (Java, Go, Rust, …):
+            Flagged when in-degree == 0 and the graph has non-trivial edges
+            (i.e. some import resolution actually ran).
         """
-        from src.models.nodes import Language  # avoid circular at module level
+        from src.models.nodes import Language
+
+        # JS/TS conventional entry-point filenames — exempted from dead-code flagging.
+        _JS_ENTRY_POINTS = frozenset({
+            "index.js", "index.ts", "index.tsx", "index.jsx",
+            "main.js", "main.ts", "main.jsx",
+            "app.js", "app.ts", "app.tsx", "app.jsx",
+            "server.js", "server.ts",
+        })
+
+        # Guard flags: only flag a language's files if its graph edges were built.
+        has_dbt_refs = any(
+            m.language == Language.SQL and len(m.dbt_refs) > 0
+            for m in self._modules.values()
+        )
+        has_js_imports = any(
+            m.language in (Language.JAVASCRIPT, Language.TYPESCRIPT) and len(m.imports) > 0
+            for m in self._modules.values()
+        )
 
         candidates = []
         for path, mod in self._modules.items():
             if self._g.in_degree(path) != 0:
                 continue
+
             if mod.language == Language.PYTHON:
                 candidates.append(path)
+
             elif mod.language == Language.SQL:
                 posix = path.replace("\\", "/")
-                # Exempt seeds/ and macros/ — they are not dbt models
                 if "/seeds/" not in posix and "/macros/" not in posix:
-                    # Only flag if dbt ref edges have been built (i.e., other SQL files
-                    # were analysed) — avoids false positives on partial scans.
-                    if any(
-                        m.language == Language.SQL and len(m.dbt_refs) > 0
-                        for m in self._modules.values()
-                    ):
+                    if has_dbt_refs:
                         candidates.append(path)
+
+            elif mod.language in (Language.JAVASCRIPT, Language.TYPESCRIPT):
+                from pathlib import PurePosixPath
+                fname = PurePosixPath(path).name
+                if fname not in _JS_ENTRY_POINTS and has_js_imports:
+                    candidates.append(path)
+
         return sorted(candidates)
 
     def hub_modules(self, top_n: int = 10) -> list[tuple[str, float]]:
@@ -244,12 +273,20 @@ class KnowledgeGraph:
 
             # Colour nodes by language
             _LANG_COLOURS: dict[str, str] = {
-                "python": "#4B8BBE",
-                "sql": "#F0C62E",
-                "yaml": "#6ABE45",
+                "python":     "#4B8BBE",
+                "sql":        "#F0C62E",
+                "yaml":       "#6ABE45",
                 "javascript": "#F7DF1E",
                 "typescript": "#3178C6",
-                "external": "#BBBBBB",
+                "java":       "#E76F00",
+                "kotlin":     "#7F52FF",
+                "scala":      "#DC322F",
+                "go":         "#00ADD8",
+                "rust":       "#CE422B",
+                "csharp":     "#239120",
+                "ruby":       "#CC342D",
+                "shell":      "#89E051",
+                "external":   "#BBBBBB",
             }
 
             node_colors = [
