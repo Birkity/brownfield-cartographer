@@ -164,6 +164,9 @@ class ModuleNode(BaseModel):
     parse_error: Optional[str] = None
     """Non-None when tree-sitter parsing raised an exception (graceful degradation)."""
 
+    dbt_refs: list[str] = Field(default_factory=list)
+    """Model names referenced via {{ ref('model_name') }} in SQL files (Phase 1 dbt support)."""
+
     # TODO Phase 3 (Semanticist): purpose_statement: Optional[str] = None
     # TODO Phase 3 (Semanticist): domain_cluster: Optional[str] = None
     # TODO Phase 3 (Semanticist): doc_drift_detected: bool = False

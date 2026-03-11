@@ -6,31 +6,32 @@
   "grammar_not_available": 15,
   "parse_errors": 0,
   "import_edges": 0,
+  "dbt_ref_edges": 11,
   "circular_dependency_clusters": 0,
-  "dead_code_candidates": 0,
+  "dead_code_candidates": 7,
   "top_hubs": [
     [
-      ".pre-commit-config.yaml",
-      0.030303030303030287
+      "models/staging/stg_products.sql",
+      0.05621836269751646
     ],
     [
-      "dbt_project.yml",
-      0.030303030303030287
+      "models/staging/stg_supplies.sql",
+      0.05621836269751646
     ],
     [
-      "macros/cents_to_dollars.sql",
-      0.030303030303030287
+      "models/staging/stg_orders.sql",
+      0.04994914852056051
     ],
     [
-      "macros/generate_schema_name.sql",
-      0.030303030303030287
+      "models/staging/stg_locations.sql",
+      0.047465034199735016
     ],
     [
-      "models/marts/customers.sql",
-      0.030303030303030287
+      "models/marts/order_items.sql",
+      0.04119582002277907
     ]
   ],
   "high_velocity_files": [],
   "pareto_core": [],
-  "elapsed_seconds": 4.26
+  "elapsed_seconds": 6.43
 }

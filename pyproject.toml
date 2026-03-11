@@ -28,6 +28,8 @@ dependencies = [
     "requests>=2.31",
     # SQL parsing — used by Hydrologist (Phase 2), listed here so Phase 1 can import
     "sqlglot>=23.0",
+    # Visualization
+    "matplotlib>=3.8",
 ]
 
 [project.optional-dependencies]

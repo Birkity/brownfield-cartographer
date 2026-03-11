@@ -65,6 +65,14 @@ uv run cartographer analyze /tmp/jaffle-shop
 uv run cartographer analyze https://github.com/dbt-labs/jaffle-shop
 ```
 
+### Full git history (accurate velocity for remote repos)
+
+```bash
+# --full-history clones without --depth, gives accurate change-velocity data
+# Slower for large repos but required if shallow clone shows velocity=0
+uv run cartographer analyze https://github.com/dbt-labs/jaffle-shop --full-history
+```
+
 ### Custom output directory
 
 ```bash
@@ -91,18 +99,21 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 
 | File | Description |
 |------|-------------|
-| `module_graph.json` | NetworkX node-link JSON of the import graph |
-| `module_graph_modules.json` | Full ModuleNode records (imports, functions, classes, velocity) |
+| `module_graph.json` | NetworkX node-link JSON of the import graph (IMPORTS + DBT_REF edges) |
+| `module_graph_modules.json` | Full ModuleNode records (imports, dbt_refs, functions, classes, complexity, velocity) |
 | `cartography_trace.jsonl` | Audit log: one JSON line per agent action |
-| `surveyor_stats.json` | Summary statistics: hub counts, cycles, velocity, elapsed time |
+| `surveyor_stats.json` | Summary: hub counts, import edges, dbt_ref_edges, cycles, velocity, elapsed |
+| `module_graph.png` | Visual graph export (matplotlib; pydot/Graphviz used if installed) |
 
 ### Expected output for jaffle-shop
 
-Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 will find:
-- **SQL files**: inventoried, line-counted; AST extraction limited without `tree-sitter-sql`
+Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 now finds:
+- **SQL files**: inventoried, line-counted; **`{{ ref('model') }}` edges extracted via regex** (no SQL grammar needed)
 - **YAML files**: inventoried, top-level keys extracted
 - **Python files**: few or none (dbt projects are mostly SQL)
-- **Import graph**: sparse for SQL-only repos — this is expected; Phase 2 fills the lineage
+- **Import graph**: **11 DBT_REF edges** (was 0 before) connecting marts → staging models
+- **PageRank**: staging models correctly identified as architectural hubs
+- **Complexity scores**: populated for all Python files (0.0 for SQL/YAML)
 
 ---
 
@@ -116,13 +127,14 @@ src/
 │   └── nodes.py               # Pydantic schemas: ModuleNode, FunctionNode, TraceEntry…
 ├── analyzers/
 │   ├── language_router.py     # Extension → Language routing + skip logic
-│   └── tree_sitter_analyzer.py# AST parsing for Python/SQL/YAML/JS/TS
+│   ├── tree_sitter_analyzer.py# AST parsing + cyclomatic complexity for Python/SQL/YAML/JS/TS
+│   └── dbt_helpers.py         # Regex extraction of {{ ref() }} and {{ source() }} from SQL
 ├── agents/
 │   └── surveyor.py            # Surveyor: file scan → graph → PageRank/SCC
 ├── graph/
-│   └── knowledge_graph.py     # NetworkX wrapper + serialization
+│   └── knowledge_graph.py     # NetworkX wrapper + analytics + PNG visualization
 └── utils/
-    ├── repo_loader.py          # Local path or GitHub URL → local Path
+    ├── repo_loader.py          # Local path or GitHub URL → local Path (--full-history support)
     ├── file_inventory.py       # Walk repo, filter by language
     └── git_tools.py            # git log velocity per file
 ```

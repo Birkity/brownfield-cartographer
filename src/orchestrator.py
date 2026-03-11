@@ -42,6 +42,7 @@ class CartographyArtifacts:
         self.module_graph_modules_json = output_dir / "module_graph_modules.json"
         self.trace_jsonl = output_dir / "cartography_trace.jsonl"
         self.stats_json = output_dir / "surveyor_stats.json"
+        self.viz_png = output_dir / "module_graph.png"
         # TODO Phase 2: self.lineage_graph_json = output_dir / "lineage_graph.json"
         # TODO Phase 4: self.codebase_md = output_dir / "CODEBASE.md"
         # TODO Phase 4: self.onboarding_brief_md = output_dir / "onboarding_brief.md"
@@ -52,6 +53,7 @@ def run_phase1(
     output_dir: Path = DEFAULT_OUTPUT_DIR,
     velocity_days: int = 30,
     clone_base: Optional[Path] = None,
+    full_history: bool = False,
 ) -> CartographyArtifacts:
     """
     Run the full Phase 1 pipeline (Surveyor only).
@@ -61,6 +63,8 @@ def run_phase1(
         output_dir:    Where to write .cartography/ artifacts.
         velocity_days: Git log window for change-velocity analysis.
         clone_base:    Override clone destination (useful for tests).
+        full_history:  If True, clone full git history (accurate velocity).
+                       Ignored for local paths.  Default: shallow --depth=50.
 
     Returns:
         CartographyArtifacts with paths to all written files.
@@ -73,7 +77,7 @@ def run_phase1(
 
     # ---- Resolve repo ---------------------------------------------------
     try:
-        repo_root = resolve_repo(target, clone_base=clone_base)
+        repo_root = resolve_repo(target, clone_base=clone_base, full_history=full_history)
     except RepoLoadError as exc:
         logger.error("Could not resolve repo: %s", exc)
         raise
@@ -87,6 +91,7 @@ def run_phase1(
 
     # ---- Persist graph --------------------------------------------------
     result.graph.save(artifacts.module_graph_json)
+    result.graph.export_viz(artifacts.viz_png)
 
     # ---- Write trace log ------------------------------------------------
     _write_trace(artifacts.trace_jsonl, result)

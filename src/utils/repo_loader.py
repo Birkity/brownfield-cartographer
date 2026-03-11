@@ -29,13 +29,17 @@ class RepoLoadError(Exception):
     """Raised when a repository cannot be resolved to a local path."""
 
 
-def resolve_repo(target: str, clone_base: Path | None = None) -> Path:
+def resolve_repo(target: str, clone_base: Path | None = None, full_history: bool = False) -> Path:
     """
     Resolve *target* to an absolute local Path.
 
     Args:
-        target:      A local directory path or a GitHub HTTPS URL.
-        clone_base:  Where to put cloned repos.  Defaults to a system temp dir.
+        target:        A local directory path or a GitHub HTTPS URL.
+        clone_base:    Where to put cloned repos.  Defaults to a system temp dir.
+        full_history:  If True and *target* is a GitHub URL, clone the full git
+                       history (no --depth limit).  This gives accurate velocity
+                       data but is slower for large repos.
+                       Default: False (clone with --depth=50 for speed).
 
     Returns:
         Absolute Path pointing at the repo root.
@@ -44,7 +48,7 @@ def resolve_repo(target: str, clone_base: Path | None = None) -> Path:
         RepoLoadError: path doesn't exist, isn't a directory, or clone fails.
     """
     if _is_url(target):
-        return _clone_github(target, clone_base)
+        return _clone_github(target, clone_base, full_history=full_history)
 
     path = Path(target).expanduser().resolve()
     if not path.exists():
@@ -69,7 +73,7 @@ def _is_url(target: str) -> bool:
         return False
 
 
-def _clone_github(url: str, clone_base: Path | None) -> Path:
+def _clone_github(url: str, clone_base: Path | None, full_history: bool = False) -> Path:
     """Clone a validated GitHub URL and return the local path."""
     if not _GITHUB_URL_RE.match(url):
         raise RepoLoadError(
@@ -90,13 +94,19 @@ def _clone_github(url: str, clone_base: Path | None) -> Path:
         logger.info("Reusing cached clone at %s", dest)
         return dest
 
-    logger.info("Cloning %s → %s", url, dest)
+    depth_flags = [] if full_history else ["--depth=50"]
+    logger.info(
+        "Cloning %s → %s%s",
+        url,
+        dest,
+        " (full history)" if full_history else " (--depth=50)",
+    )
     try:
         result = subprocess.run(
-            ["git", "clone", "--depth=50", url, str(dest)],
+            ["git", "clone"] + depth_flags + [url, str(dest)],
             capture_output=True,
             text=True,
-            timeout=180,
+            timeout=300,
         )
     except FileNotFoundError:
         raise RepoLoadError(

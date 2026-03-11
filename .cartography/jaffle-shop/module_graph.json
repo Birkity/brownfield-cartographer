@@ -12,6 +12,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": ".pre-commit-config.yaml"
     },
     {
@@ -23,39 +25,47 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "dbt_project.yml"
     },
     {
       "language": "sql",
       "lines_of_code": 16,
       "change_velocity_30d": 0,
-      "is_dead_code_candidate": false,
+      "is_dead_code_candidate": true,
       "parse_error": "Grammar package for 'sql' not installed",
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "macros/cents_to_dollars.sql"
     },
     {
       "language": "sql",
       "lines_of_code": 16,
       "change_velocity_30d": 0,
-      "is_dead_code_candidate": false,
+      "is_dead_code_candidate": true,
       "parse_error": "Grammar package for 'sql' not installed",
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "macros/generate_schema_name.sql"
     },
     {
       "language": "sql",
       "lines_of_code": 38,
       "change_velocity_30d": 0,
-      "is_dead_code_candidate": false,
+      "is_dead_code_candidate": true,
       "parse_error": "Grammar package for 'sql' not installed",
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 2,
+      "complexity_score": 0.0,
       "id": "models/marts/customers.sql"
     },
     {
@@ -67,17 +77,21 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/marts/customers.yml"
     },
     {
       "language": "sql",
       "lines_of_code": 5,
       "change_velocity_30d": 0,
-      "is_dead_code_candidate": false,
+      "is_dead_code_candidate": true,
       "parse_error": "Grammar package for 'sql' not installed",
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 1,
+      "complexity_score": 0.0,
       "id": "models/marts/locations.sql"
     },
     {
@@ -89,17 +103,21 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/marts/locations.yml"
     },
     {
       "language": "sql",
       "lines_of_code": 11,
       "change_velocity_30d": 0,
-      "is_dead_code_candidate": false,
+      "is_dead_code_candidate": true,
       "parse_error": "Grammar package for 'sql' not installed",
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/marts/metricflow_time_spine.sql"
     },
     {
@@ -111,6 +129,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 4,
+      "complexity_score": 0.0,
       "id": "models/marts/order_items.sql"
     },
     {
@@ -122,6 +142,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/marts/order_items.yml"
     },
     {
@@ -133,6 +155,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 2,
+      "complexity_score": 0.0,
       "id": "models/marts/orders.sql"
     },
     {
@@ -144,17 +168,21 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/marts/orders.yml"
     },
     {
       "language": "sql",
       "lines_of_code": 5,
       "change_velocity_30d": 0,
-      "is_dead_code_candidate": false,
+      "is_dead_code_candidate": true,
       "parse_error": "Grammar package for 'sql' not installed",
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 1,
+      "complexity_score": 0.0,
       "id": "models/marts/products.sql"
     },
     {
@@ -166,17 +194,21 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/marts/products.yml"
     },
     {
       "language": "sql",
       "lines_of_code": 5,
       "change_velocity_30d": 0,
-      "is_dead_code_candidate": false,
+      "is_dead_code_candidate": true,
       "parse_error": "Grammar package for 'sql' not installed",
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 1,
+      "complexity_score": 0.0,
       "id": "models/marts/supplies.sql"
     },
     {
@@ -188,6 +220,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/marts/supplies.yml"
     },
     {
@@ -199,6 +233,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/__sources.yml"
     },
     {
@@ -210,6 +246,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_customers.sql"
     },
     {
@@ -221,6 +259,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_customers.yml"
     },
     {
@@ -232,6 +272,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_locations.sql"
     },
     {
@@ -243,6 +285,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_locations.yml"
     },
     {
@@ -254,6 +298,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_order_items.sql"
     },
     {
@@ -265,6 +311,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_order_items.yml"
     },
     {
@@ -276,6 +324,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_orders.sql"
     },
     {
@@ -287,6 +337,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_orders.yml"
     },
     {
@@ -298,6 +350,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_products.sql"
     },
     {
@@ -309,6 +363,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_products.yml"
     },
     {
@@ -320,6 +376,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_supplies.sql"
     },
     {
@@ -331,6 +389,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "models/staging/stg_supplies.yml"
     },
     {
@@ -342,6 +402,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "package-lock.yml"
     },
     {
@@ -353,6 +415,8 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "packages.yml"
     },
     {
@@ -364,8 +428,77 @@
       "function_count": 0,
       "class_count": 0,
       "import_count": 0,
+      "dbt_ref_count": 0,
+      "complexity_score": 0.0,
       "id": "Taskfile.yml"
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/customers.sql",
+      "target": "models/staging/stg_customers.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/customers.sql",
+      "target": "models/marts/orders.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/locations.sql",
+      "target": "models/staging/stg_locations.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/order_items.sql",
+      "target": "models/staging/stg_order_items.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/order_items.sql",
+      "target": "models/staging/stg_orders.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/order_items.sql",
+      "target": "models/staging/stg_products.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/order_items.sql",
+      "target": "models/staging/stg_supplies.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/orders.sql",
+      "target": "models/staging/stg_orders.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/orders.sql",
+      "target": "models/marts/order_items.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/products.sql",
+      "target": "models/staging/stg_products.sql"
+    },
+    {
+      "edge_type": "DBT_REF",
+      "import_count": 1,
+      "source": "models/marts/supplies.sql",
+      "target": "models/staging/stg_supplies.sql"
+    }
+  ]
 }

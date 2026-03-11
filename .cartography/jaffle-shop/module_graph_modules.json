@@ -11,7 +11,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-12-30T12:15:38+02:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "dbt_project.yml": {
     "path": "dbt_project.yml",
@@ -25,7 +26,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-05-22T17:37:16-06:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "macros/cents_to_dollars.sql": {
     "path": "macros/cents_to_dollars.sql",
@@ -37,9 +39,10 @@
     "lines_of_code": 16,
     "complexity_score": 0.0,
     "change_velocity_30d": 0,
-    "is_dead_code_candidate": false,
+    "is_dead_code_candidate": true,
     "last_modified": "2024-05-08T16:04:42+07:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "macros/generate_schema_name.sql": {
     "path": "macros/generate_schema_name.sql",
@@ -51,9 +54,10 @@
     "lines_of_code": 16,
     "complexity_score": 0.0,
     "change_velocity_30d": 0,
-    "is_dead_code_candidate": false,
+    "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/marts/customers.sql": {
     "path": "models/marts/customers.sql",
@@ -65,9 +69,13 @@
     "lines_of_code": 38,
     "complexity_score": 0.0,
     "change_velocity_30d": 0,
-    "is_dead_code_candidate": false,
+    "is_dead_code_candidate": true,
     "last_modified": "2024-04-09T18:58:09-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": [
+      "stg_customers",
+      "orders"
+    ]
   },
   "models/marts/customers.yml": {
     "path": "models/marts/customers.yml",
@@ -81,7 +89,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-07-01T08:58:01-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/marts/locations.sql": {
     "path": "models/marts/locations.sql",
@@ -93,9 +102,12 @@
     "lines_of_code": 5,
     "complexity_score": 0.0,
     "change_velocity_30d": 0,
-    "is_dead_code_candidate": false,
+    "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": [
+      "stg_locations"
+    ]
   },
   "models/marts/locations.yml": {
     "path": "models/marts/locations.yml",
@@ -109,7 +121,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-07-01T08:58:01-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/marts/metricflow_time_spine.sql": {
     "path": "models/marts/metricflow_time_spine.sql",
@@ -121,9 +134,10 @@
     "lines_of_code": 11,
     "complexity_score": 0.0,
     "change_velocity_30d": 0,
-    "is_dead_code_candidate": false,
+    "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/marts/order_items.sql": {
     "path": "models/marts/order_items.sql",
@@ -137,7 +151,13 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-09T18:58:09-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": [
+      "stg_order_items",
+      "stg_orders",
+      "stg_products",
+      "stg_supplies"
+    ]
   },
   "models/marts/order_items.yml": {
     "path": "models/marts/order_items.yml",
@@ -151,7 +171,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-07-01T08:58:01-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/marts/orders.sql": {
     "path": "models/marts/orders.sql",
@@ -165,7 +186,11 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-09T18:58:09-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": [
+      "stg_orders",
+      "order_items"
+    ]
   },
   "models/marts/orders.yml": {
     "path": "models/marts/orders.yml",
@@ -179,7 +204,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-23T13:38:48-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/marts/products.sql": {
     "path": "models/marts/products.sql",
@@ -191,9 +217,12 @@
     "lines_of_code": 5,
     "complexity_score": 0.0,
     "change_velocity_30d": 0,
-    "is_dead_code_candidate": false,
+    "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": [
+      "stg_products"
+    ]
   },
   "models/marts/products.yml": {
     "path": "models/marts/products.yml",
@@ -207,7 +236,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/marts/supplies.sql": {
     "path": "models/marts/supplies.sql",
@@ -219,9 +249,12 @@
     "lines_of_code": 5,
     "complexity_score": 0.0,
     "change_velocity_30d": 0,
-    "is_dead_code_candidate": false,
+    "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": [
+      "stg_supplies"
+    ]
   },
   "models/marts/supplies.yml": {
     "path": "models/marts/supplies.yml",
@@ -235,7 +268,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/staging/__sources.yml": {
     "path": "models/staging/__sources.yml",
@@ -249,7 +283,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-05-22T15:23:56-06:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/staging/stg_customers.sql": {
     "path": "models/staging/stg_customers.sql",
@@ -263,7 +298,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/staging/stg_customers.yml": {
     "path": "models/staging/stg_customers.yml",
@@ -277,7 +313,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-23T13:38:48-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/staging/stg_locations.sql": {
     "path": "models/staging/stg_locations.sql",
@@ -291,7 +328,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-27T13:56:53-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/staging/stg_locations.yml": {
     "path": "models/staging/stg_locations.yml",
@@ -305,7 +343,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-23T13:38:48-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/staging/stg_order_items.sql": {
     "path": "models/staging/stg_order_items.sql",
@@ -319,7 +358,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/staging/stg_order_items.yml": {
     "path": "models/staging/stg_order_items.yml",
@@ -333,7 +373,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-23T13:38:48-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/staging/stg_orders.sql": {
     "path": "models/staging/stg_orders.sql",
@@ -347,7 +388,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-29T13:17:40-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/staging/stg_orders.yml": {
     "path": "models/staging/stg_orders.yml",
@@ -361,7 +403,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-23T13:38:48-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/staging/stg_products.sql": {
     "path": "models/staging/stg_products.sql",
@@ -375,7 +418,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-29T13:17:40-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/staging/stg_products.yml": {
     "path": "models/staging/stg_products.yml",
@@ -389,7 +433,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-23T13:38:48-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "models/staging/stg_supplies.sql": {
     "path": "models/staging/stg_supplies.sql",
@@ -403,7 +448,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-29T13:17:40-05:00",
-    "parse_error": "Grammar package for 'sql' not installed"
+    "parse_error": "Grammar package for 'sql' not installed",
+    "dbt_refs": []
   },
   "models/staging/stg_supplies.yml": {
     "path": "models/staging/stg_supplies.yml",
@@ -417,7 +463,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-23T13:38:48-05:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "package-lock.yml": {
     "path": "package-lock.yml",
@@ -431,7 +478,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-03-22T18:23:45+01:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "packages.yml": {
     "path": "packages.yml",
@@ -445,7 +493,8 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2026-01-20T15:38:12Z",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "Taskfile.yml": {
     "path": "Taskfile.yml",
@@ -459,6 +508,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2025-05-22T17:37:16-06:00",
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   }
 }

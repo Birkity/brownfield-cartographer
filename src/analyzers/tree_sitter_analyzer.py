@@ -404,6 +404,66 @@ def _extract_docstring(fn_or_class_node: Any) -> Optional[str]:
 
 
 # ---------------------------------------------------------------------------
+# Cyclomatic complexity (Python only)
+# ---------------------------------------------------------------------------
+
+# AST node types that each add +1 to cyclomatic complexity
+_BRANCH_NODE_TYPES = frozenset(
+    {
+        "if_statement",
+        "elif_clause",
+        "for_statement",
+        "while_statement",
+        "except_clause",
+        "conditional_expression",  # ternary: x if cond else y
+        "boolean_operator",        # 'and' / 'or' each add a path
+        "with_statement",          # context managers can mask exceptions
+    }
+)
+
+
+def _count_branch_nodes(root: Any) -> int:
+    """
+    Count decision-point AST nodes under *root* using an iterative traversal
+    (avoids hitting Python's recursion limit on deeply nested files).
+    """
+    stack = [root]
+    count = 0
+    while stack:
+        node = stack.pop()
+        if node.type in _BRANCH_NODE_TYPES:
+            count += 1
+        stack.extend(node.children)
+    return count
+
+
+def _compute_python_complexity(root_node: Any) -> float:
+    """
+    Compute a rough cyclomatic complexity score for an entire Python file.
+
+    Algorithm:
+    - For each function_definition, compute: 1 + branch_count(function_body)
+    - Complexity of the file = max complexity across all functions
+    - If no functions are defined (e.g. pure script), compute file-level score
+
+    Returns 0.0 when the Python grammar is unavailable.
+    """
+    lang = _get_grammar("python")
+    if lang is None:
+        return 0.0
+
+    captures = _run_query(lang, _PY_FUNCTION_QUERY, root_node)
+    fn_defs = captures.get("fn.def", [])
+
+    if not fn_defs:
+        # Script-level: just count branches at file level
+        return float(1 + _count_branch_nodes(root_node))
+
+    scores = [1 + _count_branch_nodes(fn) for fn in fn_defs]
+    return float(max(scores))
+
+
+# ---------------------------------------------------------------------------
 # SQL extractor (best-effort via tree-sitter-sql, optional)
 # ---------------------------------------------------------------------------
 
@@ -585,6 +645,13 @@ def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNod
 
     node.lines_of_code = count_lines(source)
 
+    # ---- dbt ref() extraction for SQL (regex, no grammar needed) --------
+    # This runs BEFORE the grammar check so dbt refs are captured even when
+    # the tree-sitter-sql grammar is not installed.
+    if language == Language.SQL:
+        from src.analyzers.dbt_helpers import extract_dbt_refs  # local import avoids cycles
+        node.dbt_refs = extract_dbt_refs(source.decode("utf-8", errors="replace"))
+
     # ---- Select grammar key ---
     grammar_key_map = {
         Language.PYTHON: "python",
@@ -621,6 +688,7 @@ def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNod
             node.imports = _parse_python_imports(root, rel_path)
             node.functions = _parse_python_functions(root, rel_path)
             node.classes = _parse_python_classes(root, rel_path)
+            node.complexity_score = _compute_python_complexity(root)
 
         elif language == Language.SQL:
             # SQL: store table refs as synthetic ImportInfo for graph edges

@@ -93,11 +93,21 @@ def cli(ctx: click.Context, verbose: bool) -> None:
     default=None,
     help="Directory to clone remote repos into (default: system temp).",
 )
+@click.option(
+    "--full-history",
+    is_flag=True,
+    default=False,
+    help=(
+        "Clone the full git history (no --depth limit). Slower but gives accurate "
+        "change-velocity data. Ignored for local paths."
+    ),
+)
 def analyze(
     target: str,
     output_dir: str,
     velocity_days: int,
     clone_base: str | None,
+    full_history: bool,
 ) -> None:
     """
     Analyse TARGET and write cartography artifacts.
@@ -125,6 +135,7 @@ def analyze(
             output_dir=output_path,
             velocity_days=velocity_days,
             clone_base=clone_path,
+            full_history=full_history,
         )
     except RepoLoadError as exc:
         console.print(f"[bold red]Error:[/] {exc}")
@@ -164,6 +175,9 @@ def _print_summary(artifacts) -> None:
     if parse_errors:
         overview.add_row("[red]Real parse errors[/red]", str(parse_errors))
     overview.add_row("Import edges", str(stats.get("import_edges", "?")))
+    dbt_edges = stats.get("dbt_ref_edges", 0)
+    if dbt_edges:
+        overview.add_row("[green]dbt {{ ref() }} edges[/green]", str(dbt_edges))
     overview.add_row(
         "Circular dependency clusters", str(stats.get("circular_dependency_clusters", "?"))
     )
@@ -198,6 +212,7 @@ def _print_summary(artifacts) -> None:
         "module_graph_modules_json",
         "trace_jsonl",
         "stats_json",
+        "viz_png",
     ]:
         p = getattr(artifacts, name)
         if p.exists():

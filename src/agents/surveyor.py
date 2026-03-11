@@ -176,12 +176,16 @@ class Surveyor:
 
         # ---- Step 4: build import edges ----------------------------------
         edge_count = self._build_import_edges(graph, repo_root)
+        dbt_edge_count = self._build_dbt_ref_edges(graph)
         trace.append(
             TraceEntry(
                 agent="Surveyor",
                 action="build_import_graph",
                 target=str(repo_root),
-                result=f"Added {edge_count} import edges to the module graph",
+                result=(
+                    f"Added {edge_count} Python import edges and "
+                    f"{dbt_edge_count} dbt {{ ref() }} edges"
+                ),
                 analysis_method=AnalysisMethod.STATIC_ANALYSIS,
             )
         )
@@ -233,6 +237,7 @@ class Surveyor:
             "grammar_not_available": grammar_missing,
             "parse_errors": parse_errors,
             "import_edges": edge_count,
+            "dbt_ref_edges": dbt_edge_count,
             "circular_dependency_clusters": len(cycles),
             "dead_code_candidates": len(dead),
             "top_hubs": hubs[:5],
@@ -346,3 +351,41 @@ class Surveyor:
                     return path
 
         return None  # third-party or unresolvable
+
+    def _build_dbt_ref_edges(self, graph: KnowledgeGraph) -> int:
+        """
+        Create DBT_REF edges from {{ ref('model_name') }} calls in SQL files.
+
+        Algorithm:
+        1. Index all SQL modules by their file stem:
+           e.g. "models/staging/stg_orders.sql" → key "stg_orders"
+        2. For each SQL module, iterate its dbt_refs (populated by dbt_helpers)
+        3. Resolve each ref name to a SQL file path via the stem index
+        4. Add a DBT_REF edge: current_file → referenced_model
+
+        Returns the number of edges added.
+        """
+        from src.models.nodes import Language  # avoid circular at module level
+
+        # Build stem → path index for SQL modules
+        stem_to_path: dict[str, str] = {}
+        for mod in graph.all_modules():
+            if mod.language == Language.SQL:
+                from pathlib import PurePosixPath
+                stem = PurePosixPath(mod.path).stem  # "stg_orders" from "models/staging/stg_orders.sql"
+                stem_to_path[stem] = mod.path
+
+        if not stem_to_path:
+            return 0  # No SQL files tracked — skip
+
+        edges_added = 0
+        for module in graph.all_modules():
+            if not module.dbt_refs:
+                continue
+            for ref_name in module.dbt_refs:
+                target = stem_to_path.get(ref_name)
+                if target and target != module.path:
+                    graph.add_import_edge(module.path, target, edge_type="DBT_REF")
+                    edges_added += 1
+
+        return edges_added

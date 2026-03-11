@@ -1,4 +1,99 @@
 {
+  "_test_dbt.py": {
+    "path": "_test_dbt.py",
+    "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\_test_dbt.py",
+    "language": "python",
+    "imports": [
+      {
+        "module": "src.analyzers.dbt_helpers",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 1
+      }
+    ],
+    "functions": [],
+    "classes": [],
+    "lines_of_code": 5,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 0,
+    "is_dead_code_candidate": true,
+    "last_modified": null,
+    "parse_error": null,
+    "dbt_refs": []
+  },
+  "_test_improvements.py": {
+    "path": "_test_improvements.py",
+    "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\_test_improvements.py",
+    "language": "python",
+    "imports": [
+      {
+        "module": "json",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 2
+      },
+      {
+        "module": "tempfile",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 17
+      },
+      {
+        "module": "os",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 17
+      },
+      {
+        "module": "pathlib",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 3
+      },
+      {
+        "module": "src.analyzers.tree_sitter_analyzer",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 4
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 5
+      },
+      {
+        "module": "src.graph.knowledge_graph",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 30
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 31
+      }
+    ],
+    "functions": [],
+    "classes": [],
+    "lines_of_code": 52,
+    "complexity_score": 2.0,
+    "change_velocity_30d": 0,
+    "is_dead_code_candidate": true,
+    "last_modified": null,
+    "parse_error": null,
+    "dbt_refs": []
+  },
   "src/__init__.py": {
     "path": "src/__init__.py",
     "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\src\\__init__.py",
@@ -7,11 +102,12 @@
     "functions": [],
     "classes": [],
     "lines_of_code": 1,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/agents/__init__.py": {
     "path": "src/agents/__init__.py",
@@ -21,11 +117,12 @@
     "functions": [],
     "classes": [],
     "lines_of_code": 0,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/agents/surveyor.py": {
     "path": "src/agents/surveyor.py",
@@ -94,6 +191,20 @@
         "alias": null,
         "is_relative": false,
         "line": 34
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 368
+      },
+      {
+        "module": "pathlib",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 374
       }
     ],
     "functions": [
@@ -124,7 +235,7 @@
         "signature": "def run(\r\n        self,\r\n        repo_root: Path,\r\n        velocity_days: Optional[int] = None,\r\n    ) -> SurveyorResult",
         "is_public_api": true,
         "line": 79,
-        "end_line": 243,
+        "end_line": 256,
         "docstring": "Execute the full Surveyor analysis on *repo_root*.\r\n\r\n        Args:\r\n            repo_root:      Absolute path to the local repository.\r\n            velocity_days:  Override the default window for git velocity analysis.\r\n\r\n        Returns:\r\n            SurveyorResult containing the KnowledgeGraph and audit trace."
       },
       {
@@ -133,8 +244,8 @@
         "parent_module": "src/agents/surveyor.py",
         "signature": "def _build_import_edges(self, graph: KnowledgeGraph, repo_root: Path) -> int",
         "is_public_api": false,
-        "line": 249,
-        "end_line": 290,
+        "line": 262,
+        "end_line": 303,
         "docstring": "Resolve imports in each Python module to graph edges.\r\n\r\n        For absolute imports (e.g. `import src.utils.git_tools`), we try to\r\n        match against known module paths.  For relative imports we resolve\r\n        relative to the importing file's directory.\r\n\r\n        Returns the total number of edges added."
       },
       {
@@ -143,9 +254,19 @@
         "parent_module": "src/agents/surveyor.py",
         "signature": "def _resolve_import(\r\n        self,\r\n        import_module: str,\r\n        source_path: str,\r\n        tracked_paths: set[str],\r\n        dotted_to_path: dict[str, str],\r\n    ) -> Optional[str]",
         "is_public_api": false,
-        "line": 292,
-        "end_line": 340,
+        "line": 305,
+        "end_line": 353,
         "docstring": "Try to resolve an import string to a known module path.\r\n\r\n        Resolution order:\r\n        1. Exact dotted-name match in our index\r\n        2. Relative import resolution from source file's directory\r\n        3. Partial (suffix) match as a last resort\r\n\r\n        Returns None for third-party or unresolvable imports."
+      },
+      {
+        "name": "_build_dbt_ref_edges",
+        "qualified_name": "_build_dbt_ref_edges",
+        "parent_module": "src/agents/surveyor.py",
+        "signature": "def _build_dbt_ref_edges(self, graph: KnowledgeGraph) -> int",
+        "is_public_api": false,
+        "line": 355,
+        "end_line": 391,
+        "docstring": "Create DBT_REF edges from {{ ref('model_name') }} calls in SQL files.\r\n\r\n        Algorithm:\r\n        1. Index all SQL modules by their file stem:\r\n           e.g. \"models/staging/stg_orders.sql\" \u2192 key \"stg_orders\"\r\n        2. For each SQL module, iterate its dbt_refs (populated by dbt_helpers)\r\n        3. Resolve each ref name to a SQL file path via the stem index\r\n        4. Add a DBT_REF edge: current_file \u2192 referenced_model\r\n\r\n        Returns the number of edges added."
       }
     ],
     "classes": [
@@ -167,22 +288,24 @@
         "parent_module": "src/agents/surveyor.py",
         "bases": [],
         "line": 60,
-        "end_line": 340,
+        "end_line": 391,
         "methods": [
           "__init__",
           "run",
           "_build_import_edges",
-          "_resolve_import"
+          "_resolve_import",
+          "_build_dbt_ref_edges"
         ],
         "docstring": "Analyzes a repository's static structure and builds the module import graph.\r\n\r\n    Usage::\r\n\r\n        surveyor = Surveyor()\r\n        result = surveyor.run(repo_root=Path(\"/path/to/repo\"), velocity_days=30)\r\n        result.graph.save(Path(\".cartography/module_graph.json\"))"
       }
     ],
-    "lines_of_code": 291,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "lines_of_code": 335,
+    "complexity_score": 13.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/analyzers/__init__.py": {
     "path": "src/analyzers/__init__.py",
@@ -192,11 +315,56 @@
     "functions": [],
     "classes": [],
     "lines_of_code": 0,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": true,
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
+  },
+  "src/analyzers/dbt_helpers.py": {
+    "path": "src/analyzers/dbt_helpers.py",
+    "abs_path": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\src\\analyzers\\dbt_helpers.py",
+    "language": "python",
+    "imports": [
+      {
+        "module": "re",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 18
+      }
+    ],
+    "functions": [
+      {
+        "name": "extract_dbt_refs",
+        "qualified_name": "extract_dbt_refs",
+        "parent_module": "src/analyzers/dbt_helpers.py",
+        "signature": "def extract_dbt_refs(sql_text: str) -> list[str]",
+        "is_public_api": true,
+        "line": 29,
+        "end_line": 37,
+        "docstring": "Return all model names referenced via {{ ref('model_name') }} in *sql_text*.\r\n\r\n    Example:\r\n        sql = \"SELECT * FROM {{ ref('stg_orders') }} JOIN {{ ref('stg_customers') }}\"\r\n        extract_dbt_refs(sql)  # \u2192 ['stg_orders', 'stg_customers']"
+      },
+      {
+        "name": "extract_dbt_sources",
+        "qualified_name": "extract_dbt_sources",
+        "parent_module": "src/analyzers/dbt_helpers.py",
+        "signature": "def extract_dbt_sources(sql_text: str) -> list[tuple[str, str]]",
+        "is_public_api": true,
+        "line": 40,
+        "end_line": 48,
+        "docstring": "Return (schema, table) pairs from {{ source('schema', 'table') }} calls.\r\n\r\n    Example:\r\n        sql = \"SELECT * FROM {{ source('raw', 'orders') }}\"\r\n        extract_dbt_sources(sql)  # \u2192 [('raw', 'orders')]"
+      }
+    ],
+    "classes": [],
+    "lines_of_code": 35,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 0,
+    "is_dead_code_candidate": false,
     "last_modified": null,
-    "parse_error": null
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/analyzers/language_router.py": {
     "path": "src/analyzers/language_router.py",
@@ -280,11 +448,12 @@
       }
     ],
     "lines_of_code": 145,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 4.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/analyzers/tree_sitter_analyzer.py": {
     "path": "src/analyzers/tree_sitter_analyzer.py",
@@ -381,6 +550,13 @@
         "alias": null,
         "is_relative": false,
         "line": 129
+      },
+      {
+        "module": "src.analyzers.dbt_helpers",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 652
       }
     ],
     "functions": [
@@ -515,13 +691,33 @@
         "docstring": "Extract the first docstring from a function_definition or class_definition."
       },
       {
+        "name": "_count_branch_nodes",
+        "qualified_name": "_count_branch_nodes",
+        "parent_module": "src/analyzers/tree_sitter_analyzer.py",
+        "signature": "def _count_branch_nodes(root: Any) -> int",
+        "is_public_api": false,
+        "line": 425,
+        "end_line": 437,
+        "docstring": "Count decision-point AST nodes under *root* using an iterative traversal\r\n    (avoids hitting Python's recursion limit on deeply nested files)."
+      },
+      {
+        "name": "_compute_python_complexity",
+        "qualified_name": "_compute_python_complexity",
+        "parent_module": "src/analyzers/tree_sitter_analyzer.py",
+        "signature": "def _compute_python_complexity(root_node: Any) -> float",
+        "is_public_api": false,
+        "line": 440,
+        "end_line": 463,
+        "docstring": "Compute a rough cyclomatic complexity score for an entire Python file.\r\n\r\n    Algorithm:\r\n    - For each function_definition, compute: 1 + branch_count(function_body)\r\n    - Complexity of the file = max complexity across all functions\r\n    - If no functions are defined (e.g. pure script), compute file-level score\r\n\r\n    Returns 0.0 when the Python grammar is unavailable."
+      },
+      {
         "name": "_parse_sql_table_refs",
         "qualified_name": "_parse_sql_table_refs",
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_sql_table_refs(root_node: Any) -> list[str]",
         "is_public_api": false,
-        "line": 422,
-        "end_line": 435,
+        "line": 482,
+        "end_line": 495,
         "docstring": "Extract table names referenced in SQL (best-effort, grammar-dependent)."
       },
       {
@@ -530,8 +726,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_yaml_top_keys(root_node: Any) -> list[str]",
         "is_public_api": false,
-        "line": 454,
-        "end_line": 474,
+        "line": 514,
+        "end_line": 534,
         "docstring": "Extract top-level YAML mapping keys for structural awareness."
       },
       {
@@ -540,8 +736,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_js_imports(root_node: Any, language: Language) -> list[ImportInfo]",
         "is_public_api": false,
-        "line": 503,
-        "end_line": 523,
+        "line": 563,
+        "end_line": 583,
         "docstring": null
       },
       {
@@ -550,8 +746,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def _parse_js_functions(\r\n    root_node: Any, language: Language, rel_path: str\r\n) -> list[FunctionNode]",
         "is_public_api": false,
-        "line": 526,
-        "end_line": 557,
+        "line": 586,
+        "end_line": 617,
         "docstring": null
       },
       {
@@ -560,8 +756,8 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def count_lines(source: bytes) -> int",
         "is_public_api": true,
-        "line": 565,
-        "end_line": 567,
+        "line": 625,
+        "end_line": 627,
         "docstring": "Count non-empty lines of actual content."
       },
       {
@@ -570,18 +766,19 @@
         "parent_module": "src/analyzers/tree_sitter_analyzer.py",
         "signature": "def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNode",
         "is_public_api": true,
-        "line": 570,
-        "end_line": 647,
+        "line": 630,
+        "end_line": 715,
         "docstring": "Parse a single source file and return a populated ModuleNode.\r\n\r\n    This is the primary entry point called by the Surveyor agent.\r\n    Never raises: all failures are captured in ``ModuleNode.parse_error``."
       }
     ],
     "classes": [],
-    "lines_of_code": 529,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "lines_of_code": 584,
+    "complexity_score": 17.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/cli.py": {
     "path": "src/cli.py",
@@ -681,10 +878,10 @@
         "name": "analyze",
         "qualified_name": "analyze",
         "parent_module": "src/cli.py",
-        "signature": "def analyze(\r\n    target: str,\r\n    output_dir: str,\r\n    velocity_days: int,\r\n    clone_base: str | None,\r\n) -> None",
+        "signature": "def analyze(\r\n    target: str,\r\n    output_dir: str,\r\n    velocity_days: int,\r\n    clone_base: str | None,\r\n    full_history: bool,\r\n) -> None",
         "is_public_api": true,
-        "line": 96,
-        "end_line": 138,
+        "line": 105,
+        "end_line": 149,
         "docstring": "Analyse TARGET and write cartography artifacts.\r\n\r\n    TARGET can be:\r\n    \\b\r\n      - A local filesystem path to a repository directory\r\n      - A GitHub HTTPS URL (https://github.com/<owner>/<repo>)"
       },
       {
@@ -693,8 +890,8 @@
         "parent_module": "src/cli.py",
         "signature": "def _print_summary(artifacts) -> None",
         "is_public_api": false,
-        "line": 141,
-        "end_line": 201,
+        "line": 152,
+        "end_line": 221,
         "docstring": "Print a Rich-formatted summary after a successful Phase 1 run."
       },
       {
@@ -703,18 +900,19 @@
         "parent_module": "src/cli.py",
         "signature": "def query(cartography_dir: str) -> None",
         "is_public_api": true,
-        "line": 216,
-        "end_line": 229,
+        "line": 236,
+        "end_line": 249,
         "docstring": "[TODO Phase 4] Interactive query interface (Navigator agent).\r\n\r\n    Launches a conversational agent with four tools:\r\n      find_implementation(concept)\r\n      trace_lineage(dataset, direction)\r\n      blast_radius(module_path)\r\n      explain_module(path)"
       }
     ],
     "classes": [],
-    "lines_of_code": 193,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "lines_of_code": 213,
+    "complexity_score": 12.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/graph/__init__.py": {
     "path": "src/graph/__init__.py",
@@ -724,11 +922,12 @@
     "functions": [],
     "classes": [],
     "lines_of_code": 0,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/graph/knowledge_graph.py": {
     "path": "src/graph/knowledge_graph.py",
@@ -757,6 +956,20 @@
         "line": 28
       },
       {
+        "module": "matplotlib",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 241
+      },
+      {
+        "module": "matplotlib.pyplot",
+        "names": [],
+        "alias": "plt",
+        "is_relative": false,
+        "line": 243
+      },
+      {
         "module": "pathlib",
         "names": [],
         "alias": null,
@@ -776,6 +989,27 @@
         "alias": null,
         "is_relative": false,
         "line": 30
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 151
+      },
+      {
+        "module": "src.models.nodes",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 183
+      },
+      {
+        "module": "networkx.drawing.nx_pydot",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 231
       }
     ],
     "functions": [
@@ -796,7 +1030,7 @@
         "signature": "def add_module(self, module: ModuleNode) -> None",
         "is_public_api": true,
         "line": 57,
-        "end_line": 70,
+        "end_line": 72,
         "docstring": "Add or update a ModuleNode in the graph."
       },
       {
@@ -805,8 +1039,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def get_module(self, path: str) -> Optional[ModuleNode]",
         "is_public_api": true,
-        "line": 72,
-        "end_line": 73,
+        "line": 74,
+        "end_line": 75,
         "docstring": null
       },
       {
@@ -815,19 +1049,19 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def all_modules(self) -> list[ModuleNode]",
         "is_public_api": true,
-        "line": 75,
-        "end_line": 76,
+        "line": 77,
+        "end_line": 78,
         "docstring": null
       },
       {
         "name": "add_import_edge",
         "qualified_name": "add_import_edge",
         "parent_module": "src/graph/knowledge_graph.py",
-        "signature": "def add_import_edge(self, source: str, target: str) -> None",
+        "signature": "def add_import_edge(self, source: str, target: str, edge_type: str = \"IMPORTS\") -> None",
         "is_public_api": true,
-        "line": 82,
-        "end_line": 96,
-        "docstring": "Record that *source* imports *target*.\r\n\r\n        If the edge already exists, increment the import_count weight.\r\n        *target* may not be a tracked module (e.g. third-party package) \u2014\r\n        we still create a node for it so PageRank works correctly."
+        "line": 84,
+        "end_line": 101,
+        "docstring": "Record that *source* imports *target*.\r\n\r\n        If the edge already exists, increment the import_count weight.\r\n        *target* may not be a tracked module (e.g. third-party package) \u2014\r\n        we still create a node for it so PageRank works correctly.\r\n\r\n        Args:\r\n            edge_type: \"IMPORTS\" for Python imports, \"DBT_REF\" for {{ ref() }} calls."
       },
       {
         "name": "pagerank",
@@ -835,8 +1069,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def pagerank(self, alpha: float = 0.85) -> dict[str, float]",
         "is_public_api": true,
-        "line": 106,
-        "end_line": 120,
+        "line": 111,
+        "end_line": 125,
         "docstring": "Compute PageRank over the import graph.\r\n\r\n        High-PageRank nodes are the modules most frequently imported by others \u2014\r\n        the architectural hubs.  Returns {module_path: score}."
       },
       {
@@ -845,8 +1079,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def strongly_connected_components(self) -> list[list[str]]",
         "is_public_api": true,
-        "line": 122,
-        "end_line": 131,
+        "line": 127,
+        "end_line": 136,
         "docstring": "Return non-trivial strongly-connected components (circular dependencies).\r\n\r\n        A component with >1 node means those modules form a circular import chain."
       },
       {
@@ -855,9 +1089,9 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def dead_code_candidates(self) -> list[str]",
         "is_public_api": true,
-        "line": 133,
-        "end_line": 145,
-        "docstring": "Return module paths whose in-degree is 0 within the tracked module set.\r\n\r\n        These modules are never imported by any other tracked module, making\r\n        them candidates for dead code (or entry-point scripts / standalone tools)."
+        "line": 138,
+        "end_line": 170,
+        "docstring": "Return module paths whose in-degree is 0 within the tracked set.\r\n\r\n        Python files:\r\n            Any Python module with in-degree == 0 is a candidate (may be an\r\n            entry-point script, standalone utility, or genuinely dead code).\r\n\r\n        SQL files:\r\n            A SQL model with in-degree == 0 AND not located in seeds/ or macros/\r\n            is likely an unreferenced terminal model or an unused model.\r\n            Seeds and macros are exempted \u2014 they are not meant to be ref'd by others."
       },
       {
         "name": "hub_modules",
@@ -865,8 +1099,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def hub_modules(self, top_n: int = 10) -> list[tuple[str, float]]",
         "is_public_api": true,
-        "line": 147,
-        "end_line": 154,
+        "line": 172,
+        "end_line": 179,
         "docstring": "Return the top-N modules by PageRank score."
       },
       {
@@ -875,9 +1109,19 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def summary(self) -> dict[str, Any]",
         "is_public_api": true,
-        "line": 156,
-        "end_line": 167,
+        "line": 181,
+        "end_line": 207,
         "docstring": "Return a human-readable summary dict for logging and the Archivist."
+      },
+      {
+        "name": "export_viz",
+        "qualified_name": "export_viz",
+        "parent_module": "src/graph/knowledge_graph.py",
+        "signature": "def export_viz(self, output_path: Path) -> bool",
+        "is_public_api": true,
+        "line": 213,
+        "end_line": 297,
+        "docstring": "Export the import graph to a PNG image.\r\n\r\n        Attempts two rendering engines in order:\r\n        1. pydot / Graphviz dot (better hierarchical layout \u2014 needs graphviz binary)\r\n        2. matplotlib spring-layout (always works if matplotlib is installed)\r\n\r\n        Returns True if the PNG was written, False if both engines failed."
       },
       {
         "name": "save",
@@ -885,8 +1129,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def save(self, output_path: Path) -> None",
         "is_public_api": true,
-        "line": 173,
-        "end_line": 196,
+        "line": 303,
+        "end_line": 326,
         "docstring": "Serialise the graph to *output_path* as NetworkX node-link JSON.\r\n\r\n        Also writes a companion `<stem>_modules.json` with the full ModuleNode\r\n        records so agents in later phases don't have to re-parse."
       },
       {
@@ -895,8 +1139,8 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "signature": "def load(cls, input_path: Path) -> \"KnowledgeGraph\"",
         "is_public_api": true,
-        "line": 199,
-        "end_line": 227,
+        "line": 329,
+        "end_line": 357,
         "docstring": "Load a previously-saved graph from node-link JSON.\r\n\r\n        Also attempts to reload the companion `_modules.json` if present."
       }
     ],
@@ -907,7 +1151,7 @@
         "parent_module": "src/graph/knowledge_graph.py",
         "bases": [],
         "line": 35,
-        "end_line": 227,
+        "end_line": 357,
         "methods": [
           "__init__",
           "add_module",
@@ -919,17 +1163,19 @@
           "dead_code_candidates",
           "hub_modules",
           "summary",
+          "export_viz",
           "save"
         ],
         "docstring": "Central graph store.  One instance is shared across all agents in a run.\r\n\r\n    Usage::\r\n\r\n        graph = KnowledgeGraph()\r\n        graph.add_module(module_node)\r\n        graph.add_import_edge(\"src/foo.py\", \"src/bar.py\")\r\n        graph.save(Path(\".cartography/module_graph.json\"))"
       }
     ],
-    "lines_of_code": 186,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "lines_of_code": 300,
+    "complexity_score": 9.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/models/__init__.py": {
     "path": "src/models/__init__.py",
@@ -939,11 +1185,12 @@
     "functions": [],
     "classes": [],
     "lines_of_code": 0,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/models/nodes.py": {
     "path": "src/models/nodes.py",
@@ -1067,7 +1314,7 @@
           "BaseModel"
         ],
         "line": 132,
-        "end_line": 169,
+        "end_line": 172,
         "methods": [],
         "docstring": "Represents a single source file in the codebase.\r\n\r\n    Populated progressively by agents:\r\n    - Phase 1 (Surveyor):    path, language, imports, functions, classes,\r\n                              lines_of_code, change_velocity_30d, last_modified\r\n    - Phase 3 (Semanticist): purpose_statement, domain_cluster, doc_drift_detected"
       },
@@ -1078,8 +1325,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 172,
-        "end_line": 184,
+        "line": 175,
+        "end_line": 187,
         "methods": [],
         "docstring": "Represents a data artifact (table, file, stream, API endpoint).\r\n\r\n    TODO Phase 2 (Hydrologist): populate from PythonDataFlowAnalyzer + SQLLineageAnalyzer."
       },
@@ -1090,8 +1337,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 187,
-        "end_line": 201,
+        "line": 190,
+        "end_line": 204,
         "methods": [],
         "docstring": "A data transformation between datasets.\r\n\r\n    TODO Phase 2 (Hydrologist): populate from SQL/Python analysis."
       },
@@ -1102,8 +1349,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 209,
-        "end_line": 215,
+        "line": 212,
+        "end_line": 218,
         "methods": [],
         "docstring": "Edge: source_module \u2192 target_module via an import statement."
       },
@@ -1114,8 +1361,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 218,
-        "end_line": 222,
+        "line": 221,
+        "end_line": 225,
         "methods": [],
         "docstring": "Edge: transformation \u2192 dataset (data lineage). Phase 2."
       },
@@ -1126,8 +1373,8 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 225,
-        "end_line": 229,
+        "line": 228,
+        "end_line": 232,
         "methods": [],
         "docstring": "Edge: transformation \u2190 dataset (upstream dependency). Phase 2."
       },
@@ -1138,18 +1385,19 @@
         "bases": [
           "BaseModel"
         ],
-        "line": 237,
-        "end_line": 264,
+        "line": 240,
+        "end_line": 267,
         "methods": [],
         "docstring": "One entry in the cartography_trace.jsonl audit log.\r\n\r\n    Every agent action that produces intelligence must emit a TraceEntry.\r\n    The distinction between static_analysis and llm_inference matters for\r\n    trust calibration when reading the Onboarding Brief."
       }
     ],
-    "lines_of_code": 179,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "lines_of_code": 181,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/orchestrator.py": {
     "path": "src/orchestrator.py",
@@ -1207,18 +1455,18 @@
         "signature": "def __init__(self, output_dir: Path) -> None",
         "is_public_api": false,
         "line": 39,
-        "end_line": 47,
+        "end_line": 48,
         "docstring": null
       },
       {
         "name": "run_phase1",
         "qualified_name": "run_phase1",
         "parent_module": "src/orchestrator.py",
-        "signature": "def run_phase1(\r\n    target: str,\r\n    output_dir: Path = DEFAULT_OUTPUT_DIR,\r\n    velocity_days: int = 30,\r\n    clone_base: Optional[Path] = None,\r\n) -> CartographyArtifacts",
+        "signature": "def run_phase1(\r\n    target: str,\r\n    output_dir: Path = DEFAULT_OUTPUT_DIR,\r\n    velocity_days: int = 30,\r\n    clone_base: Optional[Path] = None,\r\n    full_history: bool = False,\r\n) -> CartographyArtifacts",
         "is_public_api": true,
-        "line": 50,
-        "end_line": 101,
-        "docstring": "Run the full Phase 1 pipeline (Surveyor only).\r\n\r\n    Args:\r\n        target:        Local repo path or GitHub HTTPS URL.\r\n        output_dir:    Where to write .cartography/ artifacts.\r\n        velocity_days: Git log window for change-velocity analysis.\r\n        clone_base:    Override clone destination (useful for tests).\r\n\r\n    Returns:\r\n        CartographyArtifacts with paths to all written files.\r\n\r\n    Raises:\r\n        RepoLoadError: if the target cannot be resolved."
+        "line": 51,
+        "end_line": 106,
+        "docstring": "Run the full Phase 1 pipeline (Surveyor only).\r\n\r\n    Args:\r\n        target:        Local repo path or GitHub HTTPS URL.\r\n        output_dir:    Where to write .cartography/ artifacts.\r\n        velocity_days: Git log window for change-velocity analysis.\r\n        clone_base:    Override clone destination (useful for tests).\r\n        full_history:  If True, clone full git history (accurate velocity).\r\n                       Ignored for local paths.  Default: shallow --depth=50.\r\n\r\n    Returns:\r\n        CartographyArtifacts with paths to all written files.\r\n\r\n    Raises:\r\n        RepoLoadError: if the target cannot be resolved."
       },
       {
         "name": "_write_trace",
@@ -1226,8 +1474,8 @@
         "parent_module": "src/orchestrator.py",
         "signature": "def _write_trace(trace_path: Path, result: SurveyorResult) -> None",
         "is_public_api": false,
-        "line": 112,
-        "end_line": 117,
+        "line": 117,
+        "end_line": 122,
         "docstring": "Append all TraceEntry records to the JSONL audit log."
       },
       {
@@ -1236,8 +1484,8 @@
         "parent_module": "src/orchestrator.py",
         "signature": "def _write_stats(\r\n    stats_path: Path,\r\n    result: SurveyorResult,\r\n    repo_root: Path,\r\n    target: str,\r\n) -> None",
         "is_public_api": false,
-        "line": 120,
-        "end_line": 134,
+        "line": 125,
+        "end_line": 139,
         "docstring": "Write the Surveyor stats summary to a JSON file."
       }
     ],
@@ -1248,19 +1496,20 @@
         "parent_module": "src/orchestrator.py",
         "bases": [],
         "line": 36,
-        "end_line": 47,
+        "end_line": 48,
         "methods": [
           "__init__"
         ],
         "docstring": "Paths to all files written by the orchestrator for a given run."
       }
     ],
-    "lines_of_code": 104,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "lines_of_code": 109,
+    "complexity_score": 3.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/utils/__init__.py": {
     "path": "src/utils/__init__.py",
@@ -1270,11 +1519,12 @@
     "functions": [],
     "classes": [],
     "lines_of_code": 0,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 1.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": true,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/utils/file_inventory.py": {
     "path": "src/utils/file_inventory.py",
@@ -1388,11 +1638,12 @@
       }
     ],
     "lines_of_code": 105,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 10.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/utils/git_tools.py": {
     "path": "src/utils/git_tools.py",
@@ -1522,11 +1773,12 @@
       }
     ],
     "lines_of_code": 129,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "complexity_score": 7.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   },
   "src/utils/repo_loader.py": {
     "path": "src/utils/repo_loader.py",
@@ -1581,11 +1833,11 @@
         "name": "resolve_repo",
         "qualified_name": "resolve_repo",
         "parent_module": "src/utils/repo_loader.py",
-        "signature": "def resolve_repo(target: str, clone_base: Path | None = None) -> Path",
+        "signature": "def resolve_repo(target: str, clone_base: Path | None = None, full_history: bool = False) -> Path",
         "is_public_api": true,
         "line": 32,
-        "end_line": 56,
-        "docstring": "Resolve *target* to an absolute local Path.\r\n\r\n    Args:\r\n        target:      A local directory path or a GitHub HTTPS URL.\r\n        clone_base:  Where to put cloned repos.  Defaults to a system temp dir.\r\n\r\n    Returns:\r\n        Absolute Path pointing at the repo root.\r\n\r\n    Raises:\r\n        RepoLoadError: path doesn't exist, isn't a directory, or clone fails."
+        "end_line": 60,
+        "docstring": "Resolve *target* to an absolute local Path.\r\n\r\n    Args:\r\n        target:        A local directory path or a GitHub HTTPS URL.\r\n        clone_base:    Where to put cloned repos.  Defaults to a system temp dir.\r\n        full_history:  If True and *target* is a GitHub URL, clone the full git\r\n                       history (no --depth limit).  This gives accurate velocity\r\n                       data but is slower for large repos.\r\n                       Default: False (clone with --depth=50 for speed).\r\n\r\n    Returns:\r\n        Absolute Path pointing at the repo root.\r\n\r\n    Raises:\r\n        RepoLoadError: path doesn't exist, isn't a directory, or clone fails."
       },
       {
         "name": "_is_url",
@@ -1593,18 +1845,18 @@
         "parent_module": "src/utils/repo_loader.py",
         "signature": "def _is_url(target: str) -> bool",
         "is_public_api": false,
-        "line": 64,
-        "end_line": 69,
+        "line": 68,
+        "end_line": 73,
         "docstring": null
       },
       {
         "name": "_clone_github",
         "qualified_name": "_clone_github",
         "parent_module": "src/utils/repo_loader.py",
-        "signature": "def _clone_github(url: str, clone_base: Path | None) -> Path",
+        "signature": "def _clone_github(url: str, clone_base: Path | None, full_history: bool = False) -> Path",
         "is_public_api": false,
-        "line": 72,
-        "end_line": 114,
+        "line": 76,
+        "end_line": 124,
         "docstring": "Clone a validated GitHub URL and return the local path."
       }
     ],
@@ -1622,11 +1874,12 @@
         "docstring": "Raised when a repository cannot be resolved to a local path."
       }
     ],
-    "lines_of_code": 86,
-    "complexity_score": 0.0,
-    "change_velocity_30d": 0,
+    "lines_of_code": 96,
+    "complexity_score": 10.0,
+    "change_velocity_30d": 1,
     "is_dead_code_candidate": false,
-    "last_modified": null,
-    "parse_error": null
+    "last_modified": "2026-03-10T14:48:55+03:00",
+    "parse_error": null,
+    "dbt_refs": []
   }
 }
