@@ -1,0 +1,115 @@
+{
+  "target": ".",
+  "repo_root": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer",
+  "project_type": "python",
+  "files_scanned": 19,
+  "files_parsed_ok": 19,
+  "grammar_not_available": 0,
+  "parse_errors": 0,
+  "import_edges": 24,
+  "dbt_ref_edges": 0,
+  "circular_dependency_clusters": 0,
+  "dead_code_candidates": 9,
+  "top_hubs": [
+    [
+      "src/models/nodes.py",
+      0.20307038318064097
+    ],
+    [
+      "src/utils/repo_loader.py",
+      0.06845173318813469
+    ],
+    [
+      "src/agents/surveyor.py",
+      0.0636761545122467
+    ],
+    [
+      "src/analyzers/tree_sitter_analyzer.py",
+      0.05886122386361982
+    ],
+    [
+      "src/analyzers/dbt_helpers.py",
+      0.05872571311676543
+    ]
+  ],
+  "high_velocity_files": [
+    [
+      ".cartography/jaffle-shop/cartography_trace.jsonl",
+      2
+    ],
+    [
+      ".cartography/jaffle-shop/module_graph.json",
+      2
+    ],
+    [
+      ".cartography/jaffle-shop/module_graph_modules.json",
+      2
+    ],
+    [
+      ".cartography/jaffle-shop/surveyor_stats.json",
+      2
+    ],
+    [
+      ".cartography/self-test/cartography_trace.jsonl",
+      2
+    ],
+    [
+      ".cartography/self-test/module_graph.json",
+      2
+    ],
+    [
+      ".cartography/self-test/module_graph_modules.json",
+      2
+    ],
+    [
+      ".cartography/self-test/surveyor_stats.json",
+      2
+    ],
+    [
+      "README.md",
+      2
+    ],
+    [
+      "pyproject.toml",
+      2
+    ]
+  ],
+  "pareto_core": [
+    ".cartography/jaffle-shop/cartography_trace.jsonl",
+    ".cartography/jaffle-shop/module_graph.json",
+    ".cartography/jaffle-shop/module_graph_modules.json",
+    ".cartography/jaffle-shop/surveyor_stats.json",
+    ".cartography/self-test/cartography_trace.jsonl",
+    ".cartography/self-test/module_graph.json",
+    ".cartography/self-test/module_graph_modules.json",
+    ".cartography/self-test/surveyor_stats.json",
+    "README.md",
+    "pyproject.toml",
+    "src/__pycache__/__init__.cpython-313.pyc",
+    "src/__pycache__/cli.cpython-313.pyc",
+    "src/__pycache__/orchestrator.cpython-313.pyc",
+    "src/agents/__pycache__/surveyor.cpython-313.pyc",
+    "src/agents/surveyor.py",
+    "src/analyzers/__pycache__/language_router.cpython-313.pyc",
+    "src/analyzers/__pycache__/tree_sitter_analyzer.cpython-313.pyc",
+    "src/analyzers/tree_sitter_analyzer.py",
+    "src/cli.py",
+    "src/graph/__pycache__/knowledge_graph.cpython-313.pyc",
+    "src/graph/knowledge_graph.py",
+    "src/models/__pycache__/nodes.cpython-313.pyc",
+    "src/models/nodes.py",
+    "src/orchestrator.py",
+    "src/utils/__pycache__/file_inventory.cpython-313.pyc",
+    "src/utils/__pycache__/git_tools.cpython-313.pyc",
+    "src/utils/__pycache__/repo_loader.cpython-313.pyc",
+    "src/utils/repo_loader.py",
+    "RECONNAISSANCE.md",
+    ".cartography/jaffle-shop/module_graph.png",
+    ".cartography/self-test/module_graph.png",
+    "report/phase1.md",
+    "src/analyzers/__pycache__/dbt_helpers.cpython-313.pyc",
+    "src/analyzers/dbt_helpers.py",
+    "src/__init__.py"
+  ],
+  "elapsed_seconds": 3.37
+}
