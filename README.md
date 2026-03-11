@@ -22,7 +22,7 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 | Language | Extensions | Analysis method | What is extracted |
 |----------|-----------|-----------------|-------------------|
 | Python | `.py`, `.pyi` | tree-sitter AST | imports, functions, classes, cyclomatic complexity |
-| SQL | `.sql` | regex (dbt Jinja) | `{{ ref() }}` / `{{ source() }}` model dependencies |
+| SQL | `.sql` | tree-sitter AST + sqlglot | table references, `{{ ref() }}` / `{{ source() }}` dbt dependencies |
 | YAML | `.yml`, `.yaml` | tree-sitter AST | top-level keys |
 | JavaScript | `.js`, `.mjs`, `.cjs` | tree-sitter AST | imports, functions |
 | TypeScript | `.ts`, `.tsx` | tree-sitter AST | imports, functions |
@@ -55,7 +55,7 @@ uv pip install -e .
 ```
 
 This installs all required dependencies including:
-- `tree-sitter` + language grammars (Python, YAML, JavaScript, TypeScript)
+- `tree-sitter` + language grammars (Python, YAML, JavaScript, TypeScript, **SQL**)
 - `networkx` for graph analytics
 - `pydantic` for typed data models
 - `click` + `rich` for the CLI
@@ -66,10 +66,9 @@ This installs all required dependencies including:
 > **Java, Kotlin, Scala, Go, Rust, C#, Ruby, Shell** are supported out of the box via regex-based
 > import extraction — no additional grammar packages needed for these languages.
 
-> **Note on `tree-sitter-sql`**: The SQL tree-sitter grammar is optional.
-> If you want it: `uv pip install -e ".[sql-grammar]"`.
-> Without it, SQL files are still inventoried and line-counted, but table
-> references are not extracted via AST (Phase 2 uses sqlglot for this anyway).
+> `tree-sitter-sql` is included as a standard dependency. All 33 files in
+> jaffle-shop (Python, YAML, SQL, JS/TS) are fully parsed via AST with **zero
+> grammar fallbacks**.
 
 ---
 
@@ -130,21 +129,21 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 | `module_graph_modules.json` | 1 | Full ModuleNode records (imports, dbt_refs, functions, classes, complexity, velocity) |
 | `cartography_trace.jsonl` | 1+2 | Audit log: one JSON line per agent action |
 | `surveyor_stats.json` | 1 | Summary: hub counts, import edges, dbt_ref_edges, cycles, velocity, elapsed, **project_type** |
-| `module_graph.png` | 1 | Dark-theme graph PNG (matplotlib, 160 DPI, degree-scaled nodes, neon palette) |
+| `module_graph.png` | 1 | Dark-theme graph PNG (matplotlib, 200 DPI, degree-scaled nodes, neon palette) |
 | `lineage_graph.json` | 2 | Datasets, transformations, and PRODUCES/CONSUMES edges |
 | `lineage_graph.html` | 2 | Interactive PyVis lineage map (dark theme, hover tooltips, physics layout) |
 | `hydrologist_stats.json` | 2 | Phase 2 summary: dataset counts by type, transformation counts, edge stats |
 
 ### Expected output for jaffle-shop
 
-Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 now finds:
-- **SQL files**: inventoried, line-counted; **`{{ ref('model') }}` edges extracted via regex** (no SQL grammar needed)
-- **YAML files**: inventoried, top-level keys extracted
-- **Python files**: few or none (dbt projects are mostly SQL)
-- **Import graph**: **11 DBT_REF edges** (was 0 before) connecting marts → staging models
+Since jaffle-shop is primarily SQL + YAML (a dbt project, Phase 1 + Phase 2 produce:
+- **33 files parsed via AST** — Python, YAML, SQL (`tree-sitter-sql`), and JS/TS have dedicated grammars; **0 grammar-missing files**
+- **SQL table references**: extracted via `tree-sitter-sql` AST (`relation > object_reference > identifier` node path)
+- **YAML files**: top-level keys and dbt source/seed/model declarations extracted
+- **Import graph**: **11 DBT_REF edges** connecting mart models → staging models
 - **PageRank**: staging models correctly identified as architectural hubs
 - **Complexity scores**: populated for all Python files (0.0 for SQL/YAML)
-- **Project type**: `dbt` (detected from `dbt_project.yml`)
+- **Project type**: `dbt` (auto-detected from `dbt_project.yml`)
 
 ---
 

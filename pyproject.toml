@@ -34,6 +34,7 @@ dependencies = [
     "pyvis>=0.3.2",
     # YAML parsing (Phase 2 config analyzer)
     "pyyaml>=6.0",
+    "tree-sitter-sql>=0.3.11",
 ]
 
 [project.optional-dependencies]

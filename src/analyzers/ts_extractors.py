@@ -265,12 +265,8 @@ def _compute_python_complexity(root_node: Any) -> float:
 
 _SQL_TABLE_QUERY = """
 [
-  (from_clause (identifier) @table)
-  (from_clause (dotted_name) @table)
-  (join_clause (identifier) @table)
-  (join_clause (dotted_name) @table)
-  (table_reference (identifier) @table)
-  (relation (identifier) @table)
+  (relation (object_reference (identifier) @table))
+  (join (relation (object_reference (identifier) @table)))
 ]
 """
 

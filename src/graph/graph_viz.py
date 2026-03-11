@@ -77,8 +77,8 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
         import matplotlib.patches as mpatches  # type: ignore[import]
 
         n_nodes = g.number_of_nodes()
-        fig_w = max(22, min(n_nodes * 0.9, 60))
-        fig_h = max(16, min(n_nodes * 0.65, 45))
+        fig_w = max(28, min(n_nodes * 1.2, 72))
+        fig_h = max(20, min(n_nodes * 0.85, 54))
         fig, ax = plt.subplots(figsize=(fig_w, fig_h))
         fig.patch.set_facecolor(_BG)
         ax.set_facecolor(_BG)
@@ -92,9 +92,9 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
 
         degrees = dict(g.in_degree())
         max_deg = max(degrees.values()) if degrees else 1
-        base_size = max(600, 2400 - n_nodes * 20)
+        base_size = max(1200, 4000 - n_nodes * 25)
         node_sizes = [
-            base_size + (degrees.get(n, 0) / max(max_deg, 1)) * base_size * 1.5
+            base_size + (degrees.get(n, 0) / max(max_deg, 1)) * base_size * 2.0
             for n in g.nodes()
         ]
         node_colors = [
@@ -116,7 +116,7 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
             alpha=0.95, linewidths=1.5, edgecolors="#FFFFFF22",
         )
 
-        font_size = max(6, min(10, 140 // max(n_nodes, 1)))
+        font_size = max(9, min(15, 200 // max(n_nodes, 1)))
         labels = {
             n: n.split("/")[-1].replace(".py", "").replace(".sql", "")
                .replace(".yaml", "").replace(".yml", "")
@@ -132,7 +132,7 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
         ax.set_title(
             f"Module Import Graph  ·  {n_nodes} nodes  ·  "
             f"{import_edges} imports  ·  {dbt_edges} dbt refs",
-            fontsize=15, color=_TEXT, pad=18, fontweight="bold",
+            fontsize=20, color=_TEXT, pad=22, fontweight="bold",
         )
         ax.axis("off")
 
@@ -149,12 +149,12 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
             leg = ax.legend(
                 handles=legend_handles, loc="lower left",
                 framealpha=0.35, facecolor="#161B22", edgecolor="#30363D",
-                labelcolor=_TEXT, fontsize=9, title="Legend", title_fontsize=9,
+                labelcolor=_TEXT, fontsize=13, title="Legend", title_fontsize=13,
             )
             leg.get_title().set_color(_TEXT)
 
         plt.tight_layout(pad=1.5)
-        plt.savefig(str(output_path), dpi=160, bbox_inches="tight", facecolor=_BG)
+        plt.savefig(str(output_path), dpi=200, bbox_inches="tight", facecolor=_BG)
         plt.close(fig)
         logger.info("Saved graph visualization (matplotlib) → %s", output_path)
         return True

@@ -49,6 +49,7 @@ dependencies = [
     { name = "tree-sitter" },
     { name = "tree-sitter-javascript" },
     { name = "tree-sitter-python" },
+    { name = "tree-sitter-sql" },
     { name = "tree-sitter-typescript" },
     { name = "tree-sitter-yaml" },
 ]
@@ -83,6 +84,7 @@ requires-dist = [
     { name = "tree-sitter", specifier = ">=0.24.0" },
     { name = "tree-sitter-javascript", specifier = ">=0.21.0" },
     { name = "tree-sitter-python", specifier = ">=0.21.0" },
+    { name = "tree-sitter-sql", specifier = ">=0.3.11" },
     { name = "tree-sitter-sql", marker = "extra == 'sql-grammar'", specifier = ">=0.1.0" },
     { name = "tree-sitter-typescript", specifier = ">=0.21.0" },
     { name = "tree-sitter-yaml", specifier = ">=0.6.0" },

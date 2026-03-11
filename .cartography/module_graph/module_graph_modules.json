@@ -65,7 +65,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": "2024-05-08T16:04:42+07:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -81,7 +81,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -89,7 +89,36 @@
     "path": "models/marts/customers.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\marts\\customers.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "orders",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "customers",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "customer_orders_summary",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "joined",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 38,
@@ -97,7 +126,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": "2024-04-09T18:58:09-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [
       "stg_customers",
       "orders"
@@ -129,7 +158,15 @@
     "path": "models/marts/locations.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\marts\\locations.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "locations",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 5,
@@ -137,7 +174,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [
       "stg_locations"
     ],
@@ -165,7 +202,22 @@
     "path": "models/marts/metricflow_time_spine.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\marts\\metricflow_time_spine.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "days",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "cast_to_date",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 11,
@@ -173,7 +225,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -181,7 +233,50 @@
     "path": "models/marts/order_items.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\marts\\order_items.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "supplies",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "order_items",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "orders",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "products",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "order_supplies_summary",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "joined",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 36,
@@ -189,7 +284,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-09T18:58:09-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [
       "stg_order_items",
       "stg_orders",
@@ -224,7 +319,43 @@
     "path": "models/marts/orders.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\marts\\orders.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "order_items",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "orders",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "order_items_summary",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "compute_booleans",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "customer_order_count",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 53,
@@ -232,7 +363,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-04-09T18:58:09-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [
       "stg_orders",
       "order_items"
@@ -265,7 +396,15 @@
     "path": "models/marts/products.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\marts\\products.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "products",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 5,
@@ -273,7 +412,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [
       "stg_products"
     ],
@@ -301,7 +440,15 @@
     "path": "models/marts/supplies.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\marts\\supplies.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "supplies",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 5,
@@ -309,7 +456,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [
       "stg_supplies"
     ],
@@ -356,7 +503,22 @@
     "path": "models/staging/stg_customers.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\staging\\stg_customers.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "source",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "renamed",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 13,
@@ -364,7 +526,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -390,7 +552,22 @@
     "path": "models/staging/stg_locations.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\staging\\stg_locations.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "source",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "renamed",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 17,
@@ -398,7 +575,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-27T13:56:53-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -425,7 +602,22 @@
     "path": "models/staging/stg_order_items.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\staging\\stg_order_items.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "source",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "renamed",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 13,
@@ -433,7 +625,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2023-09-07T10:37:59-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -459,7 +651,22 @@
     "path": "models/staging/stg_orders.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\staging\\stg_orders.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "source",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "renamed",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 22,
@@ -467,7 +674,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-29T13:17:40-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -493,7 +700,22 @@
     "path": "models/staging/stg_products.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\staging\\stg_products.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "source",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "renamed",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 20,
@@ -501,7 +723,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-29T13:17:40-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
@@ -527,7 +749,22 @@
     "path": "models/staging/stg_supplies.sql",
     "abs_path": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop\\models\\staging\\stg_supplies.sql",
     "language": "sql",
-    "imports": [],
+    "imports": [
+      {
+        "module": "source",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      },
+      {
+        "module": "renamed",
+        "names": [],
+        "alias": null,
+        "is_relative": false,
+        "line": 0
+      }
+    ],
     "functions": [],
     "classes": [],
     "lines_of_code": 19,
@@ -535,7 +772,7 @@
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": "2024-03-29T13:17:40-05:00",
-    "parse_error": "Grammar package for 'sql' not installed",
+    "parse_error": null,
     "dbt_refs": [],
     "yaml_keys": []
   },
