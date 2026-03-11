@@ -178,7 +178,16 @@ class ModuleNode(BaseModel):
     dbt_refs: list[str] = Field(default_factory=list)
     """Model names referenced via {{ ref('model_name') }} in SQL files (Phase 1 dbt support)."""
 
-    # TODO Phase 3 (Semanticist): purpose_statement: Optional[str] = None
+    yaml_keys: list[str] = Field(default_factory=list)
+    """Top-level keys extracted from YAML files (capped at 20).
+
+    Phase 2 (Hydrologist) uses this to identify YAML file roles without re-parsing:
+    - 'sources' → dbt source declarations (e.g. __sources.yml)
+    - 'models'  → dbt schema / column-test file (e.g. schema.yml)
+    - 'name' + 'version' → dbt_project.yml or packages.yml
+    - 'packages' → packages.yml dependencies list
+    Only populated for Language.YAML files.
+    """
     # TODO Phase 3 (Semanticist): domain_cluster: Optional[str] = None
     # TODO Phase 3 (Semanticist): doc_drift_detected: bool = False
 
