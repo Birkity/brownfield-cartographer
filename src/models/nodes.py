@@ -196,32 +196,70 @@ class DatasetNode(BaseModel):
     """
     Represents a data artifact (table, file, stream, API endpoint).
 
-    TODO Phase 2 (Hydrologist): populate from PythonDataFlowAnalyzer + SQLLineageAnalyzer.
+    Populated by Phase 2 (Hydrologist) from SQL analysis, Python dataflow
+    detection, and YAML config parsing.
     """
 
     name: str
+    """Fully qualified name: 'source.raw.orders', 'model.stg_orders', 'file.data/output.csv'."""
+
     storage_type: StorageType = StorageType.TABLE
     schema_snapshot: Optional[dict[str, Any]] = None
     freshness_sla: Optional[str] = None
     owner: Optional[str] = None
     is_source_of_truth: bool = False
 
+    # Phase 2 additions
+    dataset_type: str = "unknown"
+    """One of: 'dbt_source', 'dbt_model', 'dbt_seed', 'table_ref',
+    'file_read', 'file_write', 'api_call', 'unknown'."""
+
+    source_file: Optional[str] = None
+    """The repo file that defined or produced this dataset."""
+
+    description: Optional[str] = None
+    """Human-readable description from YAML config or code comments."""
+
+    columns: list[str] = Field(default_factory=list)
+    """Column names if known (from schema.yml or SELECT-list extraction)."""
+
+    confidence: float = 1.0
+    """How confident we are this dataset exists: 1.0 = static, 0.5 = dynamic/inferred."""
+
 
 class TransformationNode(BaseModel):
     """
     A data transformation between datasets.
 
-    TODO Phase 2 (Hydrologist): populate from SQL/Python analysis.
+    Populated by Phase 2 (Hydrologist) from SQL model analysis and
+    Python dataflow pattern detection.
     """
 
+    id: str
+    """Unique identifier: 'sql:<rel_path>' or 'py:<rel_path>:<line>'."""
+
     transformation_type: str
-    """e.g. 'select', 'join', 'cte', 'python_pandas', 'pyspark_write'."""
+    """One of: 'dbt_model', 'dbt_macro', 'sql_query', 'python_pandas',
+    'python_spark', 'python_sql_exec', 'unknown'."""
 
     source_file: str
+    """Relative path of the file containing this transformation."""
+
     line_range: tuple[int, int] = (0, 0)
     sql_query: Optional[str] = None
+    """Truncated SQL text (first 500 chars) for context."""
+
     source_datasets: list[str] = Field(default_factory=list)
+    """Datasets consumed (upstream dependencies)."""
+
     target_datasets: list[str] = Field(default_factory=list)
+    """Datasets produced (downstream outputs)."""
+
+    confidence: float = 1.0
+    """1.0 = deterministic static analysis, <1.0 = dynamic/inferred."""
+
+    is_dynamic: bool = False
+    """True when SQL is dynamically constructed or contains unresolved variables."""
 
 
 # ---------------------------------------------------------------------------

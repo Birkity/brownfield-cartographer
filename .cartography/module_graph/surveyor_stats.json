@@ -1,10 +1,10 @@
 {
-  "target": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop",
+  "target": "https://github.com/dbt-labs/jaffle-shop",
   "repo_root": "C:\\Users\\Ab\\AppData\\Local\\Temp\\cartographer_clones\\jaffle-shop",
   "project_type": "dbt",
   "files_scanned": 33,
-  "files_parsed_ok": 18,
-  "grammar_not_available": 15,
+  "files_parsed_ok": 33,
+  "grammar_not_available": 0,
   "parse_errors": 0,
   "import_edges": 0,
   "dbt_ref_edges": 11,
@@ -34,5 +34,5 @@
   ],
   "high_velocity_files": [],
   "pareto_core": [],
-  "elapsed_seconds": 3.24
+  "elapsed_seconds": 3.68
 }

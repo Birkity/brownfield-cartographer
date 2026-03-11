@@ -35,10 +35,18 @@ from rich.panel import Panel
 from rich.table import Table
 from rich import print as rprint
 
-from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1
+from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2
 from src.utils.repo_loader import RepoLoadError
 
-console = Console()
+console = Console(highlight=False)
+
+# Ensure UTF-8 output on Windows (prevents charmap codec errors for ✓ etc.)
+import sys as _sys
+if _sys.stdout and hasattr(_sys.stdout, "reconfigure"):
+    try:
+        _sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -122,7 +130,7 @@ def analyze(
 
     console.print(
         Panel.fit(
-            f"[bold cyan]Brownfield Cartographer[/] — Phase 1 (Surveyor)\n"
+            f"[bold cyan]Brownfield Cartographer[/] — Phase 1 & 2\n"
             f"[dim]Target:[/] {target}\n"
             f"[dim]Output:[/] {output_path.resolve()}",
             border_style="cyan",
@@ -130,7 +138,7 @@ def analyze(
     )
 
     try:
-        artifacts = run_phase1(
+        artifacts, graph, repo_root = run_phase1(
             target=target,
             output_dir=output_path,
             velocity_days=velocity_days,
@@ -145,12 +153,20 @@ def analyze(
         logging.exception("Unhandled exception in analyze command")
         sys.exit(1)
 
+    # ---- Run Phase 2 (Hydrologist) --------------------------------------
+    try:
+        hydro_result = run_phase2(artifacts, graph, repo_root)
+    except Exception as exc:
+        console.print(f"[bold yellow]Phase 2 warning:[/] {exc}")
+        logging.exception("Phase 2 (Hydrologist) failed — Phase 1 artifacts still available")
+        hydro_result = None
+
     # ---- Print summary --------------------------------------------------
-    _print_summary(artifacts)
+    _print_summary(artifacts, hydro_result)
 
 
-def _print_summary(artifacts) -> None:
-    """Print a Rich-formatted summary after a successful Phase 1 run."""
+def _print_summary(artifacts, hydro_result=None) -> None:
+    """Print a Rich-formatted summary after a successful run."""
     stats_path = artifacts.stats_json
     if not stats_path.exists():
         console.print("[yellow]No stats file found — skipping summary.[/]")
@@ -208,20 +224,56 @@ def _print_summary(artifacts) -> None:
             vel_table.add_row(path, str(count))
         console.print(vel_table)
 
+    # ---- Phase 2 lineage summary ----
+    if hydro_result is not None:
+        hs = hydro_result.stats
+        console.print("\n[bold green]Phase 2 (Hydrologist) complete![/]\n")
+
+        lineage_table = Table(title="Lineage Overview", show_header=False, box=None)
+        lineage_table.add_column("Metric", style="dim")
+        lineage_table.add_column("Value", style="bold")
+
+        if hs.get("is_dbt_project"):
+            lineage_table.add_row("[cyan]Project type[/cyan]", "dbt")
+        lineage_table.add_row("SQL files analyzed", str(hs.get("sql_files_analyzed", 0)))
+        lineage_table.add_row("Python files analyzed", str(hs.get("python_files_analyzed", 0)))
+        lineage_table.add_row("Datasets discovered", str(hs.get("datasets_total", 0)))
+        lineage_table.add_row("Transformations", str(hs.get("transformations_total", 0)))
+        lineage_table.add_row(
+            "Lineage edges",
+            f"{hs.get('produces_edges', 0)} produces + {hs.get('consumes_edges', 0)} consumes",
+        )
+        lineage_table.add_row("Sources registered", str(hs.get("sources_registered", 0)))
+        lineage_table.add_row("Seeds found", str(hs.get("seeds_found", 0)))
+        dynamic = hs.get("dynamic_transformations", 0)
+        if dynamic:
+            lineage_table.add_row(
+                "[yellow]Dynamic transformations[/yellow]", str(dynamic)
+            )
+        lineage_table.add_row("Elapsed", f"{hs.get('elapsed_seconds', '?')}s")
+        console.print(lineage_table)
+
     # ---- Output paths ----
     console.print("\n[bold]Artifacts written:[/]")
-    for name in [
+    artifact_names = [
         "module_graph_json",
         "module_graph_modules_json",
         "trace_jsonl",
         "stats_json",
         "viz_png",
-    ]:
+    ]
+    if hydro_result is not None:
+        artifact_names.extend([
+            "lineage_graph_json",
+            "lineage_viz_html",
+            "hydrologist_stats_json",
+        ])
+    for name in artifact_names:
         p = getattr(artifacts, name)
         if p.exists():
-            console.print(f"  [green]✓[/] {p.resolve()}")
+            console.print(f"  [green][OK][/] {p.resolve()}")
         else:
-            console.print(f"  [red]✗[/] {p.resolve()} (not found)")
+            console.print(f"  [red][--][/] {p.resolve()} (not found)")
 
 
 # ---------------------------------------------------------------------------
