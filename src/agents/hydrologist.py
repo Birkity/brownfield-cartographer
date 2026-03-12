@@ -358,7 +358,16 @@ class Hydrologist:
                     confidence=result.confidence,
                 )
                 graph.add_dataset_node(ds)
-                graph.add_produces_edge(xform_id, ds_name)
+                graph.add_produces_edge(
+                    xform_id, ds_name,
+                    confidence=result.confidence,
+                    evidence={
+                        "source_file": result.source_file,
+                        "extraction_method": "sqlglot" if not result.is_dynamic else "sqlglot_dynamic",
+                        "transformation_type": result.transformation_type,
+                        "sql_preview": result.sql_preview[:120] if result.sql_preview else "",
+                    },
+                )
                 edge_counts["produces"] += 1
 
             # Register upstream datasets (inputs) and create consumes edges
@@ -372,7 +381,15 @@ class Hydrologist:
                         confidence=result.confidence,
                     )
                     graph.add_dataset_node(ds)
-                graph.add_consumes_edge(xform_id, ds_name)
+                graph.add_consumes_edge(
+                    xform_id, ds_name,
+                    confidence=result.confidence,
+                    evidence={
+                        "source_file": result.source_file,
+                        "extraction_method": "sqlglot" if not result.is_dynamic else "sqlglot_dynamic",
+                        "transformation_type": result.transformation_type,
+                    },
+                )
                 edge_counts["consumes"] += 1
 
         return edge_counts

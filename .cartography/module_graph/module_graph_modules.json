@@ -15,7 +15,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "repos"
-    ]
+    ],
+    "role": "config",
+    "is_entry_point": true,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.6
   },
   "dbt_project.yml": {
     "path": "dbt_project.yml",
@@ -51,7 +56,12 @@
       "seeds",
       "jaffle_shop",
       "models"
-    ]
+    ],
+    "role": "config",
+    "is_entry_point": true,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 1.0
   },
   "macros/cents_to_dollars.sql": {
     "path": "macros/cents_to_dollars.sql",
@@ -67,7 +77,12 @@
     "last_modified": "2024-05-08T16:04:42+07:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "macro",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "macros/generate_schema_name.sql": {
     "path": "macros/generate_schema_name.sql",
@@ -83,7 +98,12 @@
     "last_modified": "2023-09-07T10:37:59-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "macro",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/marts/customers.sql": {
     "path": "models/marts/customers.sql",
@@ -131,7 +151,12 @@
       "stg_customers",
       "orders"
     ],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/customers.yml": {
     "path": "models/marts/customers.yml",
@@ -152,7 +177,12 @@
       "semantic_models",
       "metrics",
       "saved_queries"
-    ]
+    ],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/locations.sql": {
     "path": "models/marts/locations.sql",
@@ -178,7 +208,12 @@
     "dbt_refs": [
       "stg_locations"
     ],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/locations.yml": {
     "path": "models/marts/locations.yml",
@@ -196,7 +231,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "semantic_models"
-    ]
+    ],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/metricflow_time_spine.sql": {
     "path": "models/marts/metricflow_time_spine.sql",
@@ -227,7 +267,12 @@
     "last_modified": "2023-09-07T10:37:59-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/order_items.sql": {
     "path": "models/marts/order_items.sql",
@@ -291,7 +336,12 @@
       "stg_products",
       "stg_supplies"
     ],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "mart",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/order_items.yml": {
     "path": "models/marts/order_items.yml",
@@ -313,7 +363,12 @@
       "semantic_models",
       "metrics",
       "saved_queries"
-    ]
+    ],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/orders.sql": {
     "path": "models/marts/orders.sql",
@@ -368,7 +423,12 @@
       "stg_orders",
       "order_items"
     ],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "mart",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/orders.yml": {
     "path": "models/marts/orders.yml",
@@ -390,7 +450,12 @@
       "semantic_models",
       "metrics",
       "saved_queries"
-    ]
+    ],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/products.sql": {
     "path": "models/marts/products.sql",
@@ -416,7 +481,12 @@
     "dbt_refs": [
       "stg_products"
     ],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/products.yml": {
     "path": "models/marts/products.yml",
@@ -434,7 +504,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "semantic_models"
-    ]
+    ],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/supplies.sql": {
     "path": "models/marts/supplies.sql",
@@ -460,7 +535,12 @@
     "dbt_refs": [
       "stg_supplies"
     ],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/marts/supplies.yml": {
     "path": "models/marts/supplies.yml",
@@ -478,7 +558,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "semantic_models"
-    ]
+    ],
+    "role": "mart",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.85
   },
   "models/staging/__sources.yml": {
     "path": "models/staging/__sources.yml",
@@ -497,7 +582,12 @@
     "yaml_keys": [
       "version",
       "sources"
-    ]
+    ],
+    "role": "config",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.9
   },
   "models/staging/stg_customers.sql": {
     "path": "models/staging/stg_customers.sql",
@@ -528,7 +618,12 @@
     "last_modified": "2023-09-07T10:37:59-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "staging",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_customers.yml": {
     "path": "models/staging/stg_customers.yml",
@@ -546,7 +641,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "models"
-    ]
+    ],
+    "role": "staging",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_locations.sql": {
     "path": "models/staging/stg_locations.sql",
@@ -577,7 +677,12 @@
     "last_modified": "2024-03-27T13:56:53-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "staging",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_locations.yml": {
     "path": "models/staging/stg_locations.yml",
@@ -596,7 +701,12 @@
     "yaml_keys": [
       "models",
       "unit_tests"
-    ]
+    ],
+    "role": "staging",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_order_items.sql": {
     "path": "models/staging/stg_order_items.sql",
@@ -627,7 +737,12 @@
     "last_modified": "2023-09-07T10:37:59-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "staging",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_order_items.yml": {
     "path": "models/staging/stg_order_items.yml",
@@ -645,7 +760,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "models"
-    ]
+    ],
+    "role": "staging",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_orders.sql": {
     "path": "models/staging/stg_orders.sql",
@@ -676,7 +796,12 @@
     "last_modified": "2024-03-29T13:17:40-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "staging",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_orders.yml": {
     "path": "models/staging/stg_orders.yml",
@@ -694,7 +819,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "models"
-    ]
+    ],
+    "role": "staging",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_products.sql": {
     "path": "models/staging/stg_products.sql",
@@ -725,7 +855,12 @@
     "last_modified": "2024-03-29T13:17:40-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "staging",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_products.yml": {
     "path": "models/staging/stg_products.yml",
@@ -743,7 +878,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "models"
-    ]
+    ],
+    "role": "staging",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_supplies.sql": {
     "path": "models/staging/stg_supplies.sql",
@@ -774,7 +914,12 @@
     "last_modified": "2024-03-29T13:17:40-05:00",
     "parse_error": null,
     "dbt_refs": [],
-    "yaml_keys": []
+    "yaml_keys": [],
+    "role": "staging",
+    "is_entry_point": false,
+    "is_hub": true,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "models/staging/stg_supplies.yml": {
     "path": "models/staging/stg_supplies.yml",
@@ -792,7 +937,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "models"
-    ]
+    ],
+    "role": "staging",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.95
   },
   "package-lock.yml": {
     "path": "package-lock.yml",
@@ -811,7 +961,12 @@
     "yaml_keys": [
       "packages",
       "sha1_hash"
-    ]
+    ],
+    "role": "config",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.6
   },
   "packages.yml": {
     "path": "packages.yml",
@@ -829,7 +984,12 @@
     "dbt_refs": [],
     "yaml_keys": [
       "packages"
-    ]
+    ],
+    "role": "config",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 1.0
   },
   "Taskfile.yml": {
     "path": "Taskfile.yml",
@@ -858,6 +1018,11 @@
       "seed",
       "clean",
       "load"
-    ]
+    ],
+    "role": "config",
+    "is_entry_point": true,
+    "is_hub": false,
+    "in_cycle": false,
+    "classification_confidence": 0.6
   }
 }

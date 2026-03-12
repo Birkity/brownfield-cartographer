@@ -105,23 +105,70 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
             _EDGE_DBT if d.get("edge_type") == "DBT_REF" else _EDGE_IMPORT
             for _, _, d in g.edges(data=True)
         ]
+        # Edge widths: scale by confidence where available
+        edge_widths = [
+            max(0.8, 3.0 * d.get("confidence", 1.0))
+            for _, _, d in g.edges(data=True)
+        ]
 
         nx.draw_networkx_edges(
             g, pos=pos, ax=ax, edge_color=edge_colors,
-            width=1.6, alpha=0.75, arrows=True, arrowsize=18,
+            width=edge_widths, alpha=0.75, arrows=True, arrowsize=18,
             arrowstyle="-|>", node_size=node_sizes, connectionstyle="arc3,rad=0.08",
         )
+
+        # --- Base nodes coloured by language ---
+        node_list = list(g.nodes())
         nx.draw_networkx_nodes(
-            g, pos=pos, ax=ax, node_color=node_colors, node_size=node_sizes,
+            g, pos=pos, ax=ax, nodelist=node_list,
+            node_color=node_colors, node_size=node_sizes,
             alpha=0.95, linewidths=1.5, edgecolors="#FFFFFF22",
         )
 
+        # --- Role-based visual overlays ---
+        hub_nodes   = [n for n in node_list if g.nodes[n].get("is_hub", False)]
+        cycle_nodes = [n for n in node_list if g.nodes[n].get("in_cycle", False)]
+        entry_nodes = [n for n in node_list if g.nodes[n].get("is_entry_point", False)]
+
+        if hub_nodes:
+            hub_sizes = [node_sizes[node_list.index(n)] * 1.45 for n in hub_nodes]
+            nx.draw_networkx_nodes(
+                g, pos=pos, ax=ax, nodelist=hub_nodes,
+                node_color="none", node_size=hub_sizes,
+                linewidths=3.5, edgecolors="#FFD700",    # gold ring = hub
+            )
+        if cycle_nodes:
+            cyc_sizes = [node_sizes[node_list.index(n)] * 1.45 for n in cycle_nodes]
+            nx.draw_networkx_nodes(
+                g, pos=pos, ax=ax, nodelist=cycle_nodes,
+                node_color="none", node_size=cyc_sizes,
+                linewidths=3.5, edgecolors="#FF4757",    # red ring = cycle
+            )
+        if entry_nodes:
+            ent_sizes = [node_sizes[node_list.index(n)] * 1.35 for n in entry_nodes]
+            nx.draw_networkx_nodes(
+                g, pos=pos, ax=ax, nodelist=entry_nodes,
+                node_color="none", node_size=ent_sizes,
+                linewidths=2.5, edgecolors="#2ED573",    # green ring = entry-point
+            )
+
         font_size = max(9, min(15, 200 // max(n_nodes, 1)))
-        labels = {
-            n: n.split("/")[-1].replace(".py", "").replace(".sql", "")
-               .replace(".yaml", "").replace(".yml", "")
-            for n in g.nodes()
-        }
+        # Label includes role badge for nodes that have a known role
+        labels = {}
+        for n in g.nodes():
+            stem = n.split("/")[-1].replace(".py","").replace(".sql","") \
+                     .replace(".yaml","").replace(".yml","")
+            role = g.nodes[n].get("role", "unknown")
+            role_badge = {
+                "staging":      " [stg]",
+                "mart":         " [mart]",
+                "intermediate": " [int]",
+                "source":       " [src]",
+                "macro":        " [macro]",
+                "test":         " [test]",
+                "config":       " [cfg]",
+            }.get(role, "")
+            labels[n] = stem + role_badge
         nx.draw_networkx_labels(g, pos=pos, labels=labels, ax=ax,
                                 font_size=font_size, font_color=_TEXT, font_weight="bold")
 
@@ -145,6 +192,16 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
             legend_handles.append(mpatches.Patch(color=_EDGE_IMPORT, label="IMPORTS edge"))
         if dbt_edges:
             legend_handles.append(mpatches.Patch(color=_EDGE_DBT, label="DBT_REF edge"))
+        # Role-ring legend entries
+        if hub_nodes:
+            legend_handles.append(mpatches.Patch(
+                facecolor="none", edgecolor="#FFD700", linewidth=2.5, label="Hub (PageRank top-10)"))
+        if cycle_nodes:
+            legend_handles.append(mpatches.Patch(
+                facecolor="none", edgecolor="#FF4757", linewidth=2.5, label="In circular dependency"))
+        if entry_nodes:
+            legend_handles.append(mpatches.Patch(
+                facecolor="none", edgecolor="#2ED573", linewidth=2.5, label="Entry point (no in-edges)"))
         if legend_handles:
             leg = ax.legend(
                 handles=legend_handles, loc="lower left",

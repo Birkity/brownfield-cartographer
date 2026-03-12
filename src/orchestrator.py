@@ -71,6 +71,11 @@ class CartographyArtifacts:
         self.lineage_viz_html = self.data_lineage_dir / "lineage_graph.html"
         self.hydrologist_stats_json = self.data_lineage_dir / "hydrologist_stats.json"
 
+        # Polish layer — enrichment reports
+        self.blind_spots_json = output_dir / "unresolved_references.json"
+        self.blind_spots_md = output_dir / "blind_spots.md"
+        self.high_risk_md = output_dir / "high_risk_areas.md"
+
     def ensure_dirs(self) -> None:
         """Create all output subdirectories if they don't exist."""
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -120,6 +125,10 @@ def run_phase1(
     surveyor = Surveyor(velocity_days=velocity_days)
     result: SurveyorResult = surveyor.run(repo_root, velocity_days=velocity_days)
 
+    # ---- Enrich graph with classification + confidence ------------------
+    from src.graph.enrichment import classify_module_roles
+    classify_module_roles(result.graph)
+
     # ---- Persist graph --------------------------------------------------
     result.graph.save(artifacts.module_graph_json)
     result.graph.export_viz(artifacts.viz_png)
@@ -160,6 +169,10 @@ def run_phase2(
     hydrologist = Hydrologist()
     result: HydrologistResult = hydrologist.run(graph, repo_root)
 
+    # ---- Enrich dataset classification (before saving!) -----------------
+    from src.graph.enrichment import classify_dataset_roles
+    classify_dataset_roles(graph)
+
     # ---- Persist lineage graph -----------------------------------------
     graph.save_lineage(artifacts.lineage_graph_json)
 
@@ -174,6 +187,19 @@ def run_phase2(
 
     # ---- Re-save the unified graph (now with lineage edges) ------------
     graph.save(artifacts.module_graph_json)
+
+    # ---- Load surveyor stats for reports --------------------------------
+    surveyor_stats: dict = {}
+    try:
+        import json as _json
+        surveyor_stats = _json.loads(artifacts.stats_json.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+
+    # ---- Write blind-spots and high-risk reports ------------------------
+    from src.graph.reporting import write_blind_spots, write_high_risk_areas
+    write_blind_spots(graph, surveyor_stats, result.stats, artifacts.output_dir)
+    write_high_risk_areas(graph, surveyor_stats, result.stats, artifacts.output_dir)
 
     logger.info(
         "Phase 2 complete.  Lineage artifacts written to: %s",
