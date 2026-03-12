@@ -302,7 +302,7 @@ def _print_summary(artifacts, hydro_result=None) -> None:
         "module_graph_modules_json",
         "trace_jsonl",
         "stats_json",
-        "viz_png",
+        "viz_html",
     ]
     if hydro_result is not None:
         artifact_names.extend([

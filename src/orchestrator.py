@@ -66,7 +66,7 @@ class CartographyArtifacts:
         self.module_graph_json = self.module_graph_dir / "module_graph.json"
         self.module_graph_modules_json = self.module_graph_dir / "module_graph_modules.json"
         self.stats_json = self.module_graph_dir / "surveyor_stats.json"
-        self.viz_png = self.module_graph_dir / "module_graph.png"
+        self.viz_html = self.module_graph_dir / "module_graph.html"
 
         # Hydrologist — data flow & lineage
         self.lineage_graph_json = self.data_lineage_dir / "lineage_graph.json"
@@ -132,7 +132,7 @@ def run_phase1(
 
     # ---- Persist graph --------------------------------------------------
     result.graph.save(artifacts.module_graph_json)
-    result.graph.export_viz(artifacts.viz_png)
+    result.graph.export_viz(artifacts.viz_html)
 
     # ---- Write trace log ------------------------------------------------
     _write_trace(artifacts.trace_jsonl, result)

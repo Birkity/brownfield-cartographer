@@ -218,8 +218,8 @@ class KnowledgeGraph:
     # ------------------------------------------------------------------
 
     def export_viz(self, output_path: Path) -> bool:
-        from src.graph.graph_viz import export_module_viz
-        return export_module_viz(self._g, output_path)
+        from src.graph.graph_viz import export_module_viz_html
+        return export_module_viz_html(self._g, output_path)
 
     def export_lineage_viz(self, output_path: Path) -> bool:
         from src.graph.graph_viz import export_lineage_viz
