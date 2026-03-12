@@ -39,14 +39,16 @@ class CartographyArtifacts:
 
     Directory layout::
 
-        .cartography/
-        ├── cartography_trace.jsonl      # shared audit log (all agents)
-        ├── module_graph/                # Surveyor — static code structure
+        .cartography/<repo-name>/          (or .cartography/ for explicit --output-dir)
+        ├── cartography_trace.jsonl        # shared audit log (all agents)
+        ├── blind_spots.json               # unresolved refs + low-confidence metrics
+        ├── high_risk_areas.json           # hubs, cycles, velocity, fan-out metrics
+        ├── module_graph/                  # Surveyor — static code structure
         │   ├── module_graph.json
         │   ├── module_graph_modules.json
         │   ├── module_graph.png
         │   └── surveyor_stats.json
-        └── data_lineage/                # Hydrologist — data flow & lineage
+        └── data_lineage/                  # Hydrologist — data flow & lineage
             ├── lineage_graph.json
             ├── lineage_graph.html
             └── hydrologist_stats.json
@@ -72,9 +74,8 @@ class CartographyArtifacts:
         self.hydrologist_stats_json = self.data_lineage_dir / "hydrologist_stats.json"
 
         # Polish layer — enrichment reports
-        self.blind_spots_json = output_dir / "unresolved_references.json"
-        self.blind_spots_md = output_dir / "blind_spots.md"
-        self.high_risk_md = output_dir / "high_risk_areas.md"
+        self.blind_spots_json = output_dir / "blind_spots.json"
+        self.high_risk_json = output_dir / "high_risk_areas.json"
 
     def ensure_dirs(self) -> None:
         """Create all output subdirectories if they don't exist."""

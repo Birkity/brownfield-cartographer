@@ -86,9 +86,12 @@ def cli(ctx: click.Context, verbose: bool) -> None:
 @click.option(
     "--output-dir",
     "-o",
-    default=str(DEFAULT_OUTPUT_DIR),
+    default=None,
     show_default=True,
-    help="Directory to write .cartography/ artifacts into.",
+    help=(
+        "Directory to write artifacts into.  "
+        "Defaults to .cartography/<repo-name>/ — auto-derived from the target path or URL."
+    ),
 )
 @click.option(
     "--velocity-days",
@@ -112,7 +115,7 @@ def cli(ctx: click.Context, verbose: bool) -> None:
 )
 def analyze(
     target: str,
-    output_dir: str,
+    output_dir: str | None,
     velocity_days: int,
     clone_base: str | None,
     full_history: bool,
@@ -124,15 +127,31 @@ def analyze(
     \b
       - A local filesystem path to a repository directory
       - A GitHub HTTPS URL (https://github.com/<owner>/<repo>)
+
+    By default artifacts are written to .cartography/<repo-name>/ so that
+    multiple repos can coexist in the same .cartography/ folder.
+    Pass --output-dir to override and write to an exact path.
     """
-    output_path = Path(output_dir)
+    # ------------------------------------------------------------------
+    # Resolve output path: auto-derive subfolder when no --output-dir given
+    # ------------------------------------------------------------------
+    if output_dir is None:
+        repo_name = _derive_repo_name(target)
+        output_path = DEFAULT_OUTPUT_DIR / repo_name
+        auto_subfolder = True
+    else:
+        output_path = Path(output_dir)
+        auto_subfolder = False
+        repo_name = output_path.name
+
     clone_path = Path(clone_base) if clone_base else None
 
     console.print(
         Panel.fit(
             f"[bold cyan]Brownfield Cartographer[/] — Phase 1 & 2\n"
             f"[dim]Target:[/] {target}\n"
-            f"[dim]Output:[/] {output_path.resolve()}",
+            f"[dim]Output:[/] {output_path.resolve()}"
+            + (f"\n[dim]Repo name:[/] {repo_name}  [dim](auto-derived)[/]" if auto_subfolder else ""),
             border_style="cyan",
         )
     )
@@ -163,6 +182,29 @@ def analyze(
 
     # ---- Print summary --------------------------------------------------
     _print_summary(artifacts, hydro_result)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _derive_repo_name(target: str) -> str:
+    """
+    Derive a filesystem-safe folder name from a target path or GitHub URL.
+
+    Examples::
+        "https://github.com/dbt-labs/jaffle-shop"  → "jaffle-shop"
+        "/tmp/my-project"                           → "my-project"
+        "."                                         → current directory name
+    """
+    import re
+    t = target.strip().rstrip("/\\")
+    if t.startswith("http://") or t.startswith("https://"):
+        # Extract last URL segment, strip .git suffix
+        name = re.sub(r"\.git$", "", t.split("/")[-1])
+        return name or "unknown-repo"
+    # Local path — use last path component (resolve "." to actual dir name)
+    return Path(t).resolve().name or "unknown-repo"
 
 
 def _print_summary(artifacts, hydro_result=None) -> None:
@@ -267,6 +309,8 @@ def _print_summary(artifacts, hydro_result=None) -> None:
             "lineage_graph_json",
             "lineage_viz_html",
             "hydrologist_stats_json",
+            "blind_spots_json",
+            "high_risk_json",
         ])
     for name in artifact_names:
         p = getattr(artifacts, name)

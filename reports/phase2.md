@@ -154,73 +154,128 @@ For edges extracted from Python dataflow:
 
 ---
 
-## Blind Spots Report (`blind_spots.md`)
+## Blind Spots Report (`blind_spots.json`)
 
-The blind-spots report surfaces everything the pipeline **could not fully resolve**.
+A fully metric-based JSON replacing the previous `.md` files. Every section has a count in
+`summary` plus an itemised `detail` array.
 
-### Sections
-
-| Section | What it contains |
-|---------|----------------|
-| Parse failures | Files where the AST parser returned an error |
-| Grammar-missing files | Files for which no tree-sitter grammar is installed |
-| Structurally empty files | Files that parsed successfully but produced zero nodes/symbols |
-| Dynamic transformations | SQL/Python files with unresolved Jinja or runtime-only references |
-| Low-confidence datasets | Datasets whose confidence score is below 0.7 |
-| Low-confidence edges | PRODUCES/CONSUMES edges whose confidence is below 0.7 |
-
-### Example `unresolved_references.json`
+### Schema
 
 ```json
 {
+  "generated_at": "2026-03-12T08:58:48.032116Z",
   "summary": {
     "parse_failures": 0,
     "grammar_missing": 0,
-    "structurally_empty": 2,
-    "dynamic_transforms": 2,
+    "structurally_empty_files": 2,
+    "dynamic_transformations": 2,
     "low_confidence_datasets": 2,
-    "low_confidence_edges": 2
+    "low_confidence_edges": 2,
+    "total_blind_spots": 8
   },
+  "parse_failures": [],
+  "grammar_missing": [],
   "structurally_empty_files": [
-    "macros/generate_schema_name.sql",
-    "macros/cents_to_dollars.sql"
+    { "file": "macros/cents_to_dollars.sql", "language": "sql", "lines": 16 }
   ],
   "dynamic_transformations": [
-    { "name": "generate_schema_name", "source_file": "macros/...", "confidence": 0.4 }
+    {
+      "id": "sql:macros/cents_to_dollars.sql",
+      "source_file": "macros/cents_to_dollars.sql",
+      "transformation_type": "dbt_model",
+      "confidence": 0.45,
+      "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
+    }
+  ],
+  "low_confidence_datasets": [
+    { "name": "model.cents_to_dollars", "dataset_type": "dbt_model", "confidence": 0.45,
+      "is_source": false, "is_sink": true }
+  ],
+  "low_confidence_edges": [
+    {
+      "from": "sql:macros/cents_to_dollars.sql",
+      "to": "model.cents_to_dollars",
+      "edge_type": "PRODUCES",
+      "confidence": 0.45,
+      "evidence": { "extraction_method": "sqlglot_dynamic", "sql_preview": "{# macro..." }
+    }
   ]
 }
 ```
 
-> Macro files in dbt are expected to appear here — they contain pure Jinja template logic with
-> no resolvable SQL table references, so they are correctly flagged as dynamic with
-> `confidence ≈ 0.40–0.55`.
+### jaffle-shop actual output
+
+| Metric | Value | Meaning |
+|--------|-------|---------|
+| `parse_failures` | 0 | All 33 files parsed successfully |
+| `grammar_missing` | 0 | tree-sitter-sql installed, zero fallbacks |
+| `structurally_empty_files` | 2 | `macros/cents_to_dollars.sql`, `macros/generate_schema_name.sql` — pure Jinja, no SQL table refs |
+| `dynamic_transformations` | 2 | Same 2 macro files — `sqlglot_dynamic` extraction, confidence 0.40–0.45 |
+| `low_confidence_datasets` | 2 | `model.cents_to_dollars`, `model.generate_schema_name` — derived from macro files |
+| `low_confidence_edges` | 2 | PRODUCES edges from the 2 macros |
+| `total_blind_spots` | 8 | Sum of all non-zero categories |
+
+> **Interpretation**: the only blind spots in jaffle-shop are the two utility macros. This is
+> expected — macros are Jinja template functions, not SQL models, and contain no table
+> references. The lineage graph for all 13 actual SQL models is complete and
+> high-confidence (1.0).
 
 ---
 
-## High-Risk Areas Report (`high_risk_areas.md`)
+## High-Risk Areas Report (`high_risk_areas.json`)
 
-The high-risk report aggregates the most operationally risky patterns found in the codebase.
+Metric-based JSON replacing the previous `.md`. All six risk dimensions are machine-queryable.
 
-### Sections
+### Schema
 
-| Section | Risk indicator |
-|---------|---------------|
-| High-velocity files | Files with the most git commits in the velocity window (churn risk) |
-| Top architectural hubs | Highest-PageRank modules (single-point-of-failure risk) |
-| Circular dependencies | SCCs with size > 1 (refactoring risk) |
-| Parse warnings | Files that produced warnings during extraction |
-| High fan-out transformations | Transformations that produce many output datasets |
-| Dynamic hotspots | Transformations with `sqlglot_dynamic` extraction (incomplete lineage risk) |
+```json
+{
+  "generated_at": "2026-03-12T08:58:48.033459Z",
+  "velocity_window_days": 30,
+  "summary": {
+    "high_velocity_files": 0,
+    "top_hubs": 5,
+    "circular_dependency_clusters": 0,
+    "files_with_parse_warnings": 0,
+    "high_fanout_transformations": 0,
+    "dynamic_hotspot_transformations": 2
+  },
+  "high_velocity_files": [],
+  "top_hubs": [
+    {
+      "node": "models/staging/stg_products.sql",
+      "pagerank_score": 0.056218,
+      "role": "staging",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 2,
+      "out_degree": 0
+    }
+  ],
+  "circular_dependencies": [],
+  "parse_warnings": [],
+  "high_fanout_transformations": [],
+  "dynamic_hotspots": [
+    {
+      "id": "sql:macros/cents_to_dollars.sql",
+      "source_file": "macros/cents_to_dollars.sql",
+      "transformation_type": "dbt_model",
+      "confidence": 0.45
+    }
+  ]
+}
+```
 
-### How to use it
+### jaffle-shop actual output
 
-1. Open `.cartography/high_risk_areas.md`
-2. Start with the **Circular dependencies** section — any cycles need architectural review
-3. Check **Top architectural hubs** — these are the files most likely to cause widespread
-   breakage if they change; they warrant extra test coverage
-4. Review **Dynamic hotspots** — these are gaps in the lineage map; trace them manually
-5. Cross-reference **High-velocity files** with hubs — files that are both high-churn and
-   high-hub are the highest-priority targets for hardening
+| Risk dimension | Count | Finding |
+|----------------|-------|---------|
+| `high_velocity_files` | 0 | Shallow clone — no git history available; velocity=0 for all files |
+| `top_hubs` | 5 | stg_products, stg_supplies, stg_orders, stg_locations, order_items |
+| `circular_dependency_clusters` | 0 | No circular imports — clean DAG structure |
+| `files_with_parse_warnings` | 0 | Zero parse errors across all 33 files |
+| `high_fanout_transformations` | 0 | No single SQL model outputs to ≥2 datasets |
+| `dynamic_hotspot_transformations` | 2 | The 2 macro files (expected) |
 
 ---
 

@@ -140,28 +140,27 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 | `lineage_graph.html` | Interactive PyVis lineage map (dark theme, hover tooltips, physics layout) |
 | `hydrologist_stats.json` | Phase 2 summary: dataset counts by type, transformation counts, edge stats |
 
-### Cross-phase reports — `.cartography/`
+### Cross-phase reports — `<repo-name>/`
 
 | File | Description |
 |------|-------------|
 | `cartography_trace.jsonl` | Audit log: one JSON line per agent action |
-| `blind_spots.md` | Unresolved references: parse failures, dynamic transforms, low-confidence datasets and edges |
-| `unresolved_references.json` | Machine-readable version of `blind_spots.md` |
-| `high_risk_areas.md` | Risk summary: high-velocity hubs, cycles, parse warnings, dynamic hotspots |
+| `blind_spots.json` | Metric-based JSON: parse failures, dynamic transforms, low-confidence datasets + edges |
+| `high_risk_areas.json` | Metric-based JSON: hubs, cycles, high-velocity files, fan-out transforms, dynamic hotspots |
 
 ### Expected output for jaffle-shop
 
 Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 produce:
 - **33 files parsed via AST** — Python, YAML, SQL (`tree-sitter-sql`), and JS/TS have dedicated grammars; **0 grammar-missing files**
-- **Module classification**: 33/33 modules assigned a named role (`staging`, `mart`, `config`, `macro`, `unknown`)
+- **Module classification**: 33/33 modules assigned a named role: 13 mart, 12 staging, 6 config, 2 macro
 - **SQL table references**: extracted via `tree-sitter-sql` AST
 - **YAML files**: top-level keys and dbt source/seed/model declarations extracted
 - **Import graph**: **11 DBT_REF edges** connecting mart models → staging models
-- **PageRank**: staging models correctly identified as architectural hubs (gold ring in PNG)
-- **Dataset classification**: 25/27 datasets classified with source/sink/final/intermediate flags
-- **Complexity scores**: populated for all Python files (0.0 for SQL/YAML)
+- **PageRank hubs**: staging models (stg_products, stg_supplies, stg_orders) are top-3 hubs
+- **Dataset classification**: 27 datasets — 12 source, 13 sink, 5 final models, 6 intermediate
 - **Project type**: `dbt` (auto-detected from `dbt_project.yml`)
-- **3 new risk reports**: `blind_spots.md`, `high_risk_areas.md`, `unresolved_references.json`
+- **Risk reports**: `blind_spots.json` (8 total blind spots — 2 macros flagged dynamic), `high_risk_areas.json`
+- **Output location**: `.cartography/jaffle-shop/` (auto-derived subfolder)
 
 ---
 
@@ -197,6 +196,38 @@ src/
 reports/
 ├── phase1.md                  # Phase 1 feature reference (classification, evidence, visualization)
 └── phase2.md                  # Phase 2 feature reference (lineage, blind spots, high-risk)
+```
+
+---
+
+## Output Directory Structure
+
+By default artifacts are written to `.cartography/<repo-name>/` so multiple repos can coexist:
+
+```
+.cartography/
+└── jaffle-shop/                    ← derived from the target path or URL
+    ├── cartography_trace.jsonl     ← shared audit log (all agents)
+    ├── blind_spots.json            ← metric-based blind-spot signals
+    ├── high_risk_areas.json        ← metric-based risk signals
+    ├── module_graph/               ← Phase 1 (Surveyor) artifacts
+    │   ├── module_graph.json
+    │   ├── module_graph_modules.json
+    │   ├── module_graph.png
+    │   └── surveyor_stats.json
+    └── data_lineage/               ← Phase 2 (Hydrologist) artifacts
+        ├── lineage_graph.json
+        ├── lineage_graph.html
+        └── hydrologist_stats.json
+```
+
+To write to an exact directory (bypass auto-subfolder): `--output-dir ./my-output`
+
+To analyse multiple repos side-by-side:
+```bash
+uv run cartographer analyze /path/to/repo-a    # → .cartography/repo-a/
+uv run cartographer analyze /path/to/repo-b    # → .cartography/repo-b/
+uv run cartographer analyze .                  # → .cartography/brownfield-cartographer/
 ```
 
 ---
@@ -256,17 +287,17 @@ Overlay rings on `module_graph.png`:
 Node labels include short role badges: `[stg]` staging · `[mart]` mart · `[int]` intermediate ·
 `[src]` source · `[macro]` macro · `[test]` test · `[cfg]` config.
 
-### Blind Spots (`blind_spots.md`)
+### Blind Spots (`blind_spots.json`)
 
-Surfaces everything the pipeline could not fully resolve:
-- **Parse failures** and **grammar-missing** files
-- **Structurally empty** files (parsed OK but no symbols extracted)
-- **Dynamic transformations** with unresolved Jinja (incomplete lineage)
-- **Low-confidence datasets and edges** (confidence < 0.7)
+Surfaces everything the pipeline could not fully resolve, as a metric-based JSON:
+- **`summary`** — counts for every category
+- **`parse_failures`** — files where the AST parser errored
+- **`structurally_empty_files`** — parsed OK but produced zero symbols
+- **`dynamic_transformations`** — Jinja/SQL not fully resolvable
+- **`low_confidence_datasets`** — datasets with confidence < 0.70
+- **`low_confidence_edges`** — PRODUCES/CONSUMES edges with confidence < 0.70
 
-Machine-readable version: `unresolved_references.json`.
-
-### High-Risk Areas (`high_risk_areas.md`)
+### High-Risk Areas (`high_risk_areas.json`)
 
 Aggregated risk signals for onboarding engineers:
 - **High-velocity files** — most git commits in the velocity window (churn risk)
@@ -276,7 +307,8 @@ Aggregated risk signals for onboarding engineers:
 - **Dynamic hotspots** — incomplete lineage, needs manual tracing
 
 > See [reports/phase1.md](reports/phase1.md) and [reports/phase2.md](reports/phase2.md)
-> for full field references and interpretation guides.
+> for full field references and interpretation guides, including annotated samples from
+> the jaffle-shop run.
 
 ---
 

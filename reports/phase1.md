@@ -28,7 +28,8 @@ It runs automatically as part of `cartographer analyze <repo>` and completes bef
 
 ## Output Artifacts
 
-All artifacts land in `.cartography/module_graph/` (or the directory you set with `--output-dir`).
+All artifacts land in `.cartography/<repo-name>/module_graph/` (repo name is auto-derived from
+the target path or URL). Use `--output-dir` to override the destination.
 
 | File | Description |
 |------|-------------|
@@ -161,20 +162,22 @@ Three concentric overlay rings mark special structural properties:
 
 ---
 
-## jaffle-shop Results (reference)
+## jaffle-shop Results (reference run)
 
 | Metric | Value |
 |--------|-------|
 | Files parsed | 33 / 33 (0 grammar-missing) |
 | Modules with a named role | 33 / 33 |
-| Staging modules | 6 |
-| Mart modules | 5 |
-| Config modules | 4 |
+| Staging modules | 12 |
+| Mart modules | 13 |
+| Config modules | 6 |
 | Macro modules | 2 |
 | DBT_REF edges | 11 |
-| Hub modules (top-10 PageRank) | 10 |
+| Hub modules (top-10 PageRank) | 5 shown (stg_products 0.0562, stg_supplies 0.0562, stg_orders 0.0499, stg_locations 0.0475, order_items 0.0412) |
 | Circular dependencies | 0 |
+| Dead-code candidates | 7 |
 | Project type | `dbt` |
+| Output location | `.cartography/jaffle-shop/module_graph/` |
 
 ---
 

@@ -1,11 +1,13 @@
 {
+  "generated_at": "2026-03-12T08:58:48.032116Z",
   "summary": {
     "parse_failures": 0,
     "grammar_missing": 0,
     "structurally_empty_files": 2,
     "dynamic_transformations": 2,
     "low_confidence_datasets": 2,
-    "low_confidence_edges": 2
+    "low_confidence_edges": 2,
+    "total_blind_spots": 8
   },
   "parse_failures": [],
   "grammar_missing": [],
@@ -25,12 +27,14 @@
     {
       "id": "sql:macros/cents_to_dollars.sql",
       "source_file": "macros/cents_to_dollars.sql",
+      "transformation_type": "dbt_model",
       "confidence": 0.44999999999999996,
       "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
     },
     {
       "id": "sql:macros/generate_schema_name.sql",
       "source_file": "macros/generate_schema_name.sql",
+      "transformation_type": "dbt_model",
       "confidence": 0.3999999999999999,
       "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
     }
@@ -38,13 +42,17 @@
   "low_confidence_datasets": [
     {
       "name": "model.cents_to_dollars",
-      "type": "dbt_model",
-      "confidence": 0.44999999999999996
+      "dataset_type": "dbt_model",
+      "confidence": 0.44999999999999996,
+      "is_source": false,
+      "is_sink": true
     },
     {
       "name": "model.generate_schema_name",
-      "type": "dbt_model",
-      "confidence": 0.3999999999999999
+      "dataset_type": "dbt_model",
+      "confidence": 0.3999999999999999,
+      "is_source": false,
+      "is_sink": true
     }
   ],
   "low_confidence_edges": [
