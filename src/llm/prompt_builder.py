@@ -175,3 +175,27 @@ Respond with ONLY a JSON object:
   ]
 }}
 """
+
+# ---------------------------------------------------------------------------
+# Batch purpose extraction (multiple small files in one call)
+# ---------------------------------------------------------------------------
+
+BATCH_PURPOSE_EXTRACTION_PROMPT = """\
+Analyze each source file below and return a JSON array with one purpose object per file.
+Keep each purpose_statement focused on BUSINESS purpose (1-2 sentences), not implementation.
+
+FILES TO ANALYZE:
+{files_json}
+
+Respond with ONLY a JSON array — one object per file in the SAME ORDER as input:
+[
+  {{
+    "file_path": "<must exactly match the input file_path>",
+    "purpose_statement": "<1-2 sentence business purpose>",
+    "business_logic_score": <0.0-1.0 float>,
+    "key_concepts": ["<concept1>", "<concept2>"],
+    "evidence": "<specific code constructs supporting the assessment>",
+    "confidence": <0.0-1.0 float>
+  }}
+]
+"""

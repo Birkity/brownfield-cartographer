@@ -2,33 +2,48 @@
   "purpose_statements": [
     {
       "file_path": "models/marts/order_items.yml",
-      "purpose_statement": "This file defines the data model and business metrics for order items in a food service business, including revenue calculations, cost tracking, and profitability analysis. It establishes the semantic meaning of order item data and defines key performance indicators for business reporting.",
-      "business_logic_score": 0.95,
+      "purpose_statement": "This file defines the data model, tests, semantic definitions, and metrics for order items in a food service business. It enables analysis of revenue, costs, and profitability at the granularity of individual order items.",
+      "business_logic_score": 0.9,
       "key_concepts": [
         "order_items",
         "revenue",
-        "food_revenue",
-        "drink_revenue",
-        "cost_analysis",
+        "costs",
+        "food_vs_drink_analysis",
         "profitability"
       ],
-      "evidence": "Models section defines order_items table structure with relationships; semantic_models section establishes business meaning of order items with measures for revenue calculations; metrics section contains 10+ business metrics including simple (revenue, food_revenue), ratio (food_revenue_pct), derived (revenue_growth_mom), and cumulative metrics; unit_tests validate supply cost calculations",
-      "confidence": 0.98,
+      "evidence": "models.name=order_items, semantic_models.measures.revenue, metrics.name=revenue, metrics.name=food_revenue_pct, unit_tests.test_supply_costs_sum_correctly",
+      "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
       "error": null
     },
     {
       "file_path": "models/marts/orders.sql",
-      "purpose_statement": "This mart model aggregates order data with item-level details to create a comprehensive view of each order including cost summaries, food/drink item counts, and customer ordering sequence. It serves as a centralized dataset for downstream reporting and analysis of order behavior and customer purchasing patterns.",
+      "purpose_statement": "This model creates a comprehensive orders mart by enriching staged order data with item-level summaries and customer ordering patterns. It aggregates order items to calculate costs, subtotals, and item counts while determining food/drink order types and customer order sequence.",
       "business_logic_score": 0.85,
       "key_concepts": [
-        "order aggregation",
-        "cost calculation",
-        "item classification",
-        "customer ordering sequence"
+        "order_enrichment",
+        "item_aggregation",
+        "customer_behavior",
+        "order_classification"
       ],
-      "evidence": "CTE structure with order_items_summary performing supply cost and product price aggregations, boolean computations for food/drink order classification, and customer_order_count using window functions for customer ordering sequence",
+      "evidence": "Code constructs: order_items_summary CTE with supply_cost/product_price aggregations, is_food_item/is_drink_item boolean calculations, customer_order_count window function for customer sequencing, and multiple business metrics like order_cost, count_food_items, count_drink_items",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/marts/order_items.sql",
+      "purpose_statement": "This model creates a comprehensive view of order items by joining order, product, and supply cost data to enable detailed analysis of order profitability and item characteristics. It aggregates supply costs per product and enriches order items with product details and ordering timestamps.",
+      "business_logic_score": 0.85,
+      "key_concepts": [
+        "order_items",
+        "supply_cost_analysis",
+        "product_enrichment",
+        "order_profitability"
+      ],
+      "evidence": "Joins order_items with orders, products, and aggregated supply costs; calculates supply_cost per product_id; includes product_name, product_price, is_food_item, is_drink_item classifications",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -36,16 +51,15 @@
     },
     {
       "file_path": "models/marts/orders.yml",
-      "purpose_statement": "This file defines a data mart for order analytics, containing order-level metrics and dimensions used for business reporting. It includes logic for categorizing orders as food or drink orders, calculating totals, and defining semantic models for downstream metrics.",
+      "purpose_statement": "This file defines a data mart for order analytics, containing business logic for calculating order totals, categorizing orders by food/drink items, and defining metrics for order analysis. It serves as the canonical source for order-related business intelligence.",
       "business_logic_score": 0.85,
       "key_concepts": [
         "order analytics",
-        "food vs drink orders",
-        "order totals",
-        "customer order counting",
+        "business metrics",
+        "data validation",
         "semantic modeling"
       ],
-      "evidence": "models.orders.columns.is_food_order, models.orders.columns.is_drink_order, unit_tests.test_order_items_compute_to_bools_correctly, semantic_models.orders.measures.order_total, metrics.food_orders, metrics.drink_orders",
+      "evidence": "models.orders with data_tests validating business calculations, unit_tests verifying food/drink boolean logic, semantic_models defining order entities/measures, metrics defining business KPIs like new_customer_orders and large_orders",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -53,14 +67,15 @@
     },
     {
       "file_path": "models/marts/customers.yml",
-      "purpose_statement": "This file defines a customer data mart that aggregates lifetime order and spending metrics per customer, supporting customer segmentation and lifetime value analysis.",
+      "purpose_statement": "This file defines a customer data mart that aggregates lifetime order and spending metrics per customer, supporting customer analytics and segmentation. It also exposes these metrics through semantic models and predefined queries for reporting.",
       "business_logic_score": 0.85,
       "key_concepts": [
         "customer lifetime value",
         "order history aggregation",
-        "customer segmentation"
+        "customer segmentation",
+        "metric definitions"
       ],
-      "evidence": "models.customers.columns.lifetime_spend_pretax, models.customers.columns.customer_type, semantic_models.customers.measures.lifetime_spend, metrics.lifetime_spend_pretax, metrics.average_order_value",
+      "evidence": "models.customers.columns.lifetime_spend_pretax, semantic_models.customers.measures.lifetime_spend_pretax, metrics.lifetime_spend_pretax, saved_queries.customer_order_metrics",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -77,23 +92,24 @@
         "customer_segmentation",
         "repeat_customer_analysis"
       ],
-      "evidence": "CTE customer_orders_summary calculates lifetime metrics (count_lifetime_orders, lifetime_spend); case statement classifies customers as 'returning' or 'new'; joins stg_customers with aggregated order data",
+      "evidence": "Code implements customer_orders_summary CTE with lifetime spend calculations (lifetime_spend_pretax, lifetime_tax_paid, lifetime_spend), order counting logic (count_lifetime_orders), repeat buyer identification (is_repeat_buyer), and customer classification (customer_type CASE statement)",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
       "error": null
     },
     {
-      "file_path": "models/marts/order_items.sql",
-      "purpose_statement": "This mart model aggregates order item data with related order, product, and supply cost information to provide a comprehensive view of ordered items including their financial and descriptive attributes.",
-      "business_logic_score": 0.8,
+      "file_path": "Taskfile.yml",
+      "purpose_statement": "This is a task automation configuration file that orchestrates data generation and loading workflows for analytics projects. It defines commands for setting up virtual environments, installing dependencies, generating synthetic data, and loading it into a database.",
+      "business_logic_score": 0.85,
       "key_concepts": [
-        "order_items",
-        "product_details",
-        "supply_costs",
-        "order_joining"
+        "task automation",
+        "data pipeline",
+        "environment setup",
+        "dependency management",
+        "data generation"
       ],
-      "evidence": "CTEs for order_items, orders, products, supplies; join logic combining these entities; calculation of supply_cost in order_supplies_summary; selection of business-relevant fields like product_name, product_price, is_food_item, is_drink_item",
+      "evidence": "YAML keys: version, silent, vars, YEARS, DB, tasks, venv, install; task definitions for venv, install, gen, seed, clean, load; variable interpolation {{.YEARS}} and {{.DB}}",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -101,15 +117,15 @@
     },
     {
       "file_path": "models/staging/stg_orders.sql",
-      "purpose_statement": "This staging model transforms raw e-commerce order data by renaming fields, converting currency amounts from cents to dollars, and truncating timestamps to daily granularity. It serves as an intermediate layer between raw order data and downstream analytics models.",
+      "purpose_statement": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity. It serves as an intermediate layer between raw data and downstream analytics models.",
       "business_logic_score": 0.8,
       "key_concepts": [
-        "order_data",
-        "currency_conversion",
-        "data_cleaning",
-        "staging_layer"
+        "data transformation",
+        "currency conversion",
+        "field mapping",
+        "timestamp normalization"
       ],
-      "evidence": "Field renaming (id to order_id, store_id to location_id), currency conversion macros (cents_to_dollars), date truncation (dbt.date_trunc), and selection of specific columns for transformation",
+      "evidence": "cents_to_dollars macro calls for subtotal, tax_paid, and order_total fields; field renaming from raw_orders schema; date_trunc function for timestamp processing",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -117,7 +133,7 @@
     },
     {
       "file_path": "models/marts/products.yml",
-      "purpose_statement": "This semantic model defines the product dimension for analytics, providing a structured representation of product data with associated metadata and classification attributes. It serves as a foundational data model for product-related metrics and dimensional analysis.",
+      "purpose_statement": "This semantic model defines the product dimension for analytics, providing a structured representation of product data with entities and dimensions that can be used to contextualize metrics. It serves as a dimensional model for product-related business intelligence reporting.",
       "business_logic_score": 0.8,
       "key_concepts": [
         "product dimension",
@@ -125,277 +141,24 @@
         "entity relationships",
         "categorical dimensions"
       ],
-      "evidence": "semantic_models.name: products, model: ref('products'), entities.product.type: primary, dimensions including product_name, product_type, is_food_item, is_drink_item",
-      "confidence": 0.9,
+      "evidence": "semantic_models.name: 'products', semantic_models.description: 'Product dimension table', entities.name: 'product' with type 'primary', dimensions including 'product_name', 'product_type', 'product_price' all defined as categorical types",
+      "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
       "error": null
     },
     {
       "file_path": "models/marts/supplies.yml",
-      "purpose_statement": "This semantic model defines the supplies dimension table structure for analytics, establishing the foundational data relationships and attributes for supply chain analysis. It provides the dimensional context needed to analyze supply-related metrics by mapping logical business concepts to physical database columns.",
+      "purpose_statement": "This semantic model defines the structure and metadata for a supplies dimension table that tracks supply and product combinations. It establishes the business context for supply chain data including supply identifiers, product associations, and supply characteristics like perishability.",
       "business_logic_score": 0.8,
       "key_concepts": [
         "supplies",
-        "dimensional modeling",
-        "entity relationship",
-        "supply chain analytics"
-      ],
-      "evidence": "semantic_models key with supplies model definition, entities section defining supply_uuid as primary entity, dimensions section listing supply_id, product_id, supply_name, supply_cost, and is_perishable_supply as categorical dimensions",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "macros/cents_to_dollars.sql",
-      "purpose_statement": "This SQL macro provides a standardized way to convert cent values to dollar amounts across different database platforms, ensuring consistent decimal precision and rounding behavior. It abstracts away database-specific syntax differences for monetary conversions.",
-      "business_logic_score": 0.8,
-      "key_concepts": [
-        "currency_conversion",
-        "database_abstraction",
-        "monetary_precision"
-      ],
-      "evidence": "Macro name 'cents_to_dollars' with adapter dispatch pattern, database-specific implementations for postgres, bigquery, and fabric, numeric casting with 16,2 precision, division by 100 conversion factor",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "macros/generate_schema_name.sql",
-      "purpose_statement": "This macro generates schema names for database objects based on resource type, environment, and custom naming rules. It handles different cases for seeds, default schemas, production vs non-production environments with custom schema names.",
-      "business_logic_score": 0.8,
-      "key_concepts": [
-        "schema naming",
-        "environment-specific logic",
-        "resource type routing",
-        "custom schema handling"
-      ],
-      "evidence": "generate_schema_name macro with conditional logic using node.resource_type, custom_schema_name, and target.name to determine schema naming patterns including seed handling, default schemas, and production environment prefixing",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_supplies.sql",
-      "purpose_statement": "This staging model transforms raw supply data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns like supply UUID and cost conversions.",
-      "business_logic_score": 0.6,
-      "key_concepts": [
+        "products",
         "supply_chain",
-        "data_cleaning",
-        "cost_conversion",
-        "surrogate_keys"
+        "dimension_modeling",
+        "entity_relationships"
       ],
-      "evidence": "source CTE references {{ source('ecom', 'raw_supplies') }}, surrogate key generation with dbt_utils.generate_surrogate_key(['id', 'sku']), cost conversion with {{ cents_to_dollars('cost') }}, field renaming (id\u2192supply_id, sku\u2192product_id, name\u2192supply_name), boolean transformation (perishable\u2192is_perishable_supply)",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_products.sql",
-      "purpose_statement": "This staging model transforms raw product data from the e-commerce system into a standardized format for downstream analytics use. It cleans and renames fields, converts price units from cents to dollars, and adds boolean flags to categorize products by type.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "product catalog",
-        "data transformation",
-        "unit conversion",
-        "product categorization"
-      ],
-      "evidence": "sku as product_id, {{ cents_to_dollars('price') }} as product_price, coalesce(type = 'jaffle', false) as is_food_item, coalesce(type = 'beverage', false) as is_drink_item",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_locations.sql",
-      "purpose_statement": "This staging model transforms raw store data into a standardized format for downstream analytics use. It cleans and renames fields from the raw stores table while preserving all records for further processing.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "data transformation",
-        "field renaming",
-        "date truncation",
-        "staging layer"
-      ],
-      "evidence": "CTE 'source' references {{ source('ecom', 'raw_stores') }}, CTE 'renamed' performs field mappings (id\u2192location_id, name\u2192location_name), uses dbt.date_trunc('day', 'opened_at') for date processing",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_customers.sql",
-      "purpose_statement": "This staging model transforms raw customer data from the e-commerce source by renaming columns to establish consistent naming conventions for downstream consumption. It extracts customer identifiers and names from the raw customers table and presents them in a standardized format.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "customer_data",
-        "column_renaming",
-        "data_standardization",
-        "staging_layer"
-      ],
-      "evidence": "The SQL code shows a clear pattern of selecting from source('ecom', 'raw_customers') and renaming columns (id to customer_id, name to customer_name) which represents basic data transformation logic. The CTE structure with 'source' and 'renamed' demonstrates the staging pattern of isolating source extraction from transformation logic.",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_order_items.sql",
-      "purpose_statement": "This staging model transforms raw e-commerce order item data by renaming and selecting key identifier fields to create a standardized view of order items. It serves as a foundational layer that maps raw system identifiers to business-friendly column names for downstream consumption.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "order_items",
-        "data_transformation",
-        "staging_model",
-        "identifier_mapping"
-      ],
-      "evidence": "CTE named 'renamed' performs field mapping (id as order_item_id, sku as product_id), SELECT * from source pattern, source() function referencing ecom.raw_items",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "dbt_project.yml",
-      "purpose_statement": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It specifies how data models should be materialized and sets up seed data loading with schema definitions.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "project_configuration",
-        "model_materialization",
-        "data_seeding",
-        "path_configuration"
-      ],
-      "evidence": "config-version, name, model-paths, seeds configuration with schema and enabled conditions, models section with staging/view and marts/table materialization patterns",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_locations.yml",
-      "purpose_statement": "This staging model defines the structure and validation for cleaned location data, ensuring each location has a unique ID and non-null values, while also including unit tests to verify proper date truncation of opened timestamps.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "location_data",
-        "data_cleaning",
-        "date_truncation",
-        "data_validation"
-      ],
-      "evidence": "models.stg_locations.columns.data_tests (not_null, unique), unit_tests.test_does_location_opened_at_trunc_to_date",
-      "confidence": 0.95,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/marts/locations.yml",
-      "purpose_statement": "Defines a semantic model for location data that serves as a dimension table containing location information with associated tax rates. Provides analytical context for location-based metrics and time-based aggregations.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "location dimension",
-        "tax rate analytics",
-        "time-based aggregation",
-        "semantic modeling"
-      ],
-      "evidence": "semantic_models array with location entity, dimensions including location_name and opened_date, measures for average_tax_rate with aggregation",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_order_items.yml",
-      "purpose_statement": "This staging model defines the structure and validation rules for order item data, representing individual food and drink items within customer orders. It establishes the relationship between order items and their parent orders while ensuring data quality through validation constraints.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "order_items",
-        "data_validation",
-        "referential_integrity"
-      ],
-      "evidence": "YAML keys: models, name: stg_order_items, description: Individual food and drink items that make up our orders, data_tests: not_null, unique, relationships, ref('stg_orders')",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_orders.yml",
-      "purpose_statement": "This staging model defines the structure and validation rules for cleaned order data, ensuring data quality through tests on order totals and unique identifiers.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "order_data",
-        "data_quality",
-        "validation_rules",
-        "staging_model"
-      ],
-      "evidence": "models.stg_orders.description, data_tests.expression_is_true, columns.order_id.data_tests.not_null, columns.order_id.data_tests.unique",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/marts/metricflow_time_spine.sql",
-      "purpose_statement": "This model generates a time spine table containing a continuous sequence of dates for use in metric calculations and time-based analytics. It creates a standardized date dimension spanning approximately 10 years (3650 days) starting from a base date.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "time spine",
-        "date dimension",
-        "metric calculation",
-        "date generation"
-      ],
-      "evidence": "dbt_date.get_base_dates function call with n_dateparts=365*10 parameter, cast_to_date transformation, days CTE",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_supplies.yml",
-      "purpose_statement": "This staging model defines the structure and validation rules for supply expense data, ensuring data quality through uniqueness and not-null constraints on the supply UUID. It represents cleaned supply cost records where each row corresponds to a specific cost instance rather than a supply item.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "supply_expenses",
-        "data_cleaning",
-        "cost_tracking",
-        "uuid_validation"
-      ],
-      "evidence": "YAML keys: models, name: stg_supplies, description field explaining one row per supply cost, supply_uuid column with not_null and unique data_tests",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_customers.yml",
-      "purpose_statement": "This YAML configuration file defines the structure and validation rules for a staging table containing cleaned customer data. It establishes the schema definition for customer records with uniqueness and non-null constraints on the primary identifier.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "customer_data",
-        "data_quality",
-        "schema_definition",
-        "staging_layer"
-      ],
-      "evidence": "YAML keys: models, name: stg_customers, description field defining 'Customer data with basic cleaning', columns with customer_id as unique key, data_tests including not_null and unique constraints",
-      "confidence": 0.9,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "models/staging/stg_products.yml",
-      "purpose_statement": "This YAML configuration file defines the structure and validation rules for a staging layer product data model. It establishes the schema for product information including unique identifiers and applies data quality tests to ensure integrity.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "product_data",
-        "data_modeling",
-        "schema_definition",
-        "data_quality"
-      ],
-      "evidence": "YAML keys: models, name: stg_products, description field defining product data scope, columns definition with product_id, data_tests array with not_null and unique constraints",
+      "evidence": "semantic_models.name: supplies, description: 'Supplies dimension table. The grain of the table is one row per supply and product combination', entities.supply.type: primary, dimensions including supply_id, product_id, supply_name, supply_cost, is_perishable_supply",
       "confidence": 0.9,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -403,15 +166,268 @@
     },
     {
       "file_path": "models/staging/__sources.yml",
-      "purpose_statement": "This YAML configuration file defines the source data structure for an e-commerce system, mapping raw database tables to business entities like customers, orders, items, stores, products, and supplies. It serves as a data source declaration that connects to the raw schema containing Jaffle Shop's e-commerce transaction data.",
+      "purpose_statement": "Defines the raw data sources and table schemas for an e-commerce system, specifically configuring metadata for customer, order, item, store, product, and supply data from the Jaffle Shop business.",
+      "business_logic_score": 0.8,
+      "key_concepts": [
+        "data_source_configuration",
+        "ecommerce_domain",
+        "table_schemas",
+        "metadata_definition"
+      ],
+      "evidence": "YAML keys: version, sources; source name 'ecom'; schema 'raw'; table definitions with names like 'raw_customers', 'raw_orders', 'raw_products'; descriptive fields like 'loaded_at_field' and 'description'",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "macros/cents_to_dollars.sql",
+      "purpose_statement": "This macro provides a standardized way to convert cent values to dollar amounts across different database platforms, ensuring consistent decimal precision and rounding behavior. It abstracts database-specific syntax for numeric conversion operations.",
+      "business_logic_score": 0.8,
+      "key_concepts": [
+        "currency_conversion",
+        "database_abstraction",
+        "decimal_precision",
+        "adapter_dispatch"
+      ],
+      "evidence": "adapter.dispatch('cents_to_dollars') function call, database-specific implementations for postgres, bigquery, and fabric, numeric casting operations with consistent (16,2) precision",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "macros/generate_schema_name.sql",
+      "purpose_statement": "This macro defines the naming convention for database schemas in a dbt project, determining where tables and views are created based on resource type, environment, and custom schema specifications. It ensures data objects are organized consistently across different deployment environments.",
+      "business_logic_score": 0.8,
+      "key_concepts": [
+        "schema naming",
+        "environment-specific deployment",
+        "resource type routing",
+        "dbt macro"
+      ],
+      "evidence": "The macro contains conditional logic blocks (node.resource_type == 'seed', custom_schema_name is none, target.name == 'prod') that determine schema placement, and explicitly handles different cases for seed files, default schemas, and production vs non-production environments",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_products.sql",
+      "purpose_statement": "This staging model transforms raw product data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns to classify products as food or drink items.",
+      "business_logic_score": 0.7,
+      "key_concepts": [
+        "product catalog",
+        "data transformation",
+        "field mapping",
+        "derived attributes"
+      ],
+      "evidence": "source CTE selects from raw_products, renamed CTE performs field mappings (sku\u2192product_id, name\u2192product_name), applies cents_to_dollars conversion, and creates boolean flags is_food_item and is_drink_item using coalesce expressions",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_supplies.sql",
+      "purpose_statement": "This staging model transforms raw supply data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns like supply UUID and converted cost values.",
       "business_logic_score": 0.3,
       "key_concepts": [
-        "ecommerce_data_model",
-        "source_tables",
-        "data_ingestion",
-        "jaffle_shop"
+        "supply_chain",
+        "data_cleaning",
+        "cost_conversion",
+        "surrogate_keys"
       ],
-      "evidence": "YAML keys: version, sources; source name: ecom; schema: raw; table names: raw_customers, raw_orders, raw_items, raw_stores, raw_products, raw_supplies; loaded_at_field properties for orders and stores tables",
+      "evidence": "dbt_utils.generate_surrogate_key(['id', 'sku']) as supply_uuid, cents_to_dollars('cost') as supply_cost, field renaming (id as supply_id, sku as product_id), boolean transformation (perishable as is_perishable_supply)",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_locations.sql",
+      "purpose_statement": "This staging model transforms raw store data into a standardized format for downstream analytics use. It cleans and renames store-related fields while extracting date information from timestamps.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "store locations",
+        "data transformation",
+        "field mapping",
+        "date extraction"
+      ],
+      "evidence": "source CTE selects from ecom.raw_stores, renamed CTE performs field mappings (id\u2192location_id, name\u2192location_name), applies tax_rate passthrough, uses dbt.date_trunc to extract opened_date from opened_at timestamp",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_customers.sql",
+      "purpose_statement": "This staging model transforms raw customer data by renaming columns to establish consistent naming conventions for downstream consumption. It extracts customer identifiers and names from the e-commerce source system to create a standardized customer dataset.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "customer_data",
+        "column_renaming",
+        "data_standardization"
+      ],
+      "evidence": "source CTE selects from {{ source('ecom', 'raw_customers') }}, renamed CTE maps id to customer_id and name to customer_name",
+      "confidence": 0.9,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_order_items.sql",
+      "purpose_statement": "This staging model transforms raw e-commerce item data by renaming and selecting key fields to create a standardized view of order items. It serves as an intermediate layer between raw data ingestion and downstream analytics or modeling.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "order_items",
+        "data_transformation",
+        "staging_model",
+        "field_mapping"
+      ],
+      "evidence": "source CTE selects from {{ source('ecom', 'raw_items') }}, renamed CTE performs field renaming (id as order_item_id, sku as product_id), final select outputs transformed data",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_locations.yml",
+      "purpose_statement": "This staging model defines the structure and validation for cleaned location data, ensuring each location has a unique ID and non-null values, while also including unit tests to verify proper date truncation logic for store opening times.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "location_data",
+        "data_cleaning",
+        "date_truncation",
+        "data_validation"
+      ],
+      "evidence": "YAML keys: models, columns, data_tests, unit_tests; column definitions for location_id with not_null/unique constraints; unit test verifying opened_at timestamp truncation to opened_date",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/marts/locations.yml",
+      "purpose_statement": "This semantic model defines the analytical structure for location data, establishing how location dimensions and measures should be interpreted and aggregated in business intelligence contexts. It serves as a metadata layer that maps the physical locations table to analytical concepts like tax rates and operational dates.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "location analytics",
+        "tax rate analysis",
+        "operational metrics",
+        "dimensional modeling"
+      ],
+      "evidence": "semantic_models.name: 'locations', dimensions: ['location_name', 'opened_date'], measures: ['average_tax_rate'], defaults.agg_time_dimension: 'opened_date'",
+      "confidence": 0.95,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_order_items.yml",
+      "purpose_statement": "This staging model defines the structure and validation rules for individual food and drink items that comprise customer orders, ensuring data quality through defined constraints and relationships.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "order_items",
+        "data_quality",
+        "relationships"
+      ],
+      "evidence": "YAML keys: models, name: stg_order_items, description: Individual food and drink items that make up our orders, data_tests: not_null, unique, relationships",
+      "confidence": 0.9,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_orders.yml",
+      "purpose_statement": "This staging model defines the structure and validation rules for cleaned order data, ensuring each order has a unique identifier and valid financial calculations. It serves as a standardized intermediate layer for order information in the data warehouse.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "order_data",
+        "data_quality",
+        "unique_identifiers",
+        "financial_validation"
+      ],
+      "evidence": "YAML keys: models, name: stg_orders, data_tests with expression validation, not_null and unique column constraints",
+      "confidence": 0.9,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/marts/metricflow_time_spine.sql",
+      "purpose_statement": "This model generates a time spine table containing a continuous sequence of dates, typically used for time-series analysis and metric calculations in downstream reporting. It creates a foundational date dimension spanning approximately 10 years (3650 days) starting from a base date.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "time spine",
+        "date dimension",
+        "metric calculation",
+        "data foundation"
+      ],
+      "evidence": "dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\"), cast(date_day as date)",
+      "confidence": 0.9,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_supplies.yml",
+      "purpose_statement": "This staging model defines the structure and validation rules for supply expense data, ensuring data quality through uniqueness and non-null constraints on supply identifiers.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "supply_expenses",
+        "data_quality",
+        "unique_identifiers"
+      ],
+      "evidence": "YAML keys: models, name: stg_supplies, description field mentioning 'supply expenses data with basic cleaning and transformation', supply_uuid column with not_null and unique data_tests",
+      "confidence": 0.9,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_customers.yml",
+      "purpose_statement": "This staging model defines the structure and validation rules for cleaned customer data, ensuring each record represents a unique customer with proper identification. It serves as a standardized intermediate layer between raw customer data and final analytical models.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "customer_data",
+        "data_cleaning",
+        "unique_identifiers",
+        "data_quality"
+      ],
+      "evidence": "YAML keys: models, name: stg_customers, description field mentioning 'basic cleaning and transformation', columns with customer_id definition, data_tests including not_null and unique constraints",
+      "confidence": 0.9,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "models/staging/stg_products.yml",
+      "purpose_statement": "This YAML file defines the structure and validation rules for a staging layer product data model. It specifies the schema for cleaned and transformed product information with uniqueness and non-null constraints on the primary key.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "product_data",
+        "data_validation",
+        "staging_model",
+        "schema_definition"
+      ],
+      "evidence": "models key containing stg_products definition, description field explaining data purpose, columns array with product_id specification, data_tests array with not_null and unique constraints",
+      "confidence": 0.9,
+      "model_used": "qwen3-coder:480b-cloud",
+      "is_fallback": false,
+      "error": null
+    },
+    {
+      "file_path": "dbt_project.yml",
+      "purpose_statement": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It serves as the central configuration hub that controls how dbt builds and deploys data models.",
+      "business_logic_score": 0.1,
+      "key_concepts": [
+        "project_configuration",
+        "dbt_settings",
+        "model_paths",
+        "environment_variables"
+      ],
+      "evidence": "config-version: 2, name: \"jaffle_shop\", model-paths: [\"models\"], profile: default, vars: {\"dbt_date:time_zone\": \"America/Los_Angeles\"}, seeds: {jaffle_shop: {+schema: raw}}, models: {jaffle_shop: {staging: {+materialized: view}}}",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -419,7 +435,7 @@
     },
     {
       "file_path": ".pre-commit-config.yaml",
-      "purpose_statement": "This configuration file defines pre-commit hooks that automatically validate and format code before commits are made. It ensures code quality standards by running checks for YAML syntax, file formatting, and Python code style.",
+      "purpose_statement": "This configuration file defines pre-commit hooks that automatically validate and format code before commits are made, ensuring code quality standards are maintained. It specifies checks for YAML syntax, file formatting, and Python code style enforcement.",
       "business_logic_score": 0.1,
       "key_concepts": [
         "pre-commit",
@@ -428,7 +444,7 @@
         "formatting",
         "linting"
       ],
-      "evidence": "YAML keys: repos, repo URLs pointing to pre-commit-hooks and ruff-pre-commit, hook IDs including check-yaml, end-of-file-fixer, trailing-whitespace, requirements-txt-fixer, ruff-check, and ruff-format",
+      "evidence": "YAML keys: repos, repo URLs for pre-commit-hooks and ruff-pre-commit, hook IDs including check-yaml, end-of-file-fixer, trailing-whitespace, requirements-txt-fixer, ruff-check, and ruff-format",
       "confidence": 0.95,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
@@ -436,62 +452,45 @@
     },
     {
       "file_path": "models/marts/locations.sql",
-      "purpose_statement": "This model serves as a location mart that provides a clean, unified view of location data for downstream consumption. It acts as an intermediate layer between raw staging data and final reporting tables.",
+      "purpose_statement": "This model serves as a pass-through layer that exposes all location data from the staging layer for downstream consumption. It provides a clean interface for accessing standardized location information without additional transformation.",
       "business_logic_score": 0.1,
       "key_concepts": [
-        "locations",
-        "data mart",
-        "staging layer"
+        "location_data",
+        "data_exposure",
+        "staging_layer"
       ],
-      "evidence": "CTE named 'locations' selects all columns from stg_locations reference, final select returns all location records",
-      "confidence": 0.8,
+      "evidence": "CTE named 'locations' selects all columns from stg_locations reference, final select exposes all location records",
+      "confidence": 0.9,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
       "error": null
     },
     {
       "file_path": "models/marts/products.sql",
-      "purpose_statement": "This model serves as a product mart that provides a clean, unified view of product data for reporting and analysis. It acts as a semantic layer that exposes standardized product information to downstream consumers.",
+      "purpose_statement": "This model creates a final products mart by selecting all data from the staging products table. It serves as a clean, ready-to-use dataset for downstream reporting and analysis on product information.",
       "business_logic_score": 0.1,
       "key_concepts": [
-        "product_data",
-        "semantic_layer",
-        "reporting_view"
+        "products",
+        "data mart",
+        "staging layer"
       ],
-      "evidence": "CTE named 'products' selects from stg_products reference, final select * from products pattern indicates minimal transformation",
-      "confidence": 0.8,
+      "evidence": "CTE named 'products' selects from stg_products ref, final select returns all columns from products CTE",
+      "confidence": 0.9,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
       "error": null
     },
     {
       "file_path": "models/marts/supplies.sql",
-      "purpose_statement": "This model creates a final presentation layer table for supplies data by selecting all records from the staging supplies table. It serves as a clean, denormalized view of supply information for reporting and analysis purposes.",
+      "purpose_statement": "This model creates a supplies mart by selecting all data from the staging supplies table. It serves as a direct pass-through layer that makes supplies data available for downstream consumption in the analytics environment.",
       "business_logic_score": 0.1,
       "key_concepts": [
         "supplies",
         "data mart",
-        "presentation layer"
+        "staging layer"
       ],
-      "evidence": "CTE named 'supplies' selects from ref('stg_supplies'), final select statement returns all columns from supplies CTE",
-      "confidence": 0.8,
-      "model_used": "qwen3-coder:480b-cloud",
-      "is_fallback": false,
-      "error": null
-    },
-    {
-      "file_path": "Taskfile.yml",
-      "purpose_statement": "This Taskfile.yml defines automation tasks for setting up a data environment, generating sample data, loading it into a database, and cleaning up resources. It orchestrates the workflow for data generation and seeding using dbt and Python virtual environments.",
-      "business_logic_score": 0.1,
-      "key_concepts": [
-        "task automation",
-        "data generation",
-        "environment setup",
-        "dbt integration",
-        "virtual environment management"
-      ],
-      "evidence": "YAML keys: version, silent, vars, YEARS, DB, tasks, venv, install; task definitions for venv, install, gen, seed, clean, load; commands for python venv activation, pip install, jafgen data generation, dbt seed execution",
-      "confidence": 0.95,
+      "evidence": "CTE named 'supplies' selects all columns from stg_supplies reference; final select retrieves all data from supplies CTE",
+      "confidence": 0.9,
       "model_used": "qwen3-coder:480b-cloud",
       "is_fallback": false,
       "error": null
@@ -501,90 +500,83 @@
     "domains": [
       {
         "domain_name": "Order Analytics",
-        "description": "Core business intelligence for order processing, revenue analysis, and profitability tracking across food and drink orders.",
+        "description": "Focused on order-level business intelligence including revenue analysis, profitability calculations, and customer ordering patterns. Contains the core business logic for order processing and financial metrics.",
         "members": [
           "models/marts/order_items.yml",
           "models/marts/orders.sql",
-          "models/marts/orders.yml",
-          "models/marts/order_items.sql"
+          "models/marts/order_items.sql",
+          "models/marts/orders.yml"
         ],
-        "reasoning": "These files share key concepts around order aggregation, revenue calculation, food/drink classification, and profitability analysis, forming a cohesive order analytics domain."
+        "reasoning": "These files share key concepts around order analysis, revenue, costs, profitability, and customer behavior. They work together to provide comprehensive order analytics capabilities."
       },
       {
         "domain_name": "Customer Analytics",
-        "description": "Customer lifecycle management including segmentation, lifetime value analysis, and purchasing behavior tracking.",
+        "description": "Handles customer data modeling, lifetime value calculations, segmentation, and customer behavior analysis. Supports customer relationship management and marketing analytics.",
         "members": [
           "models/marts/customers.yml",
           "models/marts/customers.sql"
         ],
-        "reasoning": "Both files focus on customer-level metrics, lifetime value calculation, segmentation, and order history aggregation for customer analytics."
+        "reasoning": "Both files focus exclusively on customer analytics, segmentation, lifetime value, and order history aggregation, forming a cohesive customer domain."
       },
       {
         "domain_name": "Product & Supply Chain",
-        "description": "Product catalog management and supply chain analytics including cost tracking and dimensional modeling.",
+        "description": "Manages product catalog data, supply chain information, and dimensional modeling for product-related analytics and inventory management.",
         "members": [
           "models/marts/products.yml",
           "models/marts/supplies.yml",
           "models/marts/products.sql",
           "models/marts/supplies.sql"
         ],
-        "reasoning": "These files handle product dimensions, supply chain analytics, cost tracking, and entity relationships for product and supply management."
+        "reasoning": "These files handle product and supply chain data modeling, with shared concepts around product dimensions, supply chain relationships, and inventory management."
       },
       {
-        "domain_name": "Data Ingestion & Staging",
-        "description": "Raw data transformation, cleaning, and standardization from source systems to analytics-ready formats.",
+        "domain_name": "Data Staging & Ingestion",
+        "description": "Responsible for raw data transformation, cleaning, and standardization from source systems into the data warehouse staging layer.",
         "members": [
           "models/staging/stg_orders.sql",
-          "models/staging/stg_supplies.sql",
           "models/staging/stg_products.sql",
+          "models/staging/stg_supplies.sql",
           "models/staging/stg_locations.sql",
           "models/staging/stg_customers.sql",
-          "models/staging/stg_order_items.sql"
+          "models/staging/stg_order_items.sql",
+          "models/staging/__sources.yml"
         ],
-        "reasoning": "All staging models perform data transformation, cleaning, field renaming, and standardization from raw e-commerce source data."
+        "reasoning": "All staging models share the purpose of transforming raw data into standardized formats for downstream consumption, with consistent data transformation patterns."
       },
       {
-        "domain_name": "Infrastructure & Configuration",
-        "description": "Project configuration, automation, and reusable utilities for the data platform.",
-        "members": [
-          "dbt_project.yml",
-          "macros/cents_to_dollars.sql",
-          "macros/generate_schema_name.sql",
-          "Taskfile.yml",
-          ".pre-commit-config.yaml"
-        ],
-        "reasoning": "These files handle project configuration, reusable macros, automation tasks, and code quality controls rather than business logic."
-      },
-      {
-        "domain_name": "Data Validation & Quality",
-        "description": "Data quality assurance through schema definitions, validation rules, and testing frameworks.",
+        "domain_name": "Data Quality & Validation",
+        "description": "Defines data validation rules, constraints, and quality checks across all staging models to ensure data integrity.",
         "members": [
           "models/staging/stg_locations.yml",
           "models/staging/stg_order_items.yml",
           "models/staging/stg_orders.yml",
           "models/staging/stg_supplies.yml",
           "models/staging/stg_customers.yml",
-          "models/staging/stg_products.yml",
-          "models/staging/__sources.yml"
+          "models/staging/stg_products.yml"
         ],
-        "reasoning": "These YAML files define data validation rules, schema definitions, and quality tests for staging models and source data."
+        "reasoning": "These YAML files define validation rules, uniqueness constraints, and data quality checks for their respective staging models."
+      },
+      {
+        "domain_name": "Infrastructure & Operations",
+        "description": "Contains project configuration, automation, and utility functions that support the overall data platform operations.",
+        "members": [
+          "Taskfile.yml",
+          "dbt_project.yml",
+          ".pre-commit-config.yaml",
+          "macros/cents_to_dollars.sql",
+          "macros/generate_schema_name.sql",
+          "models/marts/metricflow_time_spine.sql"
+        ],
+        "reasoning": "These are infrastructure components including project configuration, automation scripts, utility macros, and foundational data structures that support the entire platform."
       },
       {
         "domain_name": "Location Management",
-        "description": "Store location data management including tax rate analytics and location-based metrics.",
+        "description": "Handles store location data, tax rate analysis, and operational metrics for physical store operations.",
         "members": [
           "models/marts/locations.yml",
           "models/marts/locations.sql"
         ],
-        "reasoning": "Both files handle location dimension modeling, tax rate analytics, and location-based aggregations."
-      },
-      {
-        "domain_name": "Time Analytics",
-        "description": "Time dimension management for metric calculations and date-based analytics.",
-        "members": [
-          "models/marts/metricflow_time_spine.sql"
-        ],
-        "reasoning": "This standalone model generates time spine tables specifically for time-based metric calculations and analytics."
+        "reasoning": "These files specifically focus on location data, tax rates, and store operations, forming a distinct location management domain."
       }
     ],
     "confidence": 0.9,
@@ -596,324 +588,356 @@
     {
       "file_path": "models/marts/order_items.yml",
       "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
       "stale_references": [],
-      "confidence": 0.5,
+      "confidence": 1.0,
       "model_used": "",
       "error": null,
-      "has_documentation": false
+      "has_documentation": false,
+      "documentation_missing": true
     },
     {
       "file_path": "models/marts/customers.sql",
       "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
       "stale_references": [],
-      "confidence": 0.5,
+      "confidence": 1.0,
       "model_used": "",
       "error": null,
-      "has_documentation": false
+      "has_documentation": false,
+      "documentation_missing": true
     },
     {
       "file_path": "models/marts/customers.yml",
       "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
       "stale_references": [],
-      "confidence": 0.5,
+      "confidence": 1.0,
       "model_used": "",
       "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/marts/orders.sql",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/marts/orders.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "macros/cents_to_dollars.sql",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "macros/generate_schema_name.sql",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
+      "has_documentation": false,
+      "documentation_missing": true
     },
     {
       "file_path": "models/marts/order_items.sql",
       "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/marts/products.yml",
-      "drift_level": "no_drift",
-      "explanation": "The documentation comments are perfectly aligned with the actual implementation. Each comment directly precedes and accurately describes the corresponding YAML configuration section.",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
       "stale_references": [],
       "confidence": 1.0,
-      "model_used": "deepseek-v3.1:671b-cloud",
+      "model_used": "",
       "error": null,
-      "has_documentation": true
+      "has_documentation": false,
+      "documentation_missing": true
     },
     {
-      "file_path": "models/marts/supplies.yml",
+      "file_path": "models/marts/orders.sql",
       "drift_level": "no_drift",
-      "explanation": "Documentation comments accurately describe the corresponding code sections. The comments directly reference the YAML structure elements they annotate and the implementation matches the described patterns.",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
       "stale_references": [],
       "confidence": 1.0,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "models/staging/stg_orders.sql",
-      "drift_level": "likely_drift",
-      "explanation": "Documentation mentions only field categorization (ids, numerics, timestamps) but omits key transformations: currency conversion from cents to dollars (via cents_to_dollars macro) and timestamp truncation (via dbt.date_trunc). The 'numerics' section documentation is particularly misleading as it doesn't reflect the dual cents/dollars columns being created.",
-      "stale_references": [
-        "field categorization that doesn't match actual transformation logic"
-      ],
-      "confidence": 0.9,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "models/staging/stg_supplies.sql",
-      "drift_level": "likely_drift",
-      "explanation": "Documentation lists generic categories (ids, text, numerics, booleans) but implementation shows specific field transformations not mentioned: supply_uuid generation using dbt_utils.generate_surrogate_key, cost conversion via cents_to_dollars macro, and specific field renaming patterns",
-      "stale_references": [
-        "generic category names that don't reflect actual implementation details"
-      ],
-      "confidence": 0.9,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "dbt_project.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
       "model_used": "",
       "error": null,
-      "has_documentation": false
+      "has_documentation": false,
+      "documentation_missing": true
     },
     {
-      "file_path": "models/marts/locations.yml",
+      "file_path": "models/marts/orders.yml",
       "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/marts/metricflow_time_spine.sql",
-      "drift_level": "likely_drift",
-      "explanation": "Documentation states 'for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"' but implementation uses {{ dbt_date.get_base_dates() }} macro instead of hardcoded date. The comment suggests manual SQL for BigQuery, while code uses dbt_date package abstraction.",
-      "stale_references": [
-        "DATE('01/01/2000','mm/dd/yyyy') syntax",
-        "BQ adapters specific implementation"
-      ],
-      "confidence": 0.9,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "models/staging/__sources.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/staging/stg_customers.sql",
-      "drift_level": "likely_drift",
-      "explanation": "Documentation section headers ('ids', 'text') don't match actual column transformations (only 'id' renamed to 'customer_id' and 'name' to 'customer_name'). Missing documentation for source table reference and overall transformation purpose.",
-      "stale_references": [
-        "ids",
-        "text"
-      ],
-      "confidence": 0.9,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "models/staging/stg_customers.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/staging/stg_locations.sql",
-      "drift_level": "no_drift",
-      "explanation": "Documentation headers perfectly match the actual column groupings in the implementation",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
       "stale_references": [],
       "confidence": 1.0,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "models/staging/stg_locations.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
       "model_used": "",
       "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/staging/stg_order_items.sql",
-      "drift_level": "likely_drift",
-      "explanation": "Documentation section 'ids' is incomplete - it mentions only identifiers but doesn't list the actual columns (order_item_id, order_id, product_id) being transformed from source fields (id, order_id, sku)",
-      "stale_references": [
-        "The 'ids' section header exists but contains no actual documentation of the identifier mappings"
-      ],
-      "confidence": 0.9,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "models/staging/stg_order_items.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/staging/stg_orders.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/staging/stg_products.sql",
-      "drift_level": "no_drift",
-      "explanation": "Documentation sections (ids, text, numerics, booleans) perfectly align with actual implementation. Each field transformation matches the documented categorization and purpose statement.",
-      "stale_references": [],
-      "confidence": 1.0,
-      "model_used": "deepseek-v3.1:671b-cloud",
-      "error": null,
-      "has_documentation": true
-    },
-    {
-      "file_path": "models/staging/stg_products.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/staging/stg_supplies.yml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": ".pre-commit-config.yaml",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/marts/locations.sql",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/marts/products.sql",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
-    },
-    {
-      "file_path": "models/marts/supplies.sql",
-      "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
-      "stale_references": [],
-      "confidence": 0.5,
-      "model_used": "",
-      "error": null,
-      "has_documentation": false
+      "has_documentation": false,
+      "documentation_missing": true
     },
     {
       "file_path": "Taskfile.yml",
       "drift_level": "no_drift",
-      "explanation": "No documentation found to compare against.",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
       "stale_references": [],
-      "confidence": 0.5,
+      "confidence": 1.0,
       "model_used": "",
       "error": null,
-      "has_documentation": false
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "macros/cents_to_dollars.sql",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "macros/generate_schema_name.sql",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/marts/products.yml",
+      "drift_level": "likely_drift",
+      "explanation": "Documentation states 'Entities. These usually correspond to keys in the table' but product_price is defined as categorical dimension instead of entity. Documentation says 'Dimensions. Either categorical or time' but product_price is numeric data incorrectly typed as categorical.",
+      "stale_references": [],
+      "confidence": 0.9,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/marts/supplies.yml",
+      "drift_level": "likely_drift",
+      "explanation": "Documentation comments describe generic semantic model structure but don't match actual implementation details. The code defines specific dimensions (supply_id, product_id, supply_name, supply_cost, is_perishable_supply) and entities (supply with supply_uuid expression) that aren't mentioned in the documentation comments. The documentation lacks description of the actual grain (supply and product combination) and business context (perishability tracking) present in the code.",
+      "stale_references": [
+        "The documentation comments are generic placeholders that don't reference actual implementation details like supply_uuid expression, specific dimension names, or the perishability characteristic"
+      ],
+      "confidence": 0.95,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/staging/__sources.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/staging/stg_orders.sql",
+      "drift_level": "likely_drift",
+      "explanation": "Documentation sections ('ids', 'numerics', 'timestamps') don't match actual implementation. Code shows 'ids' section includes customer_id, 'numerics' includes both cent and dollar fields, and 'timestamps' uses date_trunc function not mentioned in docs.",
+      "stale_references": [
+        "ids (missing customer_id reference)",
+        "numerics (missing cent/dollar distinction)",
+        "timestamps (missing date_trunc function reference)"
+      ],
+      "confidence": 0.9,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/staging/stg_products.sql",
+      "drift_level": "likely_drift",
+      "explanation": "Documentation claims classification as 'food or drink items' but implementation classifies based on 'jaffle' and 'beverage' type values. Documentation mentions 'calculated columns to classify products as food or drink items' but doesn't specify the exact logic (type = 'jaffle' for food, type = 'beverage' for drink).",
+      "stale_references": [
+        "food or drink items classification logic unspecified"
+      ],
+      "confidence": 0.9,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/marts/locations.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/marts/metricflow_time_spine.sql",
+      "drift_level": "likely_drift",
+      "explanation": "Documentation specifies BQ adapters should use DATE('01/01/2000','mm/dd/yyyy') format, but implementation uses dbt_date.get_base_dates macro which likely has different default behavior and date format handling",
+      "stale_references": [
+        "DATE('01/01/2000','mm/dd/yyyy')",
+        "mm/dd/yyyy format"
+      ],
+      "confidence": 0.8,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/staging/stg_customers.sql",
+      "drift_level": "no_drift",
+      "explanation": "Documentation comments in the code ('ids' and 'text') accurately describe the transformations being performed: converting 'id' to 'customer_id' and 'name' to 'customer_name'.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/staging/stg_customers.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/staging/stg_locations.sql",
+      "drift_level": "no_drift",
+      "explanation": "The documentation accurately reflects the implementation. The code groups columns into the same four categories documented (ids, text, numerics, timestamps) and performs the transformations described in the purpose statement (renaming fields, extracting date from timestamp).",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/staging/stg_locations.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/staging/stg_order_items.sql",
+      "drift_level": "likely_drift",
+      "explanation": "Documentation section 'ids' is incomplete - it only mentions 'ids' but code shows three distinct ID fields being transformed: id\u2192order_item_id, order_id, and sku\u2192product_id. Missing documentation for the actual field transformations.",
+      "stale_references": [
+        "ids (too generic, doesn't match actual field names)"
+      ],
+      "confidence": 0.95,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/staging/stg_order_items.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/staging/stg_orders.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/staging/stg_products.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/staging/stg_supplies.sql",
+      "drift_level": "no_drift",
+      "explanation": "Documentation sections (ids, text, numerics, booleans) accurately correspond to implementation. Each documented section contains the exact fields described: supply_uuid, supply_id, product_id under 'ids'; supply_name under 'text'; supply_cost under 'numerics'; is_perishable_supply under 'booleans'.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "deepseek-v3.1:671b-cloud",
+      "error": null,
+      "has_documentation": true,
+      "documentation_missing": false
+    },
+    {
+      "file_path": "models/staging/stg_supplies.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": ".pre-commit-config.yaml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "dbt_project.yml",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/marts/locations.sql",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/marts/products.sql",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
+    },
+    {
+      "file_path": "models/marts/supplies.sql",
+      "drift_level": "no_drift",
+      "explanation": "No inline documentation found \u2014 documentation is missing.",
+      "stale_references": [],
+      "confidence": 1.0,
+      "model_used": "",
+      "error": null,
+      "has_documentation": false,
+      "documentation_missing": true
     }
   ]
 }

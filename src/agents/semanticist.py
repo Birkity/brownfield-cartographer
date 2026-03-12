@@ -33,7 +33,7 @@ from src.graph.knowledge_graph import KnowledgeGraph
 from src.llm.model_router import ModelRouter, TaskType
 from src.llm.ollama_client import ContextWindowBudget, OllamaClient, OllamaResponse
 from src.llm.prompt_builder import DAY_ONE_SYNTHESIS_PROMPT, SYSTEM_SYNTHESIS
-from src.models.nodes import AnalysisMethod, TraceEntry
+from src.models.nodes import AnalysisMethod, ModuleNode, TraceEntry
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +46,31 @@ class SemanticsResult:
     clustering: Optional[ClusteringResult] = None
     drift_results: list[DriftResult] = field(default_factory=list)
     day_one_answers: Optional[dict[str, Any]] = None
+    reading_order: list[dict[str, Any]] = field(default_factory=list)
     budget_summary: dict[str, Any] = field(default_factory=dict)
     trace: list[TraceEntry] = field(default_factory=list)
     stats: dict[str, Any] = field(default_factory=dict)
     ollama_available: bool = False
+
+
+def _reading_reason(module: ModuleNode, pr: Optional[PurposeResult]) -> str:
+    """Return a short rationale for a module's position in the reading order."""
+    reasons: list[str] = []
+    if module.is_hub:
+        reasons.append("architectural hub")
+    if pr and pr.business_logic_score >= 0.7:
+        reasons.append("core business logic")
+    elif pr and pr.business_logic_score >= 0.4:
+        reasons.append("significant business logic")
+    if module.role == "mart":
+        reasons.append("analytical output")
+    elif module.role == "staging":
+        reasons.append("data foundation")
+    elif module.role == "macro":
+        reasons.append("shared utility")
+    if getattr(module, "is_entry_point", False):
+        reasons.append("entry point")
+    return "; ".join(reasons) if reasons else "supporting module"
 
 
 class Semanticist:
@@ -120,25 +141,27 @@ class Semanticist:
 
         # ---- Step 1: Purpose extraction ------------------------------
         logger.info("=== Semanticist Step 1: Purpose Extraction ===")
-        if result.ollama_available:
-            result.purpose_results = extract_all_purposes(
-                graph, router, budget, max_modules=self._max_modules,
-            )
-            success_count = sum(1 for r in result.purpose_results if r.purpose_statement)
-            trace.append(TraceEntry(
-                agent="semanticist",
-                action="purpose_extraction",
-                target=f"{len(result.purpose_results)} modules",
-                result=f"{success_count} purpose statements generated",
-                confidence=0.8,
-                analysis_method=AnalysisMethod.LLM_INFERENCE,
-            ))
-            logger.info(
-                "Purpose extraction: %d/%d modules got statements",
-                success_count, len(result.purpose_results),
-            )
-        else:
-            logger.info("Skipping purpose extraction (no LLM)")
+        result.purpose_results = extract_all_purposes(
+            graph,
+            router if result.ollama_available else None,
+            budget,
+            max_modules=self._max_modules,
+        )
+        success_count = sum(1 for r in result.purpose_results if r.purpose_statement)
+        trace.append(TraceEntry(
+            agent="semanticist",
+            action="purpose_extraction",
+            target=f"{len(result.purpose_results)} modules",
+            result=f"{success_count} purpose statements generated",
+            confidence=0.8 if result.ollama_available else 0.3,
+            analysis_method=AnalysisMethod.LLM_INFERENCE
+            if result.ollama_available
+            else AnalysisMethod.STATIC_ANALYSIS,
+        ))
+        logger.info(
+            "Purpose extraction: %d/%d modules got statements",
+            success_count, len(result.purpose_results),
+        )
 
         # ---- Step 2: Domain clustering -------------------------------
         logger.info("=== Semanticist Step 2: Domain Clustering ===")
@@ -165,29 +188,38 @@ class Semanticist:
 
         # ---- Step 3: Documentation drift detection -------------------
         logger.info("=== Semanticist Step 3: Documentation Drift Detection ===")
-        if result.ollama_available and result.purpose_results:
+        if result.purpose_results:
             result.drift_results = detect_all_drift(
-                graph, result.purpose_results, router, budget,
+                graph,
+                result.purpose_results,
+                router if result.ollama_available else None,
+                budget if result.ollama_available else None,
                 max_modules=min(self._max_modules, 50),
             )
             drift_count = sum(
                 1 for d in result.drift_results
                 if d.drift_level in ("possible_drift", "likely_drift")
             )
+            doc_missing = sum(
+                1 for d in result.drift_results
+                if getattr(d, "documentation_missing", False)
+            )
             trace.append(TraceEntry(
                 agent="semanticist",
                 action="doc_drift_detection",
                 target=f"{len(result.drift_results)} modules checked",
-                result=f"{drift_count} modules with drift detected",
-                confidence=0.7,
-                analysis_method=AnalysisMethod.LLM_INFERENCE,
+                result=f"{drift_count} with drift, {doc_missing} missing docs",
+                confidence=0.7 if result.ollama_available else 0.5,
+                analysis_method=AnalysisMethod.LLM_INFERENCE
+                if result.ollama_available
+                else AnalysisMethod.STATIC_ANALYSIS,
             ))
             logger.info(
-                "Doc drift detection: %d/%d modules have drift",
-                drift_count, len(result.drift_results),
+                "Doc drift: %d/%d have drift, %d missing documentation",
+                drift_count, len(result.drift_results), doc_missing,
             )
         else:
-            logger.info("Skipping drift detection (no LLM or no purpose statements)")
+            logger.info("Skipping drift detection (no purpose statements available)")
 
         # ---- Step 4: Day-One synthesis --------------------------------
         logger.info("=== Semanticist Step 4: Day-One Synthesis ===")
@@ -210,6 +242,11 @@ class Semanticist:
         logger.info("=== Semanticist Step 5: Enriching Graph ===")
         self._enrich_graph(graph, result)
 
+        # ---- Step 6: Compute reading order for new engineers ----------
+        logger.info("=== Semanticist Step 6: Reading Order ===")
+        result.reading_order = self._compute_reading_order(graph, result)
+        logger.info("Reading order: %d modules ranked", len(result.reading_order))
+
         # ---- Finalize ------------------------------------------------
         elapsed = time.monotonic() - t0
         result.budget_summary = budget.summary()
@@ -227,7 +264,12 @@ class Semanticist:
                 1 for d in result.drift_results
                 if d.drift_level in ("possible_drift", "likely_drift")
             ),
+            "documentation_missing_count": sum(
+                1 for d in result.drift_results
+                if getattr(d, "documentation_missing", False)
+            ),
             "day_one_answers_generated": bool(result.day_one_answers),
+            "reading_order_items": len(result.reading_order),
             "llm_budget": result.budget_summary,
             "elapsed_seconds": round(elapsed, 2),
         }
@@ -369,3 +411,83 @@ class Semanticist:
                 enriched += 1
 
         logger.info("Enriched %d modules with semantic metadata", enriched)
+
+    # ------------------------------------------------------------------
+    # Reading order
+    # ------------------------------------------------------------------
+
+    def _compute_reading_order(
+        self,
+        graph: KnowledgeGraph,
+        result: SemanticsResult,
+    ) -> list[dict[str, Any]]:
+        """Produce a ranked onboarding reading list for a new engineer.
+
+        Domains with the highest combined business-logic score come first;
+        within each domain modules are sorted by their own score, descending.
+        """
+        purpose_lookup = {
+            pr.file_path: pr
+            for pr in result.purpose_results
+            if pr.purpose_statement
+        }
+
+        # Build domain membership and per-domain score totals
+        domain_lookup: dict[str, str] = {}
+        domain_scores: dict[str, float] = {}
+        if result.clustering:
+            for domain in result.clustering.domains:
+                scores = [
+                    purpose_lookup[m].business_logic_score
+                    for m in domain.members
+                    if m in purpose_lookup
+                ]
+                domain_scores[domain.domain_name] = (
+                    sum(scores) / len(scores) if scores else 0.0
+                )
+                for m in domain.members:
+                    domain_lookup[m] = domain.domain_name
+
+        ordered_domains = sorted(
+            domain_scores.keys(), key=lambda d: domain_scores[d], reverse=True
+        )
+
+        reading_order: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        step = 0
+
+        def _append_module(m: ModuleNode, domain_name: str) -> None:
+            nonlocal step
+            seen.add(m.path)
+            step += 1
+            pr = purpose_lookup.get(m.path)
+            reading_order.append({
+                "step": step,
+                "file_path": m.path,
+                "domain": domain_name,
+                "purpose": pr.purpose_statement if pr else f"{m.role} module",
+                "business_logic_score": round(pr.business_logic_score if pr else 0.0, 2),
+                "reason": _reading_reason(m, pr),
+            })
+
+        for domain_name in ordered_domains:
+            domain_modules = [
+                m for m in graph.all_modules()
+                if domain_lookup.get(m.path) == domain_name and m.path not in seen
+            ]
+            domain_modules.sort(
+                key=lambda m: (
+                    purpose_lookup[m.path].business_logic_score
+                    if m.path in purpose_lookup else 0.0
+                ),
+                reverse=True,
+            )
+            for m in domain_modules:
+                _append_module(m, domain_name)
+
+        # Catch any modules not covered by a known domain
+        for m in graph.all_modules():
+            if m.path not in seen:
+                _append_module(m, domain_lookup.get(m.path, "Uncategorized"))
+
+        return reading_order

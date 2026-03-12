@@ -133,7 +133,9 @@ ollama pull deepseek-v3.1:671b-cloud  # synthesis & clustering tasks
 ```
 
 If Ollama is not running or no models are found, Phase 3 gracefully degrades to
-heuristic-only mode (role-based clustering, no purpose statements or Day-One synthesis).
+heuristic-only mode: purpose statements are generated from metadata (role, dbt-refs,
+function names), domain clustering uses lineage dataset subjects, and a documentation-
+presence scan flags undocumented files. Day-One synthesis is skipped.
 
 ---
 
@@ -171,9 +173,10 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 | File | Description |
 |------|-------------|
 | `semantic_enrichment.json` | Full purpose statements, domain clustering, and doc drift results for every module |
-| `semantic_index.json` | Compact lookup: module→purpose+score, domain→members, top 10 business logic hotspots |
+| `semantic_index.json` | Compact lookup: module→purpose+score, domain→members, top 10 business logic hotspots, top 20 reading-order entries |
 | `day_one_answers.json` | Five FDE Day-One Q&A with cited files and confidence scores |
-| `semanticist_stats.json` | Run stats: LLM calls, token usage, elapsed time, drift count |
+| `reading_order.json` | Ranked onboarding guide: every module ordered by domain importance + business logic score |
+| `semanticist_stats.json` | Run stats: LLM calls, token usage, elapsed time, drift count, documentation-missing count, reading-order item count |
 
 ### Expected output for jaffle-shop
 
@@ -188,9 +191,10 @@ Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 pro
 - **Project type**: `dbt` (auto-detected from `dbt_project.yml`)
 - **Risk reports**: `blind_spots.json` (8 total blind spots — 2 macros flagged dynamic), `high_risk_areas.json`
 - **Output location**: `.cartography/jaffle-shop/` (auto-derived subfolder)
-- **Purpose statements**: 31/31 modules enriched with LLM-generated purpose statements
-- **Domain clusters**: 8 semantic domains (LLM-refined): Order Analytics, Customer Analytics, Product & Supply Chain, Data Ingestion & Staging, Infrastructure & Configuration, Data Validation & Quality, Location Management, Time Analytics
-- **Doc drift**: 5 modules flagged with documentation drift
+- **Purpose statements**: 31/31 modules enriched with LLM-generated purpose statements (13 individual + 5 batch calls)
+- **Domain clusters**: 7 semantic domains (LLM-refined): Order Analytics, Customer Analytics, Product & Supply Chain, Data Staging, Infrastructure & Configuration, Location Management, Time Analytics
+- **Doc drift**: 6 modules flagged with documentation drift; **22 files flagged as missing documentation**
+- **Reading order**: 33-item onboarding guide written to `reading_order.json`
 - **Day-One answers**: 5 FDE Day-One Q&A generated with file citations and confidence scores
 
 ---

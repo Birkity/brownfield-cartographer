@@ -340,6 +340,18 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
             )
         if semantics_result.day_one_answers:
             sem_table.add_row("Day-One answers", str(len(semantics_result.day_one_answers)))
+        doc_missing = sum(
+            1 for d in semantics_result.drift_results
+            if getattr(d, "documentation_missing", False)
+        )
+        if doc_missing:
+            sem_table.add_row(
+                "[dim]Files missing documentation[/dim]",
+                str(doc_missing),
+            )
+        reading_order = getattr(semantics_result, "reading_order", [])
+        if reading_order:
+            sem_table.add_row("Reading order items", str(len(reading_order)))
         if semantics_result.budget_summary:
             bs = semantics_result.budget_summary
             sem_table.add_row(
@@ -371,6 +383,7 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
             "semantic_index_json",
             "day_one_answers_json",
             "semanticist_stats_json",
+            "reading_order_json",
         ])
     for name in artifact_names:
         p = getattr(artifacts, name)

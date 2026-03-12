@@ -64,22 +64,65 @@ _HEURISTIC_DOMAINS: dict[str, str] = {
 }
 
 
+def _extract_subject_from_dataset(ds_name: str) -> str:
+    """Extract a business subject noun from a dataset reference name.
+
+    Examples::
+
+        'model.stg_orders'   → 'orders'
+        'source.raw.customers' → 'customers'
+        'stg_order_items'    → 'order_items'
+    """
+    name = ds_name.rsplit(".", 1)[-1].lower()
+    for prefix in ("stg_", "int_", "fct_", "dim_", "mart_", "raw_"):
+        if name.startswith(prefix):
+            name = name[len(prefix):]
+            break
+    return name if len(name) >= 3 else ""
+
+
 def _heuristic_cluster(
     graph: "KnowledgeGraph",
 ) -> ClusteringResult:
-    """Group modules based purely on their heuristic role classification."""
-    groups: dict[str, list[str]] = defaultdict(list)
+    """Group modules using lineage dataset subjects with a role-based fallback.
 
+    For each SQL transformation, the dominant dataset subject (e.g. 'orders',
+    'customers') is used as the domain key.  Modules not touched by any
+    transformation fall back to the role-based ``_HEURISTIC_DOMAINS`` mapping.
+    This produces subject-oriented groups ("Orders Pipeline") rather than
+    purely structural ones ("Data Staging").
+    """
+    subject_by_module: dict[str, str] = {}
+    for xform in graph.all_transformations():
+        if not xform.source_file:
+            continue
+        subject_counts: dict[str, int] = defaultdict(int)
+        for ds in xform.source_datasets + xform.target_datasets:
+            subj = _extract_subject_from_dataset(ds)
+            if subj:
+                subject_counts[subj] += 1
+        if subject_counts:
+            dominant = max(subject_counts, key=subject_counts.__getitem__)
+            subject_by_module[xform.source_file] = dominant
+
+    groups: dict[str, list[str]] = defaultdict(list)
     for module in graph.all_modules():
-        domain = _HEURISTIC_DOMAINS.get(module.role, "Uncategorized")
+        subject = subject_by_module.get(module.path)
+        if subject:
+            domain = f"{subject.replace('_', ' ').title()} Pipeline"
+        else:
+            domain = _HEURISTIC_DOMAINS.get(module.role, "Uncategorized")
         groups[domain].append(module.path)
 
     domains = [
         DomainCluster(
             domain_name=name,
-            description=f"Modules classified as {name.lower()} via path/role heuristics.",
+            description=(
+                f"Modules grouped into the {name.lower()} domain "
+                f"via lineage dataset subjects and role heuristics."
+            ),
             members=sorted(members),
-            reasoning="Heuristic role classification based on file path and naming patterns.",
+            reasoning="Heuristic: lineage dataset subject extraction + role-based fallback.",
         )
         for name, members in sorted(groups.items())
         if members

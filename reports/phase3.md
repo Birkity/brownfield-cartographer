@@ -19,11 +19,12 @@ designed for the Phase 4 Navigator agent.
 | Step | Action |
 |------|--------|
 | 1 | **Init LLM**: connect to Ollama, discover available models, build a `ModelRouter` with task-specific routing |
-| 2 | **Purpose extraction**: for each eligible module, read source code + graph context, prompt the LLM to produce a purpose statement, business logic score (0–1), key concepts, and confidence |
-| 3 | **Domain clustering**: group all modules into semantic domains — heuristic baseline (always works) + optional LLM refinement for semantic grouping |
-| 4 | **Documentation drift**: compare each module's inline documentation against its purpose statement, flag stale/misleading docs |
+| 2 | **Purpose extraction**: for each eligible module, read source code (smart-truncated) + graph context, prompt the LLM via batched or individual calls; heuristic fallback if no LLM |
+| 3 | **Domain clustering**: group all modules into semantic domains using lineage dataset subjects — heuristic baseline (always works) + optional LLM refinement for semantic grouping |
+| 4 | **Documentation drift / missing-doc scan**: when LLM is available, compare each module's inline docs against its purpose statement and flag stale/misleading docs; when no LLM, perform a documentation-presence scan and mark undocumented files |
 | 5 | **Day-One synthesis**: build a comprehensive prompt with all Phase 1–3 evidence, generate answers to the five FDE Day-One questions |
 | 6 | **Enrich graph**: write purpose, business_logic_score, domain_cluster, doc_drift back to every `ModuleNode` |
+| 7 | **Reading order**: rank all modules by domain importance + business logic score to produce a step-by-step onboarding guide for new engineers |
 
 ---
 
@@ -46,9 +47,9 @@ A `ContextWindowBudget` tracks cumulative token usage (prompt + eval) across all
 ### Graceful degradation
 
 If Ollama is not running or no models are available:
-- Purpose extraction is **skipped** (modules keep `purpose_statement = None`)
-- Domain clustering falls back to **heuristic-only** mode (role-based grouping)
-- Doc drift detection is **skipped**
+- Purpose extraction falls back to **heuristic** mode — every module gets a purpose statement generated from its role, dbt-refs, function names, and imports (no LLM required)
+- Domain clustering falls back to **heuristic-only** mode: lineage dataset-subject extraction first, role-based grouping as secondary fallback
+- Doc drift detection falls back to **documentation-presence scan** — each module is scanned for the presence of inline documentation; undocumented files receive `documentation_missing=True`
 - Day-One synthesis is **skipped**
 
 Phase 1 and Phase 2 artifacts remain fully intact in all cases.
@@ -60,9 +61,10 @@ Phase 1 and Phase 2 artifacts remain fully intact in all cases.
 | File | Location | Description |
 |------|----------|-------------|
 | `semantic_enrichment.json` | `.cartography/semantics/` | Full purpose statements, domain clustering result, and doc drift results for every module |
-| `semantic_index.json` | `.cartography/semantics/` | Compact lookup: module→purpose+score, domain→members, top 10 business logic hotspots |
+| `semantic_index.json` | `.cartography/semantics/` | Compact lookup: module→purpose+score, domain→members, top 10 business logic hotspots, top 20 reading-order entries |
 | `day_one_answers.json` | `.cartography/semantics/` | Five FDE Day-One Q&A with cited files and confidence scores |
-| `semanticist_stats.json` | `.cartography/semantics/` | Run statistics: LLM calls, token usage, elapsed time, drift count |
+| `reading_order.json` | `.cartography/semantics/` | Ranked onboarding guide listing every module ordered by domain importance and business logic score |
+| `semanticist_stats.json` | `.cartography/semantics/` | Run statistics: LLM calls, token usage, elapsed time, drift count, documentation-missing count, reading-order item count |
 
 ---
 
@@ -70,15 +72,20 @@ Phase 1 and Phase 2 artifacts remain fully intact in all cases.
 
 For each module with ≥3 lines of code (excluding trivial YAML), the Semanticist:
 
-1. Reads the source code (truncated to 6,000 chars if larger)
+1. Reads the source code with **smart language-aware truncation** (6,000 chars default):
+   - *Python*: extracts skeleton — imports, class/def signatures, and docstrings
+   - *SQL/YAML/others*: head (⅔) + tail (⅓) to preserve header context and final SELECT
 2. Builds **graph context** from Phase 1+2: hub status, cycle membership, entry point flag, dbt refs, lineage edges, velocity
 3. Builds an **imports summary** listing key dependencies
-4. Prompts the LLM to return structured JSON:
-   - `purpose_statement` — one-sentence explanation of what the file does
-   - `business_logic_score` — 0.0 (infrastructure) to 1.0 (core business logic)
-   - `key_concepts` — list of domain concepts the file implements
-   - `evidence` — reasoning for the score
-   - `confidence` — LLM self-rated confidence (0.0–1.0)
+4. Sends to the LLM — large/hub files sent individually; **small files batched** (up to 4 per call) to reduce total call count
+5. If no LLM is available, **heuristic purpose statements** are generated from metadata (role, dbt-refs, function names, YAML keys)
+
+The LLM returns structured JSON per file:
+- `purpose_statement` — one-sentence explanation of what the file does
+- `business_logic_score` — 0.0 (infrastructure) to 1.0 (core business logic)
+- `key_concepts` — list of domain concepts the file implements
+- `evidence` — reasoning for the score
+- `confidence` — LLM self-rated confidence (0.0–1.0)
 
 Modules are processed **hub-first** — architecturally important files get purpose statements before less connected ones.
 
@@ -88,7 +95,10 @@ Modules are processed **hub-first** — architecturally important files get purp
 
 ### Heuristic baseline (always runs)
 
-Groups modules by their **role** (assigned in Phase 1 enrichment):
+Groups modules first by **lineage dataset subjects**: for each SQL transformation, the
+dominant subject noun is extracted from its dataset references (e.g. `model.stg_orders`
+→ `orders`) and the module is assigned to an `"Orders Pipeline"` domain. Modules not
+covered by any transformation fall back to role-based grouping:
 
 | Role pattern | Domain name |
 |-------------|-------------|
@@ -110,14 +120,35 @@ member lists, and reasoning.
 
 ## Documentation Drift Detection
 
-For each module that has inline documentation (docstrings, SQL comments, YAML comments):
+For each module that has a purpose statement, the Semanticist performs one of two scans
+depending on LLM availability:
 
-1. Extract all documentation text using language-specific rules
-2. Compare documentation against the LLM-generated purpose statement
-3. Report a **drift level**:
-   - `no_drift` — docs accurately describe the code
-   - `possible_drift` — minor discrepancies or outdated references
-   - `likely_drift` — docs are misleading or significantly stale
+**With LLM**: Extract all inline documentation (docstrings, SQL comments, YAML comments),
+compare documentation against the LLM-generated purpose statement, and report a **drift level**:
+- `no_drift` — docs accurately describe the code
+- `possible_drift` — minor discrepancies or outdated references
+- `likely_drift` — docs are misleading or significantly stale
+- `documentation_missing=True` — no inline documentation found at all
+
+**Without LLM**: Perform a documentation-presence scan only. Every module without
+inline documentation receives `documentation_missing=True`. This lets teams identify
+undocumented files even when no LLM is running.
+
+---
+
+## Reading Order
+
+After all semantic analysis is complete, the Semanticist generates a **reading order** —
+a ranked list of every module designed to help a new engineer navigate the codebase
+systematically:
+
+1. Domains are sorted by combined business-logic score (most impactful domain first)
+2. Within each domain, modules are sorted by business-logic score descending
+3. Each entry includes: `step`, `file_path`, `domain`, `purpose`, `business_logic_score`, `reason`
+
+The `reason` field provides a short rationale (e.g. "core business logic; analytical output",
+"architectural hub", "data foundation"). The full list is written to `reading_order.json`
+and the top 20 entries are embedded in `semantic_index.json` for quick access.
 
 ---
 
@@ -168,13 +199,15 @@ Phase 3 extends `ModuleNode` with these semantic attributes:
 |--------|-------|
 | Ollama available | Yes |
 | Purpose statements | 31/31 modules |
-| Domain clusters | 8 (LLM-refined) |
-| Doc drift detections | 31 checked, 5 with drift |
+| Domain clusters | 7 (LLM-refined) |
+| Doc drift detections | 31 checked, 6 with drift |
+| Files missing documentation | 22 |
+| Reading order items | 33 |
 | Day-One answers | 5 generated |
-| LLM calls | 42 |
-| Prompt tokens | ~25,412 |
-| Eval tokens | ~6,763 |
-| Total elapsed | ~938s |
+| LLM calls | 47 (13 individual + 5 batch + clustering + Day-One) |
+| Prompt tokens | ~30,976 |
+| Eval tokens | ~8,987 |
+| Total elapsed | ~1,271s |
 
 ### Domain clusters discovered
 
@@ -204,17 +237,19 @@ Phase 3 extends `ModuleNode` with these semantic attributes:
 
 ## Limitations
 
-- **LLM latency**: purpose extraction is sequential (one file at a time) — large repos may take several minutes
-- **Token budget**: source code is truncated to 6,000 characters; very large files may lose context
-- **Model dependency**: full analysis requires Ollama running locally with at least one of qwen3-coder or deepseek-v3.1 available
-- **Heuristic clustering**: without LLM, domain clusters are purely role-based (staging/mart/config/etc.)
-- **Drift detection**: only checks files with extractable documentation; files without comments get `has_documentation=False` and are skipped for LLM drift analysis
+- **LLM latency**: individual purpose extraction is sequential; batching reduces call count but does not fully eliminate wait time for large repos
+- **Model dependency**: Day-One synthesis and full LLM drift comparison require Ollama with at least one of `qwen3-coder` or `deepseek-v3.1` available (heuristic fallbacks cover all other steps)
+- **Drift detection depth**: documentation-presence scan runs without LLM, but semantic drift comparison (detecting *misleading* docs) still requires an LLM call per file
 
 ---
 
-## Future Improvements
+## Improvements Implemented
 
-- Batch purpose extraction (multiple files per prompt) to reduce LLM call count
-- Cross-reference domain clusters with lineage graph for data-flow-aware grouping
-- Track semantic drift over time (compare purpose statements across git revisions)
-- Generate a "reading order" for new engineers based on dependency + business logic score ranking
+| Improvement | Implementation |
+|-------------|----------------|
+| Batch purpose extraction | Small files (≤1,500 bytes) grouped in batches of 4 per LLM call via `BATCH_PURPOSE_EXTRACTION_PROMPT`; reduces call count by ~50–65% on typical dbt projects |
+| Smart code truncation | Language-aware `_smart_truncate_code`: Python skeleton (imports + signatures), SQL/YAML head+tail; preserves structural context within the token budget |
+| Heuristic purpose fallback | `_heuristic_purpose_statement` generates purpose from role, dbt-refs, function names, YAML keys — no LLM required; `documentation_missing` scan also runs without LLM |
+| Lineage-aware domain clustering | `_extract_subject_from_dataset` strips role prefixes to extract subject nouns (`stg_orders` → `orders`); modules grouped as `"Orders Pipeline"` etc. before LLM refinement |
+| Documentation-missing flagging | New `documentation_missing: bool` field on `DriftResult`; set by both LLM drift detection (no docs found) and heuristic doc-presence scan |
+| Reading order for new engineers | `_compute_reading_order` ranks all modules: domain by combined BL score, within domain by individual BL score; written to `reading_order.json` and embedded in `semantic_index.json` |

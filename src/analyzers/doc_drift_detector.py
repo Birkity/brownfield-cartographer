@@ -46,6 +46,7 @@ class DriftResult(BaseModel):
     model_used: str = ""
     error: Optional[str] = None
     has_documentation: bool = False
+    documentation_missing: bool = False
 
 
 def _extract_documentation(abs_path: str, language: str) -> str:
@@ -114,9 +115,10 @@ def detect_drift_single(
         return DriftResult(
             file_path=module.path,
             drift_level="no_drift",
-            explanation="No documentation found to compare against.",
-            confidence=0.5,
+            explanation="No inline documentation found — documentation is missing.",
+            confidence=1.0,
             has_documentation=False,
+            documentation_missing=True,
         )
 
     if not purpose_result.purpose_statement:
@@ -188,33 +190,46 @@ def detect_drift_single(
 def detect_all_drift(
     graph: "KnowledgeGraph",
     purpose_results: list["PurposeResult"],
-    router: ModelRouter,
-    budget: ContextWindowBudget,
+    router: Optional[ModelRouter] = None,
+    budget: Optional[ContextWindowBudget] = None,
     max_modules: int = 50,
 ) -> list[DriftResult]:
-    """Detect documentation drift for all modules that have documentation.
+    """Detect documentation drift for all modules that have purpose statements.
 
-    Prioritizes modules with higher business_logic_score.
+    When ``router`` is ``None``, performs a documentation-presence scan only
+    (no LLM comparison — every file is flagged as ``documentation_missing=True``
+    if it has no inline docs).  This is useful even without a live LLM.
+
+    Prioritizes modules with higher ``business_logic_score``.
     """
-    # Build a lookup of purpose results by path
     purpose_lookup: dict[str, "PurposeResult"] = {
         pr.file_path: pr for pr in purpose_results if pr.purpose_statement
     }
 
-    eligible: list[tuple["ModuleNode", "PurposeResult"]] = []
-    for module in graph.all_modules():
-        pr = purpose_lookup.get(module.path)
-        if pr:
-            eligible.append((module, pr))
-
-    # Sort by business logic score descending — check high-value modules first
+    eligible: list[tuple["ModuleNode", "PurposeResult"]] = [
+        (module, pr)
+        for module in graph.all_modules()
+        if (pr := purpose_lookup.get(module.path)) is not None
+    ]
     eligible.sort(key=lambda x: x[1].business_logic_score, reverse=True)
     eligible = eligible[:max_modules]
 
     results: list[DriftResult] = []
     for i, (module, pr) in enumerate(eligible, 1):
         logger.info("Doc drift detection [%d/%d]: %s", i, len(eligible), module.path)
-        result = detect_drift_single(module, pr, router, budget)
-        results.append(result)
+
+        if router is None or budget is None:
+            doc = _extract_documentation(module.abs_path, module.language.value)
+            has_doc = bool(doc.strip())
+            results.append(DriftResult(
+                file_path=module.path,
+                drift_level="no_drift",
+                explanation="Documentation presence scan (no LLM available).",
+                confidence=0.0,
+                has_documentation=has_doc,
+                documentation_missing=not has_doc,
+            ))
+        else:
+            results.append(detect_drift_single(module, pr, router, budget))
 
     return results

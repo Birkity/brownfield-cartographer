@@ -88,6 +88,7 @@ class CartographyArtifacts:
         self.semantic_index_json = self.semantics_dir / "semantic_index.json"
         self.day_one_answers_json = self.semantics_dir / "day_one_answers.json"
         self.semanticist_stats_json = self.semantics_dir / "semanticist_stats.json"
+        self.reading_order_json = self.semantics_dir / "reading_order.json"
 
     def ensure_dirs(self) -> None:
         """Create all output subdirectories if they don't exist."""
@@ -289,6 +290,7 @@ def run_phase3(
             for pr in sorted(result.purpose_results, key=lambda x: x.business_logic_score, reverse=True)[:10]
             if pr.business_logic_score > 0.3
         ],
+        "reading_order": result.reading_order[:20],
     }
     graph.save_semantics(artifacts.semantic_index_json, index_data)
 
@@ -301,7 +303,15 @@ def run_phase3(
             encoding="utf-8",
         )
         logger.info("Wrote day-one answers → %s", artifacts.day_one_answers_json)
-
+    # ---- Write reading order for new-engineer onboarding ---------------
+    if result.reading_order:
+        import json as _json
+        artifacts.reading_order_json.parent.mkdir(parents=True, exist_ok=True)
+        artifacts.reading_order_json.write_text(
+            _json.dumps({"reading_order": result.reading_order}, indent=2, default=str),
+            encoding="utf-8",
+        )
+        logger.info("Wrote reading order \u2192 %s", artifacts.reading_order_json)
     # ---- Write semanticist stats ----------------------------------------
     _write_semanticist_stats(artifacts.semanticist_stats_json, result.stats)
 
