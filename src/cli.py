@@ -35,7 +35,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich import print as rprint
 
-from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2
+from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2, run_phase3
 from src.utils.repo_loader import RepoLoadError
 
 console = Console(highlight=False)
@@ -148,7 +148,7 @@ def analyze(
 
     console.print(
         Panel.fit(
-            f"[bold cyan]Brownfield Cartographer[/] — Phase 1 & 2\n"
+            f"[bold cyan]Brownfield Cartographer[/] — Phase 1, 2 & 3\n"
             f"[dim]Target:[/] {target}\n"
             f"[dim]Output:[/] {output_path.resolve()}"
             + (f"\n[dim]Repo name:[/] {repo_name}  [dim](auto-derived)[/]" if auto_subfolder else ""),
@@ -180,8 +180,16 @@ def analyze(
         logging.exception("Phase 2 (Hydrologist) failed — Phase 1 artifacts still available")
         hydro_result = None
 
+    # ---- Run Phase 3 (Semanticist) --------------------------------------
+    semantics_result = None
+    try:
+        semantics_result = run_phase3(artifacts, graph, repo_root)
+    except Exception as exc:
+        console.print(f"[bold yellow]Phase 3 warning:[/] {exc}")
+        logging.exception("Phase 3 (Semanticist) failed — Phase 1/2 artifacts still available")
+
     # ---- Print summary --------------------------------------------------
-    _print_summary(artifacts, hydro_result)
+    _print_summary(artifacts, hydro_result, semantics_result)
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +215,7 @@ def _derive_repo_name(target: str) -> str:
     return Path(t).resolve().name or "unknown-repo"
 
 
-def _print_summary(artifacts, hydro_result=None) -> None:
+def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
     """Print a Rich-formatted summary after a successful run."""
     stats_path = artifacts.stats_json
     if not stats_path.exists():
@@ -295,6 +303,51 @@ def _print_summary(artifacts, hydro_result=None) -> None:
         lineage_table.add_row("Elapsed", f"{hs.get('elapsed_seconds', '?')}s")
         console.print(lineage_table)
 
+    # ---- Phase 3 semantics summary ----
+    if semantics_result is not None:
+        console.print("\n[bold green]Phase 3 (Semanticist) complete![/]\n")
+
+        sem_table = Table(title="Semantics Overview", show_header=False, box=None)
+        sem_table.add_column("Metric", style="dim")
+        sem_table.add_column("Value", style="bold")
+
+        sem_table.add_row(
+            "Ollama available",
+            "[green]yes[/]" if semantics_result.ollama_available else "[yellow]no (heuristic only)[/]",
+        )
+        sem_table.add_row(
+            "Purpose statements",
+            str(len(semantics_result.purpose_results)),
+        )
+        if semantics_result.clustering:
+            sem_table.add_row(
+                "Domain clusters",
+                str(len(semantics_result.clustering.domains)),
+            )
+            sem_table.add_row(
+                "Clustering method",
+                semantics_result.clustering.method or "unknown",
+            )
+        sem_table.add_row(
+            "Doc-drift detections",
+            str(len(semantics_result.drift_results)),
+        )
+        drift_count = sum(1 for d in semantics_result.drift_results if d.drift_level != "no_drift")
+        if drift_count:
+            sem_table.add_row(
+                "[yellow]Files with drift[/yellow]",
+                str(drift_count),
+            )
+        if semantics_result.day_one_answers:
+            sem_table.add_row("Day-One answers", str(len(semantics_result.day_one_answers)))
+        if semantics_result.budget_summary:
+            bs = semantics_result.budget_summary
+            sem_table.add_row(
+                "LLM calls / tokens",
+                f"{bs.get('calls', 0)} calls, ~{bs.get('total_prompt_tokens', 0)} prompt tokens",
+            )
+        console.print(sem_table)
+
     # ---- Output paths ----
     console.print("\n[bold]Artifacts written:[/]")
     artifact_names = [
@@ -311,6 +364,13 @@ def _print_summary(artifacts, hydro_result=None) -> None:
             "hydrologist_stats_json",
             "blind_spots_json",
             "high_risk_json",
+        ])
+    if semantics_result is not None:
+        artifact_names.extend([
+            "semantic_enrichment_json",
+            "semantic_index_json",
+            "day_one_answers_json",
+            "semanticist_stats_json",
         ])
     for name in artifact_names:
         p = getattr(artifacts, name)

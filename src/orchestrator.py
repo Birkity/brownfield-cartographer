@@ -46,18 +46,24 @@ class CartographyArtifacts:
         ├── module_graph/                  # Surveyor — static code structure
         │   ├── module_graph.json
         │   ├── module_graph_modules.json
-        │   ├── module_graph.png
+        │   ├── module_graph.html
         │   └── surveyor_stats.json
-        └── data_lineage/                  # Hydrologist — data flow & lineage
-            ├── lineage_graph.json
-            ├── lineage_graph.html
-            └── hydrologist_stats.json
+        ├── data_lineage/                  # Hydrologist — data flow & lineage
+        │   ├── lineage_graph.json
+        │   ├── lineage_graph.html
+        │   └── hydrologist_stats.json
+        └── semantics/                     # Semanticist — LLM-powered analysis
+            ├── semantic_enrichment.json
+            ├── semantic_index.json
+            ├── day_one_answers.json
+            └── semanticist_stats.json
     """
 
     def __init__(self, output_dir: Path) -> None:
         self.output_dir = output_dir
         self.module_graph_dir = output_dir / "module_graph"
         self.data_lineage_dir = output_dir / "data_lineage"
+        self.semantics_dir = output_dir / "semantics"
 
         # Shared
         self.trace_jsonl = output_dir / "cartography_trace.jsonl"
@@ -77,11 +83,18 @@ class CartographyArtifacts:
         self.blind_spots_json = output_dir / "blind_spots.json"
         self.high_risk_json = output_dir / "high_risk_areas.json"
 
+        # Semanticist — LLM-powered semantic analysis
+        self.semantic_enrichment_json = self.semantics_dir / "semantic_enrichment.json"
+        self.semantic_index_json = self.semantics_dir / "semantic_index.json"
+        self.day_one_answers_json = self.semantics_dir / "day_one_answers.json"
+        self.semanticist_stats_json = self.semantics_dir / "semanticist_stats.json"
+
     def ensure_dirs(self) -> None:
         """Create all output subdirectories if they don't exist."""
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.module_graph_dir.mkdir(parents=True, exist_ok=True)
         self.data_lineage_dir.mkdir(parents=True, exist_ok=True)
+        self.semantics_dir.mkdir(parents=True, exist_ok=True)
 
 
 def run_phase1(
@@ -210,10 +223,96 @@ def run_phase2(
 
 
 # ---------------------------------------------------------------------------
-# TODO Phase 3: add run_phase3(artifacts, repo_root) that calls Semanticist
-# TODO Phase 4: add run_phase4(artifacts, repo_root) that calls Archivist
-# These will be chained inside a run_full_pipeline() function.
+# Phase 3: Semanticist (LLM-powered semantic analysis)
 # ---------------------------------------------------------------------------
+
+
+def run_phase3(
+    artifacts: CartographyArtifacts,
+    graph: "KnowledgeGraph",
+    repo_root: Path,
+) -> "SemanticsResult":
+    """
+    Run Phase 3 (Semanticist) — LLM-powered semantic analysis.
+
+    Must be called after run_phase1() and run_phase2() with the same graph.
+    Gracefully degrades if Ollama is unavailable (heuristic-only mode).
+    """
+    from src.agents.semanticist import Semanticist, SemanticsResult
+
+    logger.info("=== Brownfield Cartographer — Phase 3 (Semanticist) ===")
+
+    semanticist = Semanticist()
+    result: SemanticsResult = semanticist.run(graph, repo_root)
+
+    # ---- Append trace entries ------------------------------------------
+    _write_trace_entries(artifacts.trace_jsonl, result.trace)
+
+    # ---- Write semantic enrichment (all purpose statements + domains) --
+    enrichment_data = {
+        "purpose_statements": [
+            pr.model_dump(mode="json") for pr in result.purpose_results
+        ],
+        "domain_clustering": result.clustering.model_dump(mode="json")
+        if result.clustering else None,
+        "documentation_drift": [
+            dr.model_dump(mode="json") for dr in result.drift_results
+        ],
+    }
+    graph.save_semantics(artifacts.semantic_enrichment_json, enrichment_data)
+
+    # ---- Write semantic index (compact lookup for Navigator Phase 4) ---
+    index_data = {
+        "modules": {
+            pr.file_path: {
+                "purpose": pr.purpose_statement,
+                "business_logic_score": pr.business_logic_score,
+                "key_concepts": pr.key_concepts,
+                "confidence": pr.confidence,
+            }
+            for pr in result.purpose_results
+            if pr.purpose_statement
+        },
+        "domains": {
+            d.domain_name: {
+                "description": d.description,
+                "members": d.members,
+            }
+            for d in (result.clustering.domains if result.clustering else [])
+        },
+        "business_logic_hotspots": [
+            {
+                "file": pr.file_path,
+                "score": pr.business_logic_score,
+                "purpose": pr.purpose_statement,
+            }
+            for pr in sorted(result.purpose_results, key=lambda x: x.business_logic_score, reverse=True)[:10]
+            if pr.business_logic_score > 0.3
+        ],
+    }
+    graph.save_semantics(artifacts.semantic_index_json, index_data)
+
+    # ---- Write Day-One answers -----------------------------------------
+    if result.day_one_answers:
+        import json as _json
+        artifacts.day_one_answers_json.parent.mkdir(parents=True, exist_ok=True)
+        artifacts.day_one_answers_json.write_text(
+            _json.dumps(result.day_one_answers, indent=2, default=str),
+            encoding="utf-8",
+        )
+        logger.info("Wrote day-one answers → %s", artifacts.day_one_answers_json)
+
+    # ---- Write semanticist stats ----------------------------------------
+    _write_semanticist_stats(artifacts.semanticist_stats_json, result.stats)
+
+    # ---- Re-save unified graph (now with semantic metadata) -------------
+    graph.save(artifacts.module_graph_json)
+
+    logger.info(
+        "Phase 3 complete.  Semantic artifacts written to: %s",
+        artifacts.semantics_dir.resolve(),
+    )
+    return result
 
 
 def _write_trace(trace_path: Path, result: SurveyorResult) -> None:
@@ -254,3 +353,11 @@ def _write_hydrologist_stats(stats_path: Path, stats: dict) -> None:
     with stats_path.open("w", encoding="utf-8") as fh:
         json.dump(stats, fh, indent=2, default=str)
     logger.info("Wrote hydrologist stats → %s", stats_path)
+
+
+def _write_semanticist_stats(stats_path: Path, stats: dict) -> None:
+    """Write the Semanticist stats summary to a JSON file."""
+    stats_path.parent.mkdir(parents=True, exist_ok=True)
+    with stats_path.open("w", encoding="utf-8") as fh:
+        json.dump(stats, fh, indent=2, default=str)
+    logger.info("Wrote semanticist stats → %s", stats_path)

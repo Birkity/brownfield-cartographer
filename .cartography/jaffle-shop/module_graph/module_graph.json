@@ -19,6 +19,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.6,
+      "purpose_statement": "This configuration file defines pre-commit hooks that automatically validate and format code before commits are made. It ensures code quality standards by running checks for YAML syntax, file formatting, and Python code style.",
+      "business_logic_score": 0.1,
+      "domain_cluster": "Infrastructure & Configuration",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": ".pre-commit-config.yaml"
     },
     {
@@ -37,6 +42,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 1.0,
+      "purpose_statement": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It specifies how data models should be materialized and sets up seed data loading with schema definitions.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Infrastructure & Configuration",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "dbt_project.yml"
     },
     {
@@ -55,6 +65,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This SQL macro provides a standardized way to convert cent values to dollar amounts across different database platforms, ensuring consistent decimal precision and rounding behavior. It abstracts away database-specific syntax differences for monetary conversions.",
+      "business_logic_score": 0.8,
+      "domain_cluster": "Infrastructure & Configuration",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "macros/cents_to_dollars.sql"
     },
     {
@@ -73,6 +88,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This macro generates schema names for database objects based on resource type, environment, and custom naming rules. It handles different cases for seeds, default schemas, production vs non-production environments with custom schema names.",
+      "business_logic_score": 0.8,
+      "domain_cluster": "Infrastructure & Configuration",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "macros/generate_schema_name.sql"
     },
     {
@@ -91,6 +111,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This model creates a customer-level summary table that enriches customer data with order history metrics including lifetime spend, order frequency, and customer type classification. It serves as a foundational dataset for customer analytics and segmentation.",
+      "business_logic_score": 0.85,
+      "domain_cluster": "Customer Analytics",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/marts/customers.sql"
     },
     {
@@ -109,6 +134,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This file defines a customer data mart that aggregates lifetime order and spending metrics per customer, supporting customer segmentation and lifetime value analysis.",
+      "business_logic_score": 0.85,
+      "domain_cluster": "Customer Analytics",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/marts/customers.yml"
     },
     {
@@ -127,6 +157,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This model serves as a location mart that provides a clean, unified view of location data for downstream consumption. It acts as an intermediate layer between raw staging data and final reporting tables.",
+      "business_logic_score": 0.1,
+      "domain_cluster": "Location Management",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.8,
       "id": "models/marts/locations.sql"
     },
     {
@@ -145,6 +180,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "Defines a semantic model for location data that serves as a dimension table containing location information with associated tax rates. Provides analytical context for location-based metrics and time-based aggregations.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Location Management",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.9,
       "id": "models/marts/locations.yml"
     },
     {
@@ -163,6 +203,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This model generates a time spine table containing a continuous sequence of dates for use in metric calculations and time-based analytics. It creates a standardized date dimension spanning approximately 10 years (3650 days) starting from a base date.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Time Analytics",
+      "doc_drift_detected": true,
+      "semantic_confidence": 0.9,
       "id": "models/marts/metricflow_time_spine.sql"
     },
     {
@@ -181,6 +226,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This mart model aggregates order item data with related order, product, and supply cost information to provide a comprehensive view of ordered items including their financial and descriptive attributes.",
+      "business_logic_score": 0.8,
+      "domain_cluster": "Order Analytics",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/marts/order_items.sql"
     },
     {
@@ -199,6 +249,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This file defines the data model and business metrics for order items in a food service business, including revenue calculations, cost tracking, and profitability analysis. It establishes the semantic meaning of order item data and defines key performance indicators for business reporting.",
+      "business_logic_score": 0.95,
+      "domain_cluster": "Order Analytics",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.98,
       "id": "models/marts/order_items.yml"
     },
     {
@@ -217,6 +272,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This mart model aggregates order data with item-level details to create a comprehensive view of each order including cost summaries, food/drink item counts, and customer ordering sequence. It serves as a centralized dataset for downstream reporting and analysis of order behavior and customer purchasing patterns.",
+      "business_logic_score": 0.85,
+      "domain_cluster": "Order Analytics",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/marts/orders.sql"
     },
     {
@@ -235,6 +295,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This file defines a data mart for order analytics, containing order-level metrics and dimensions used for business reporting. It includes logic for categorizing orders as food or drink orders, calculating totals, and defining semantic models for downstream metrics.",
+      "business_logic_score": 0.85,
+      "domain_cluster": "Order Analytics",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/marts/orders.yml"
     },
     {
@@ -253,6 +318,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This model serves as a product mart that provides a clean, unified view of product data for reporting and analysis. It acts as a semantic layer that exposes standardized product information to downstream consumers.",
+      "business_logic_score": 0.1,
+      "domain_cluster": "Product & Supply Chain",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.8,
       "id": "models/marts/products.sql"
     },
     {
@@ -271,6 +341,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This semantic model defines the product dimension for analytics, providing a structured representation of product data with associated metadata and classification attributes. It serves as a foundational data model for product-related metrics and dimensional analysis.",
+      "business_logic_score": 0.8,
+      "domain_cluster": "Product & Supply Chain",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.9,
       "id": "models/marts/products.yml"
     },
     {
@@ -289,6 +364,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This model creates a final presentation layer table for supplies data by selecting all records from the staging supplies table. It serves as a clean, denormalized view of supply information for reporting and analysis purposes.",
+      "business_logic_score": 0.1,
+      "domain_cluster": "Product & Supply Chain",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.8,
       "id": "models/marts/supplies.sql"
     },
     {
@@ -307,6 +387,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.85,
+      "purpose_statement": "This semantic model defines the supplies dimension table structure for analytics, establishing the foundational data relationships and attributes for supply chain analysis. It provides the dimensional context needed to analyze supply-related metrics by mapping logical business concepts to physical database columns.",
+      "business_logic_score": 0.8,
+      "domain_cluster": "Product & Supply Chain",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/marts/supplies.yml"
     },
     {
@@ -325,6 +410,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.9,
+      "purpose_statement": "This YAML configuration file defines the source data structure for an e-commerce system, mapping raw database tables to business entities like customers, orders, items, stores, products, and supplies. It serves as a data source declaration that connects to the raw schema containing Jaffle Shop's e-commerce transaction data.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Validation & Quality",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/staging/__sources.yml"
     },
     {
@@ -343,6 +433,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model transforms raw customer data from the e-commerce source by renaming columns to establish consistent naming conventions for downstream consumption. It extracts customer identifiers and names from the raw customers table and presents them in a standardized format.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Ingestion & Staging",
+      "doc_drift_detected": true,
+      "semantic_confidence": 0.9,
       "id": "models/staging/stg_customers.sql"
     },
     {
@@ -361,6 +456,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This YAML configuration file defines the structure and validation rules for a staging table containing cleaned customer data. It establishes the schema definition for customer records with uniqueness and non-null constraints on the primary identifier.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Validation & Quality",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.9,
       "id": "models/staging/stg_customers.yml"
     },
     {
@@ -379,6 +479,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model transforms raw store data into a standardized format for downstream analytics use. It cleans and renames fields from the raw stores table while preserving all records for further processing.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Ingestion & Staging",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/staging/stg_locations.sql"
     },
     {
@@ -397,6 +502,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model defines the structure and validation for cleaned location data, ensuring each location has a unique ID and non-null values, while also including unit tests to verify proper date truncation of opened timestamps.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Validation & Quality",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/staging/stg_locations.yml"
     },
     {
@@ -415,6 +525,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model transforms raw e-commerce order item data by renaming and selecting key identifier fields to create a standardized view of order items. It serves as a foundational layer that maps raw system identifiers to business-friendly column names for downstream consumption.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Ingestion & Staging",
+      "doc_drift_detected": true,
+      "semantic_confidence": 0.95,
       "id": "models/staging/stg_order_items.sql"
     },
     {
@@ -433,6 +548,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model defines the structure and validation rules for order item data, representing individual food and drink items within customer orders. It establishes the relationship between order items and their parent orders while ensuring data quality through validation constraints.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Validation & Quality",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.9,
       "id": "models/staging/stg_order_items.yml"
     },
     {
@@ -451,6 +571,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model transforms raw e-commerce order data by renaming fields, converting currency amounts from cents to dollars, and truncating timestamps to daily granularity. It serves as an intermediate layer between raw order data and downstream analytics models.",
+      "business_logic_score": 0.8,
+      "domain_cluster": "Data Ingestion & Staging",
+      "doc_drift_detected": true,
+      "semantic_confidence": 0.95,
       "id": "models/staging/stg_orders.sql"
     },
     {
@@ -469,6 +594,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model defines the structure and validation rules for cleaned order data, ensuring data quality through tests on order totals and unique identifiers.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Validation & Quality",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.9,
       "id": "models/staging/stg_orders.yml"
     },
     {
@@ -487,6 +617,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model transforms raw product data from the e-commerce system into a standardized format for downstream analytics use. It cleans and renames fields, converts price units from cents to dollars, and adds boolean flags to categorize products by type.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Ingestion & Staging",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "models/staging/stg_products.sql"
     },
     {
@@ -505,6 +640,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This YAML configuration file defines the structure and validation rules for a staging layer product data model. It establishes the schema for product information including unique identifiers and applies data quality tests to ensure integrity.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Validation & Quality",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.9,
       "id": "models/staging/stg_products.yml"
     },
     {
@@ -523,6 +663,11 @@
       "is_hub": true,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model transforms raw supply data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns like supply UUID and cost conversions.",
+      "business_logic_score": 0.6,
+      "domain_cluster": "Data Ingestion & Staging",
+      "doc_drift_detected": true,
+      "semantic_confidence": 0.9,
       "id": "models/staging/stg_supplies.sql"
     },
     {
@@ -541,6 +686,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.95,
+      "purpose_statement": "This staging model defines the structure and validation rules for supply expense data, ensuring data quality through uniqueness and not-null constraints on the supply UUID. It represents cleaned supply cost records where each row corresponds to a specific cost instance rather than a supply item.",
+      "business_logic_score": 0.3,
+      "domain_cluster": "Data Validation & Quality",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.9,
       "id": "models/staging/stg_supplies.yml"
     },
     {
@@ -559,6 +709,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.6,
+      "purpose_statement": null,
+      "business_logic_score": 0.0,
+      "domain_cluster": null,
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.0,
       "id": "package-lock.yml"
     },
     {
@@ -577,6 +732,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 1.0,
+      "purpose_statement": null,
+      "business_logic_score": 0.0,
+      "domain_cluster": null,
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.0,
       "id": "packages.yml"
     },
     {
@@ -595,6 +755,11 @@
       "is_hub": false,
       "in_cycle": false,
       "classification_confidence": 0.6,
+      "purpose_statement": "This Taskfile.yml defines automation tasks for setting up a data environment, generating sample data, loading it into a database, and cleaning up resources. It orchestrates the workflow for data generation and seeding using dbt and Python virtual environments.",
+      "business_logic_score": 0.1,
+      "domain_cluster": "Infrastructure & Configuration",
+      "doc_drift_detected": false,
+      "semantic_confidence": 0.95,
       "id": "Taskfile.yml"
     },
     {

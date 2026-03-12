@@ -71,6 +71,12 @@ class KnowledgeGraph:
             is_hub=module.is_hub,
             in_cycle=module.in_cycle,
             classification_confidence=module.classification_confidence,
+            # Phase 3 (Semanticist) fields
+            purpose_statement=module.purpose_statement,
+            business_logic_score=module.business_logic_score,
+            domain_cluster=module.domain_cluster,
+            doc_drift_detected=module.doc_drift_detected,
+            semantic_confidence=module.semantic_confidence,
         )
 
     def get_module(self, path: str) -> Optional[ModuleNode]:
@@ -224,6 +230,17 @@ class KnowledgeGraph:
     def export_lineage_viz(self, output_path: Path) -> bool:
         from src.graph.graph_viz import export_lineage_viz
         return export_lineage_viz(self._g, self._datasets, self._transformations, output_path)
+
+    # ------------------------------------------------------------------
+    # Semantic metadata helpers (Phase 3)
+    # ------------------------------------------------------------------
+
+    def save_semantics(self, output_path: Path, semantics_data: dict) -> None:
+        """Persist semantic enrichment data (purpose statements, domains, drift)."""
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("w", encoding="utf-8") as fh:
+            json.dump(semantics_data, fh, indent=2, default=str)
+        logger.info("Saved semantic enrichment → %s", output_path)
 
     # ------------------------------------------------------------------
     # Serialization

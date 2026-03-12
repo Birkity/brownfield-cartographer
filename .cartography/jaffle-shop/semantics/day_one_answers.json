@@ -1,0 +1,55 @@
+{
+  "questions": [
+    {
+      "question": "What does this codebase do at a high level?",
+      "answer": "This is a dbt-based analytics platform for a food service/e-commerce business that transforms raw order, customer, product, and supply chain data into analytical models for business intelligence. It provides order analytics, customer segmentation, product catalog management, and supply chain analytics with a focus on revenue tracking, profitability analysis, and customer lifetime value.",
+      "cited_files": [
+        "models/marts/order_items.yml",
+        "models/marts/orders.sql",
+        "models/marts/customers.yml",
+        "models/marts/products.yml"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "question": "What are the main data flows and where does data come from?",
+      "answer": "Data flows from raw e-commerce sources through staging models that clean and standardize data, then into mart models for business analytics. Raw data includes orders, customers, products, supplies, and locations. Staging models transform currency from cents to dollars, rename fields, and establish consistent naming conventions before feeding into analytical marts.",
+      "cited_files": [
+        "models/staging/stg_orders.sql",
+        "models/staging/stg_customers.sql",
+        "models/staging/stg_products.sql",
+        "models/staging/stg_supplies.sql"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "question": "What are the critical modules that a new engineer should understand first?",
+      "answer": "Start with the core mart models: order_items.yml/orders.sql (order analytics), customers.sql (customer segmentation), and the staging models (stg_orders.sql, stg_customers.sql) that feed them. Also understand the utility macros like cents_to_dollars.sql that standardize currency conversions across the platform.",
+      "cited_files": [
+        "models/marts/order_items.yml",
+        "models/marts/orders.sql",
+        "models/marts/customers.sql",
+        "macros/cents_to_dollars.sql"
+      ],
+      "confidence": 0.85
+    },
+    {
+      "question": "Where are the highest-risk areas and technical debt?",
+      "answer": "The codebase appears well-structured with no architectural hubs or circular dependencies. The main risk areas are the 7 dead-code candidates that need investigation for removal. The data validation & quality domain has the most modules (7), suggesting complexity in quality assurance that requires careful maintenance.",
+      "cited_files": [
+        "BLIND SPOTS: 7 dead-code candidates",
+        "HIGH RISK AREAS: 0 hubs, 0 circular deps"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "question": "What are the blind spots \u2014 areas where the analysis may be incomplete?",
+      "answer": "There are 7 dead-code candidates that need investigation to determine if they should be removed or reactivated. The lineage shows 15 transformations but only 2 dynamic transformations, suggesting mostly static data flows. The absence of parse errors indicates good code quality, but the dead code represents unknown functionality.",
+      "cited_files": [
+        "BLIND SPOTS: 0 parse errors, 7 dead-code candidates",
+        "LINEAGE SUMMARY: dynamic_transformations: 2"
+      ],
+      "confidence": 0.75
+    }
+  ]
+}

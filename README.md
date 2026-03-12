@@ -12,7 +12,7 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 |-------|-------|--------|
 | 1 | Surveyor (Static Structure) | ✅ Complete |
 | 2 | Hydrologist (Data Lineage) | ✅ Complete |
-| 3 | Semanticist (LLM Purpose Analysis) | 🔜 Planned |
+| 3 | Semanticist (LLM Purpose Analysis) | ✅ Complete |
 | 4 | Archivist + Navigator | 🔜 Planned |
 
 ---
@@ -44,6 +44,7 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 - Python 3.11+
 - [uv](https://github.com/astral-sh/uv) (`pip install uv`)
 - Git (required for git-velocity analysis and GitHub URL cloning)
+- [Ollama](https://ollama.com/) (required for Phase 3 LLM analysis — optional, graceful degradation without it)
 
 ---
 
@@ -62,6 +63,7 @@ This installs all required dependencies including:
 - `sqlglot` for SQL lineage parsing (Phase 2)
 - `pyyaml` for YAML config analysis (Phase 2)
 - `pyvis` for interactive lineage visualization (Phase 2)
+- `requests` for Ollama REST API communication (Phase 3)
 
 > **Java, Kotlin, Scala, Go, Rust, C#, Ruby, Shell** are supported out of the box via regex-based
 > import extraction — no additional grammar packages needed for these languages.
@@ -119,6 +121,22 @@ uv run cartographer --verbose analyze /tmp/jaffle-shop
 
 ---
 
+## Ollama Setup (Phase 3)
+
+Phase 3 requires Ollama running locally with at least one of these models:
+
+```bash
+# Install Ollama from https://ollama.com/
+# Pull the recommended models:
+ollama pull qwen3-coder:480b-cloud    # code analysis tasks
+ollama pull deepseek-v3.1:671b-cloud  # synthesis & clustering tasks
+```
+
+If Ollama is not running or no models are found, Phase 3 gracefully degrades to
+heuristic-only mode (role-based clustering, no purpose statements or Day-One synthesis).
+
+---
+
 ## Output Artifacts
 
 All artifacts are written to `.cartography/` (or the directory you specify with `--output-dir`).
@@ -148,6 +166,15 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 | `blind_spots.json` | Metric-based JSON: parse failures, dynamic transforms, low-confidence datasets + edges |
 | `high_risk_areas.json` | Metric-based JSON: hubs, cycles, high-velocity files, fan-out transforms, dynamic hotspots |
 
+### Phase 3 — `semantics/`
+
+| File | Description |
+|------|-------------|
+| `semantic_enrichment.json` | Full purpose statements, domain clustering, and doc drift results for every module |
+| `semantic_index.json` | Compact lookup: module→purpose+score, domain→members, top 10 business logic hotspots |
+| `day_one_answers.json` | Five FDE Day-One Q&A with cited files and confidence scores |
+| `semanticist_stats.json` | Run stats: LLM calls, token usage, elapsed time, drift count |
+
 ### Expected output for jaffle-shop
 
 Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 produce:
@@ -161,6 +188,10 @@ Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 pro
 - **Project type**: `dbt` (auto-detected from `dbt_project.yml`)
 - **Risk reports**: `blind_spots.json` (8 total blind spots — 2 macros flagged dynamic), `high_risk_areas.json`
 - **Output location**: `.cartography/jaffle-shop/` (auto-derived subfolder)
+- **Purpose statements**: 31/31 modules enriched with LLM-generated purpose statements
+- **Domain clusters**: 8 semantic domains (LLM-refined): Order Analytics, Customer Analytics, Product & Supply Chain, Data Ingestion & Staging, Infrastructure & Configuration, Data Validation & Quality, Location Management, Time Analytics
+- **Doc drift**: 5 modules flagged with documentation drift
+- **Day-One answers**: 5 FDE Day-One Q&A generated with file citations and confidence scores
 
 ---
 
@@ -178,16 +209,24 @@ src/
 │   ├── dbt_helpers.py         # Regex extraction of {{ ref() }} and {{ source() }} from SQL
 │   ├── sql_lineage.py         # [Phase 2] sqlglot-based SQL lineage & dataset extraction
 │   ├── config_analyzer.py     # [Phase 2] YAML config parsing (dbt sources/seeds/models)
-│   └── python_dataflow.py     # [Phase 2] pandas/spark read/write + SQL execution detection
+│   ├── python_dataflow.py     # [Phase 2] pandas/spark read/write + SQL execution detection
+│   ├── semantic_extractor.py  # [Phase 3] LLM purpose extraction + business logic scoring
+│   ├── domain_clusterer.py    # [Phase 3] Heuristic + LLM domain clustering
+│   └── doc_drift_detector.py  # [Phase 3] Documentation drift detection
 ├── agents/
 │   ├── surveyor.py            # Surveyor: file scan → graph → PageRank/SCC
-│   └── hydrologist.py         # [Phase 2] Hydrologist: data lineage → datasets + transforms
+│   ├── hydrologist.py         # [Phase 2] Hydrologist: data lineage → datasets + transforms
+│   └── semanticist.py         # [Phase 3] Semanticist: LLM purpose → domains → drift → Day-One
 ├── graph/
 │   ├── knowledge_graph.py     # NetworkX wrapper + analytics + PNG/HTML visualization
 │   ├── graph_viz.py           # Module graph PNG (role rings, confidence-scaled edges)
 │   ├── graph_analytics.py     # PageRank, SCC, degree stats
 │   ├── enrichment.py          # Module + dataset classification; confidence scoring
 │   └── reporting.py           # Blind-spots + high-risk markdown/JSON report writers
+├── llm/                       # [Phase 3] LLM integration layer
+│   ├── ollama_client.py       # Ollama REST client, ContextWindowBudget
+│   ├── model_router.py        # Task-aware model routing (qwen3-coder vs deepseek-v3.1)
+│   └── prompt_builder.py      # Structured prompt templates for all semantic tasks
 └── utils/
     ├── repo_loader.py          # Local path or GitHub URL → local Path (--full-history support)
     ├── file_inventory.py       # Walk repo, filter by language
@@ -195,7 +234,8 @@ src/
 
 reports/
 ├── phase1.md                  # Phase 1 feature reference (classification, evidence, visualization)
-└── phase2.md                  # Phase 2 feature reference (lineage, blind spots, high-risk)
+├── phase2.md                  # Phase 2 feature reference (lineage, blind spots, high-risk)
+└── phase3.md                  # Phase 3 feature reference (LLM semantics, domains, Day-One)
 ```
 
 ---

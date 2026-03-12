@@ -109,9 +109,11 @@ class FunctionNode(BaseModel):
     end_line: int = 0
     docstring: Optional[str] = None
 
-    # TODO Phase 3 (Semanticist): Add purpose_statement: Optional[str] = None
-    # TODO Phase 3 (Semanticist): Add doc_drift_flag: bool = False
-    # TODO Phase 3 (Surveyor/graph): Add call_count_within_repo: int = 0
+    purpose_statement: Optional[str] = None
+    """LLM-generated purpose statement for this function (Phase 3)."""
+
+    doc_drift_flag: bool = False
+    """True if docstring diverges from implementation (Phase 3)."""
 
 
 class ClassNode(BaseModel):
@@ -132,7 +134,8 @@ class ClassNode(BaseModel):
 
     docstring: Optional[str] = None
 
-    # TODO Phase 3 (Semanticist): Add purpose_statement: Optional[str] = None
+    purpose_statement: Optional[str] = None
+    """LLM-generated purpose statement for this class (Phase 3)."""
 
 
 # ---------------------------------------------------------------------------
@@ -201,8 +204,33 @@ class ModuleNode(BaseModel):
     classification_confidence: float = 1.0
     """Confidence in the role classification (1.0 = heuristic match, 0.5 = inferred)."""
 
-    # TODO Phase 3 (Semanticist): domain_cluster: Optional[str] = None
-    # TODO Phase 3 (Semanticist): doc_drift_detected: bool = False
+    # ------------------------------------------------------------------
+    # Phase 3 (Semanticist) — semantic metadata
+    # ------------------------------------------------------------------
+
+    purpose_statement: Optional[str] = None
+    """LLM-generated 2-3 sentence description of the module's business purpose."""
+
+    semantic_summary: Optional[str] = None
+    """Concise semantic summary used for onboarding synthesis."""
+
+    business_logic_score: float = 0.0
+    """0.0-1.0: how much concentrated business logic this module contains."""
+
+    domain_cluster: Optional[str] = None
+    """Domain group name (e.g. 'Data Staging', 'Analytics & Marts')."""
+
+    doc_drift_detected: bool = False
+    """True if documentation diverges from actual implementation."""
+
+    doc_drift_level: Optional[str] = None
+    """One of: 'no_drift', 'possible_drift', 'likely_drift'."""
+
+    semantic_confidence: float = 0.0
+    """Confidence in the LLM-generated semantic fields (0.0 = no LLM analysis)."""
+
+    semantic_evidence: Optional[str] = None
+    """Specific code constructs cited as evidence for the purpose statement."""
 
 
 class DatasetNode(BaseModel):
