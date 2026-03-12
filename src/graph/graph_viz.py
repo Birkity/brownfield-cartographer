@@ -1,8 +1,9 @@
 """
 Graph visualization helpers for the Brownfield Cartographer.
 
-Exposes two public functions:
-  export_module_viz(g, output_path)     — dark-theme PNG (matplotlib)
+Exposes three public functions:
+  export_module_viz_html(g, output_path) — interactive HTML (PyVis)  ← primary
+  export_module_viz(g, output_path)      — dark-theme PNG (matplotlib, legacy)
   export_lineage_viz(g, datasets, transformations, output_path) — interactive HTML (PyVis)
 
 Both accept the raw networkx DiGraph and data dicts, making them
@@ -105,23 +106,70 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
             _EDGE_DBT if d.get("edge_type") == "DBT_REF" else _EDGE_IMPORT
             for _, _, d in g.edges(data=True)
         ]
+        # Edge widths: scale by confidence where available
+        edge_widths = [
+            max(0.8, 3.0 * d.get("confidence", 1.0))
+            for _, _, d in g.edges(data=True)
+        ]
 
         nx.draw_networkx_edges(
             g, pos=pos, ax=ax, edge_color=edge_colors,
-            width=1.6, alpha=0.75, arrows=True, arrowsize=18,
+            width=edge_widths, alpha=0.75, arrows=True, arrowsize=18,
             arrowstyle="-|>", node_size=node_sizes, connectionstyle="arc3,rad=0.08",
         )
+
+        # --- Base nodes coloured by language ---
+        node_list = list(g.nodes())
         nx.draw_networkx_nodes(
-            g, pos=pos, ax=ax, node_color=node_colors, node_size=node_sizes,
+            g, pos=pos, ax=ax, nodelist=node_list,
+            node_color=node_colors, node_size=node_sizes,
             alpha=0.95, linewidths=1.5, edgecolors="#FFFFFF22",
         )
 
+        # --- Role-based visual overlays ---
+        hub_nodes   = [n for n in node_list if g.nodes[n].get("is_hub", False)]
+        cycle_nodes = [n for n in node_list if g.nodes[n].get("in_cycle", False)]
+        entry_nodes = [n for n in node_list if g.nodes[n].get("is_entry_point", False)]
+
+        if hub_nodes:
+            hub_sizes = [node_sizes[node_list.index(n)] * 1.45 for n in hub_nodes]
+            nx.draw_networkx_nodes(
+                g, pos=pos, ax=ax, nodelist=hub_nodes,
+                node_color="none", node_size=hub_sizes,
+                linewidths=3.5, edgecolors="#FFD700",    # gold ring = hub
+            )
+        if cycle_nodes:
+            cyc_sizes = [node_sizes[node_list.index(n)] * 1.45 for n in cycle_nodes]
+            nx.draw_networkx_nodes(
+                g, pos=pos, ax=ax, nodelist=cycle_nodes,
+                node_color="none", node_size=cyc_sizes,
+                linewidths=3.5, edgecolors="#FF4757",    # red ring = cycle
+            )
+        if entry_nodes:
+            ent_sizes = [node_sizes[node_list.index(n)] * 1.35 for n in entry_nodes]
+            nx.draw_networkx_nodes(
+                g, pos=pos, ax=ax, nodelist=entry_nodes,
+                node_color="none", node_size=ent_sizes,
+                linewidths=2.5, edgecolors="#2ED573",    # green ring = entry-point
+            )
+
         font_size = max(9, min(15, 200 // max(n_nodes, 1)))
-        labels = {
-            n: n.split("/")[-1].replace(".py", "").replace(".sql", "")
-               .replace(".yaml", "").replace(".yml", "")
-            for n in g.nodes()
-        }
+        # Label includes role badge for nodes that have a known role
+        labels = {}
+        for n in g.nodes():
+            stem = n.split("/")[-1].replace(".py","").replace(".sql","") \
+                     .replace(".yaml","").replace(".yml","")
+            role = g.nodes[n].get("role", "unknown")
+            role_badge = {
+                "staging":      " [stg]",
+                "mart":         " [mart]",
+                "intermediate": " [int]",
+                "source":       " [src]",
+                "macro":        " [macro]",
+                "test":         " [test]",
+                "config":       " [cfg]",
+            }.get(role, "")
+            labels[n] = stem + role_badge
         nx.draw_networkx_labels(g, pos=pos, labels=labels, ax=ax,
                                 font_size=font_size, font_color=_TEXT, font_weight="bold")
 
@@ -145,6 +193,16 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
             legend_handles.append(mpatches.Patch(color=_EDGE_IMPORT, label="IMPORTS edge"))
         if dbt_edges:
             legend_handles.append(mpatches.Patch(color=_EDGE_DBT, label="DBT_REF edge"))
+        # Role-ring legend entries
+        if hub_nodes:
+            legend_handles.append(mpatches.Patch(
+                facecolor="none", edgecolor="#FFD700", linewidth=2.5, label="Hub (PageRank top-10)"))
+        if cycle_nodes:
+            legend_handles.append(mpatches.Patch(
+                facecolor="none", edgecolor="#FF4757", linewidth=2.5, label="In circular dependency"))
+        if entry_nodes:
+            legend_handles.append(mpatches.Patch(
+                facecolor="none", edgecolor="#2ED573", linewidth=2.5, label="Entry point (no in-edges)"))
         if legend_handles:
             leg = ax.legend(
                 handles=legend_handles, loc="lower left",
@@ -160,6 +218,243 @@ def export_module_viz(g: nx.DiGraph, output_path: Path) -> bool:
         return True
     except Exception as exc:
         logger.warning("matplotlib visualization also failed: %s", exc)
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Module graph — interactive HTML (PyVis)  ← primary visualization
+# ---------------------------------------------------------------------------
+
+_ROLE_BADGE: dict[str, str] = {
+    "staging":      "[stg]",
+    "mart":         "[mart]",
+    "intermediate": "[int]",
+    "source":       "[src]",
+    "macro":        "[macro]",
+    "test":         "[test]",
+    "config":       "[cfg]",
+}
+
+_MODULE_PYVIS_OPTIONS = """
+var options = {
+  "nodes": {
+    "borderWidth": 2,
+    "borderWidthSelected": 4,
+    "shadow": {"enabled": true, "color": "#00000088", "size": 10, "x": 2, "y": 2},
+    "font": {"color": "#E6EDF3", "size": 13,
+             "face": "JetBrains Mono, monospace, sans-serif"}
+  },
+  "edges": {
+    "smooth": {"type": "curvedCW", "roundness": 0.12},
+    "shadow": {"enabled": true, "color": "#00000066", "size": 5},
+    "arrows": {"to": {"enabled": true, "scaleFactor": 1.1, "type": "arrow"}},
+    "font": {"color": "#8B949E", "size": 10, "align": "middle"}
+  },
+  "physics": {
+    "barnesHut": {
+      "gravitationalConstant": -14000, "centralGravity": 0.3,
+      "springLength": 220, "springConstant": 0.04,
+      "damping": 0.14, "avoidOverlap": 0.7
+    },
+    "minVelocity": 0.5,
+    "stabilization": {"iterations": 250}
+  },
+  "interaction": {
+    "hover": true, "tooltipDelay": 80, "navigationButtons": true,
+    "keyboard": {"enabled": true}, "multiselect": true, "zoomView": true
+  }
+}
+"""
+
+
+def _module_node_tooltip(node: str, attrs: dict) -> str:
+    lang = attrs.get("language", "external")
+    role = attrs.get("role") or "unknown"
+    loc = attrs.get("lines_of_code", 0)
+    fn = attrs.get("function_count", 0)
+    cl = attrs.get("class_count", 0)
+    imp = attrs.get("import_count", 0)
+    dbt = attrs.get("dbt_ref_count", 0)
+    vel = attrs.get("change_velocity_30d", 0)
+    cx = attrs.get("complexity_score", 0.0)
+    conf = attrs.get("classification_confidence", 1.0)
+    conf_color = "#2ED573" if conf >= 0.9 else "#FFA502"
+
+    flags = []
+    if attrs.get("is_hub"):
+        flags.append("<span style='color:#FFD700'>★ Hub</span>")
+    if attrs.get("in_cycle"):
+        flags.append("<span style='color:#FF4757'>⟳ In cycle</span>")
+    if attrs.get("is_entry_point"):
+        flags.append("<span style='color:#2ED573'>↳ Entry point</span>")
+    if attrs.get("is_dead_code_candidate"):
+        flags.append("<span style='color:#8B949E'>☠ Dead-code candidate</span>")
+    perr = attrs.get("parse_error")
+
+    lines = [
+        "<div style='font-family:monospace;font-size:13px;padding:8px 12px;"
+        "background:#161B22;border:1px solid #30363D;border-radius:8px;max-width:380px'>",
+        f"<b style='color:#58A6FF;font-size:14px'>{node}</b><br>",
+        f"<span style='color:#8B949E'>Language:</span> <b style='color:#E6EDF3'>{lang}</b>"
+        f" &nbsp; <span style='color:#8B949E'>Role:</span> <b style='color:#E6EDF3'>{role}</b><br>",
+        f"<span style='color:#8B949E'>LoC:</span> {loc}"
+        f" &nbsp; <span style='color:#8B949E'>Fn:</span> {fn}"
+        f" &nbsp; <span style='color:#8B949E'>Class:</span> {cl}"
+        f" &nbsp; <span style='color:#8B949E'>Imports:</span> {imp}<br>",
+    ]
+    if dbt:
+        lines.append(f"<span style='color:#8B949E'>dbt refs:</span> {dbt}<br>")
+    lines += [
+        f"<span style='color:#8B949E'>Velocity 30d:</span> {vel:.1f}"
+        f" &nbsp; <span style='color:#8B949E'>Complexity:</span> {cx:.2f}<br>",
+        f"<span style='color:#8B949E'>Confidence:</span> "
+        f"<b style='color:{conf_color}'>{conf:.0%}</b>",
+    ]
+    if flags:
+        lines.append("<br>" + " &nbsp; ".join(flags))
+    if perr:
+        lines.append(f"<br><span style='color:#FF4757'>⚠ parse error: {perr}</span>")
+    lines.append("</div>")
+    return "".join(lines)
+
+
+def _build_module_legend(g: nx.DiGraph) -> str:
+    lang_counts: dict[str, int] = {}
+    for _, attrs in g.nodes(data=True):
+        lang = attrs.get("language", "external")
+        lang_counts[lang] = lang_counts.get(lang, 0) + 1
+
+    lang_rows = "".join(
+        f"<div style='display:flex;align-items:center;gap:8px;margin:3px 0'>"
+        f"<span style='width:13px;height:13px;background:{_LANG_COLOURS.get(lang, '#546E7A')};"
+        f"border-radius:50%;display:inline-block'></span>"
+        f"<span>{lang} <span style='color:#8B949E'>({cnt})</span></span></div>"
+        for lang, cnt in sorted(lang_counts.items(), key=lambda x: -x[1])
+    )
+    border_rows = "".join(
+        f"<div style='display:flex;align-items:center;gap:8px;margin:3px 0'>"
+        f"<span style='width:13px;height:13px;border:2px solid {c};"
+        f"border-radius:50%;display:inline-block'></span>"
+        f"<span>{label}</span></div>"
+        for c, label in [
+            ("#FFD700", "★ Hub (high degree)"),
+            ("#FF4757", "⟳ Circular dep"),
+            ("#2ED573", "↳ Entry point"),
+        ]
+    )
+    edge_rows = "".join(
+        f"<div style='display:flex;align-items:center;gap:8px;margin:3px 0'>"
+        f"<span style='width:22px;height:3px;background:{c};display:inline-block'></span>"
+        f"<span>{label}</span></div>"
+        for c, label in [("#58A6FF", "IMPORTS"), ("#3FB950", "DBT_REF")]
+    )
+    return (
+        "<div style='"
+        "position:fixed;bottom:20px;left:20px;"
+        "background:#161B22;border:1px solid #30363D;border-radius:10px;"
+        "padding:14px 18px;color:#E6EDF3;font-family:monospace;font-size:13px;"
+        "z-index:9999;min-width:180px'>"
+        "<div style='font-weight:bold;margin-bottom:10px;color:#58A6FF;font-size:14px'>Legend</div>"
+        "<div style='font-size:11px;color:#8B949E;margin-bottom:6px;text-transform:uppercase;"
+        "letter-spacing:1px'>Language</div>"
+        + lang_rows
+        + "<div style='font-size:11px;color:#8B949E;margin:10px 0 6px;text-transform:uppercase;"
+        "letter-spacing:1px'>Node border</div>"
+        + border_rows
+        + "<div style='font-size:11px;color:#8B949E;margin:10px 0 6px;text-transform:uppercase;"
+        "letter-spacing:1px'>Edge type</div>"
+        + edge_rows
+        + "</div>"
+    )
+
+
+def export_module_viz_html(g: nx.DiGraph, output_path: Path) -> bool:
+    """
+    Export the module import graph as an interactive dark-theme HTML (PyVis).
+
+    Node colours reflect file language.  Border colour indicates role:
+      gold=hub, red=cycle, green=entry-point.
+    Hover a node to see full metrics; edge width scales with confidence.
+
+    Returns True on success, False when pyvis is not installed or the graph is empty.
+    """
+    if g.number_of_nodes() == 0:
+        logger.warning("Graph is empty — skipping module visualization")
+        return False
+
+    try:
+        from pyvis.network import Network  # type: ignore[import]
+    except ImportError:
+        logger.warning("pyvis not installed — skipping module visualization")
+        return False
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    net = Network(
+        height="100vh", width="100%", directed=True,
+        bgcolor="#0D1117", font_color="#E6EDF3", notebook=False,
+    )
+    net.set_options(_MODULE_PYVIS_OPTIONS)
+
+    degrees = dict(g.degree())
+    max_deg = max(degrees.values(), default=1) or 1
+
+    for node, attrs in g.nodes(data=True):
+        lang = attrs.get("language", "external")
+        role = attrs.get("role") or "unknown"
+        bg_color = _LANG_COLOURS.get(lang, "#546E7A")
+
+        if attrs.get("is_hub"):
+            border_color = "#FFD700"
+        elif attrs.get("in_cycle"):
+            border_color = "#FF4757"
+        elif attrs.get("is_entry_point"):
+            border_color = "#2ED573"
+        else:
+            border_color = "#30363D"
+
+        parts = node.replace("\\", "/").split("/")
+        short = parts[-1].rsplit(".", 1)[0]
+        badge = _ROLE_BADGE.get(role, "")
+        display_label = f"{short}\n{badge}" if badge else short
+
+        deg = degrees.get(node, 0)
+        size = 18 + int(20 * (deg / max_deg))
+
+        net.add_node(
+            node,
+            label=display_label,
+            title=_module_node_tooltip(node, attrs),
+            color={
+                "background": bg_color,
+                "border": border_color,
+                "highlight": {"background": bg_color, "border": "#FFFFFF"},
+            },
+            shape="ellipse",
+            size=size,
+        )
+
+    for u, v, data in g.edges(data=True):
+        edge_type = data.get("edge_type", "IMPORTS")
+        conf = data.get("confidence", 1.0)
+        width = max(1.0, conf * 3.0)
+        if edge_type == "DBT_REF":
+            color = {"color": "#3FB950", "highlight": "#7BED9F", "opacity": 0.8}
+            edge_title = "<b style='color:#3FB950'>DBT_REF</b>"
+        else:
+            color = {"color": "#58A6FF", "highlight": "#90C6FF", "opacity": 0.7}
+            edge_title = "<b style='color:#58A6FF'>IMPORTS</b>"
+        net.add_edge(u, v, color=color, title=edge_title, width=width)
+
+    try:
+        html_content = net.generate_html()
+        legend_html = _build_module_legend(g)
+        html_content = html_content.replace("</body>", legend_html + "\n</body>")
+        output_path.write_text(html_content, encoding="utf-8")
+        logger.info("Saved module graph visualization (PyVis) → %s", output_path)
+        return True
+    except Exception as exc:
+        logger.warning("PyVis module viz save failed: %s", exc)
         return False
 
 

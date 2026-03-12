@@ -65,6 +65,12 @@ class KnowledgeGraph:
             import_count=len(module.imports),
             dbt_ref_count=len(module.dbt_refs),
             complexity_score=module.complexity_score,
+            # Polish-layer fields (set by enrichment.py)
+            role=module.role,
+            is_entry_point=module.is_entry_point,
+            is_hub=module.is_hub,
+            in_cycle=module.in_cycle,
+            classification_confidence=module.classification_confidence,
         )
 
     def get_module(self, path: str) -> Optional[ModuleNode]:
@@ -77,13 +83,26 @@ class KnowledgeGraph:
     # Import edge management
     # ------------------------------------------------------------------
 
-    def add_import_edge(self, source: str, target: str, edge_type: str = "IMPORTS") -> None:
+    def add_import_edge(
+        self,
+        source: str,
+        target: str,
+        edge_type: str = "IMPORTS",
+        confidence: float = 0.95,
+        evidence: Optional[dict] = None,
+    ) -> None:
         if not self._g.has_node(target):
             self._g.add_node(target, language="external", lines_of_code=0)
         if self._g.has_edge(source, target):
             self._g[source][target]["import_count"] += 1
         else:
-            self._g.add_edge(source, target, edge_type=edge_type, import_count=1)
+            self._g.add_edge(
+                source, target,
+                edge_type=edge_type,
+                import_count=1,
+                confidence=confidence,
+                evidence=evidence or {},
+            )
 
     # ------------------------------------------------------------------
     # Dataset / transformation node management (Phase 2)
@@ -104,6 +123,10 @@ class KnowledgeGraph:
             dataset_type=dataset.dataset_type,
             storage_type=dataset.storage_type.value,
             confidence=dataset.confidence,
+            is_source_dataset=dataset.is_source_dataset,
+            is_sink_dataset=dataset.is_sink_dataset,
+            is_final_model=dataset.is_final_model,
+            is_intermediate_model=dataset.is_intermediate_model,
         )
 
     def add_transformation_node(self, transformation: TransformationNode) -> None:
@@ -117,19 +140,41 @@ class KnowledgeGraph:
             is_dynamic=transformation.is_dynamic,
         )
 
-    def add_produces_edge(self, transformation_id: str, dataset_name: str) -> None:
+    def add_produces_edge(
+        self,
+        transformation_id: str,
+        dataset_name: str,
+        confidence: float = 1.0,
+        evidence: Optional[dict] = None,
+    ) -> None:
         if not self._g.has_node(dataset_name):
             self._g.add_node(dataset_name, node_type="dataset")
         if not self._g.has_node(transformation_id):
             self._g.add_node(transformation_id, node_type="transformation")
-        self._g.add_edge(transformation_id, dataset_name, edge_type="PRODUCES")
+        self._g.add_edge(
+            transformation_id, dataset_name,
+            edge_type="PRODUCES",
+            confidence=confidence,
+            evidence=evidence or {},
+        )
 
-    def add_consumes_edge(self, transformation_id: str, dataset_name: str) -> None:
+    def add_consumes_edge(
+        self,
+        transformation_id: str,
+        dataset_name: str,
+        confidence: float = 1.0,
+        evidence: Optional[dict] = None,
+    ) -> None:
         if not self._g.has_node(dataset_name):
             self._g.add_node(dataset_name, node_type="dataset")
         if not self._g.has_node(transformation_id):
             self._g.add_node(transformation_id, node_type="transformation")
-        self._g.add_edge(dataset_name, transformation_id, edge_type="CONSUMES")
+        self._g.add_edge(
+            dataset_name, transformation_id,
+            edge_type="CONSUMES",
+            confidence=confidence,
+            evidence=evidence or {},
+        )
 
     def get_dataset(self, name: str) -> Optional[DatasetNode]:
         return self._datasets.get(name)
@@ -173,8 +218,8 @@ class KnowledgeGraph:
     # ------------------------------------------------------------------
 
     def export_viz(self, output_path: Path) -> bool:
-        from src.graph.graph_viz import export_module_viz
-        return export_module_viz(self._g, output_path)
+        from src.graph.graph_viz import export_module_viz_html
+        return export_module_viz_html(self._g, output_path)
 
     def export_lineage_viz(self, output_path: Path) -> bool:
         from src.graph.graph_viz import export_lineage_viz

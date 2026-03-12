@@ -179,15 +179,28 @@ class ModuleNode(BaseModel):
     """Model names referenced via {{ ref('model_name') }} in SQL files (Phase 1 dbt support)."""
 
     yaml_keys: list[str] = Field(default_factory=list)
-    """Top-level keys extracted from YAML files (capped at 20).
+    """Top-level keys extracted from YAML files (capped at 20)."""
 
-    Phase 2 (Hydrologist) uses this to identify YAML file roles without re-parsing:
-    - 'sources' → dbt source declarations (e.g. __sources.yml)
-    - 'models'  → dbt schema / column-test file (e.g. schema.yml)
-    - 'name' + 'version' → dbt_project.yml or packages.yml
-    - 'packages' → packages.yml dependencies list
-    Only populated for Language.YAML files.
-    """
+    # ------------------------------------------------------------------
+    # Polish-layer classification fields (set by enrichment.py)
+    # ------------------------------------------------------------------
+
+    role: str = "unknown"
+    """Semantic role: 'source', 'staging', 'intermediate', 'mart',
+    'utility', 'config', 'macro', 'test', 'unknown'."""
+
+    is_entry_point: bool = False
+    """True if this module has in-degree 0 in the import graph (nothing imports it)."""
+
+    is_hub: bool = False
+    """True if this module is in the top-10 PageRank hubs."""
+
+    in_cycle: bool = False
+    """True if this module participates in a circular dependency."""
+
+    classification_confidence: float = 1.0
+    """Confidence in the role classification (1.0 = heuristic match, 0.5 = inferred)."""
+
     # TODO Phase 3 (Semanticist): domain_cluster: Optional[str] = None
     # TODO Phase 3 (Semanticist): doc_drift_detected: bool = False
 
@@ -225,6 +238,22 @@ class DatasetNode(BaseModel):
 
     confidence: float = 1.0
     """How confident we are this dataset exists: 1.0 = static, 0.5 = dynamic/inferred."""
+
+    # ------------------------------------------------------------------
+    # Polish-layer classification fields (set by enrichment.py)
+    # ------------------------------------------------------------------
+
+    is_source_dataset: bool = False
+    """True if nothing produces this dataset (it is a root / seed / external source)."""
+
+    is_sink_dataset: bool = False
+    """True if this dataset is not consumed by any transformation (terminal output)."""
+
+    is_final_model: bool = False
+    """True for fct_/dim_/mart-layer models that are the analytical end-product."""
+
+    is_intermediate_model: bool = False
+    """True for stg_/int_ models that are pipeline intermediates."""
 
 
 class TransformationNode(BaseModel):

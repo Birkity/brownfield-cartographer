@@ -123,27 +123,44 @@ uv run cartographer --verbose analyze /tmp/jaffle-shop
 
 All artifacts are written to `.cartography/` (or the directory you specify with `--output-dir`).
 
-| File | Phase | Description |
-|------|-------|-------------|
-| `module_graph.json` | 1 | NetworkX node-link JSON of the import graph (IMPORTS + DBT_REF edges) |
-| `module_graph_modules.json` | 1 | Full ModuleNode records (imports, dbt_refs, functions, classes, complexity, velocity) |
-| `cartography_trace.jsonl` | 1+2 | Audit log: one JSON line per agent action |
-| `surveyor_stats.json` | 1 | Summary: hub counts, import edges, dbt_ref_edges, cycles, velocity, elapsed, **project_type** |
-| `module_graph.png` | 1 | Dark-theme graph PNG (matplotlib, 200 DPI, degree-scaled nodes, neon palette) |
-| `lineage_graph.json` | 2 | Datasets, transformations, and PRODUCES/CONSUMES edges |
-| `lineage_graph.html` | 2 | Interactive PyVis lineage map (dark theme, hover tooltips, physics layout) |
-| `hydrologist_stats.json` | 2 | Phase 2 summary: dataset counts by type, transformation counts, edge stats |
+### Phase 1 — `module_graph/`
+
+| File | Description |
+|------|-------------|
+| `module_graph.json` | NetworkX node-link JSON of the import graph (IMPORTS + DBT_REF edges, with confidence + evidence on every edge) |
+| `module_graph_modules.json` | Full `ModuleNode` records (imports, dbt_refs, functions, classes, complexity, velocity, **role, is_entry_point, is_hub, in_cycle**) |
+| `surveyor_stats.json` | Summary: hub counts, import edges, dbt_ref_edges, cycles, velocity, elapsed, project_type |
+| `module_graph.png` | Dark-theme graph PNG (matplotlib, 200 DPI, degree-scaled nodes, neon palette, **role badges, hub/cycle/entry-point overlay rings**) |
+
+### Phase 2 — `data_lineage/`
+
+| File | Description |
+|------|-------------|
+| `lineage_graph.json` | Datasets, transformations, and PRODUCES/CONSUMES edges (with confidence + evidence; **dataset classification flags**) |
+| `lineage_graph.html` | Interactive PyVis lineage map (dark theme, hover tooltips, physics layout) |
+| `hydrologist_stats.json` | Phase 2 summary: dataset counts by type, transformation counts, edge stats |
+
+### Cross-phase reports — `<repo-name>/`
+
+| File | Description |
+|------|-------------|
+| `cartography_trace.jsonl` | Audit log: one JSON line per agent action |
+| `blind_spots.json` | Metric-based JSON: parse failures, dynamic transforms, low-confidence datasets + edges |
+| `high_risk_areas.json` | Metric-based JSON: hubs, cycles, high-velocity files, fan-out transforms, dynamic hotspots |
 
 ### Expected output for jaffle-shop
 
-Since jaffle-shop is primarily SQL + YAML (a dbt project, Phase 1 + Phase 2 produce:
+Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 produce:
 - **33 files parsed via AST** — Python, YAML, SQL (`tree-sitter-sql`), and JS/TS have dedicated grammars; **0 grammar-missing files**
-- **SQL table references**: extracted via `tree-sitter-sql` AST (`relation > object_reference > identifier` node path)
+- **Module classification**: 33/33 modules assigned a named role: 13 mart, 12 staging, 6 config, 2 macro
+- **SQL table references**: extracted via `tree-sitter-sql` AST
 - **YAML files**: top-level keys and dbt source/seed/model declarations extracted
 - **Import graph**: **11 DBT_REF edges** connecting mart models → staging models
-- **PageRank**: staging models correctly identified as architectural hubs
-- **Complexity scores**: populated for all Python files (0.0 for SQL/YAML)
+- **PageRank hubs**: staging models (stg_products, stg_supplies, stg_orders) are top-3 hubs
+- **Dataset classification**: 27 datasets — 12 source, 13 sink, 5 final models, 6 intermediate
 - **Project type**: `dbt` (auto-detected from `dbt_project.yml`)
+- **Risk reports**: `blind_spots.json` (8 total blind spots — 2 macros flagged dynamic), `high_risk_areas.json`
+- **Output location**: `.cartography/jaffle-shop/` (auto-derived subfolder)
 
 ---
 
@@ -166,12 +183,132 @@ src/
 │   ├── surveyor.py            # Surveyor: file scan → graph → PageRank/SCC
 │   └── hydrologist.py         # [Phase 2] Hydrologist: data lineage → datasets + transforms
 ├── graph/
-│   └── knowledge_graph.py     # NetworkX wrapper + analytics + PNG/HTML visualization
+│   ├── knowledge_graph.py     # NetworkX wrapper + analytics + PNG/HTML visualization
+│   ├── graph_viz.py           # Module graph PNG (role rings, confidence-scaled edges)
+│   ├── graph_analytics.py     # PageRank, SCC, degree stats
+│   ├── enrichment.py          # Module + dataset classification; confidence scoring
+│   └── reporting.py           # Blind-spots + high-risk markdown/JSON report writers
 └── utils/
     ├── repo_loader.py          # Local path or GitHub URL → local Path (--full-history support)
     ├── file_inventory.py       # Walk repo, filter by language
     └── git_tools.py            # git log velocity per file
+
+reports/
+├── phase1.md                  # Phase 1 feature reference (classification, evidence, visualization)
+└── phase2.md                  # Phase 2 feature reference (lineage, blind spots, high-risk)
 ```
+
+---
+
+## Output Directory Structure
+
+By default artifacts are written to `.cartography/<repo-name>/` so multiple repos can coexist:
+
+```
+.cartography/
+└── jaffle-shop/                    ← derived from the target path or URL
+    ├── cartography_trace.jsonl     ← shared audit log (all agents)
+    ├── blind_spots.json            ← metric-based blind-spot signals
+    ├── high_risk_areas.json        ← metric-based risk signals
+    ├── module_graph/               ← Phase 1 (Surveyor) artifacts
+    │   ├── module_graph.json
+    │   ├── module_graph_modules.json
+    │   ├── module_graph.png
+    │   └── surveyor_stats.json
+    └── data_lineage/               ← Phase 2 (Hydrologist) artifacts
+        ├── lineage_graph.json
+        ├── lineage_graph.html
+        └── hydrologist_stats.json
+```
+
+To write to an exact directory (bypass auto-subfolder): `--output-dir ./my-output`
+
+To analyse multiple repos side-by-side:
+```bash
+uv run cartographer analyze /path/to/repo-a    # → .cartography/repo-a/
+uv run cartographer analyze /path/to/repo-b    # → .cartography/repo-b/
+uv run cartographer analyze .                  # → .cartography/brownfield-cartographer/
+```
+
+---
+
+## Enrichment & Reporting (Polish Layer)
+
+Both phases emit rich metadata beyond the raw graph topology.
+
+### Node Classification
+
+Every `ModuleNode` (Phase 1) carries:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `role` | `str` | `staging`, `mart`, `intermediate`, `source`, `macro`, `config`, `test`, `utility`, `unknown` |
+| `is_entry_point` | `bool` | In-degree 0 — nothing imports this module |
+| `is_hub` | `bool` | Top-10 PageRank — high-connectivity architectural hub |
+| `in_cycle` | `bool` | Participates in a circular dependency |
+| `classification_confidence` | `float` | Heuristic confidence in the assigned role (`0.0`–`1.0`) |
+
+Every `DatasetNode` (Phase 2) carries:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `is_source_dataset` | `bool` | No PRODUCES edges into it — raw input (seed, external source) |
+| `is_sink_dataset` | `bool` | No CONSUMES edges out — terminal output (final model, export) |
+| `is_final_model` | `bool` | Name matches `fct_*`, `dim_*`, or lives in `marts/` |
+| `is_intermediate_model` | `bool` | Name matches `stg_*` or `int_*` |
+
+### Confidence Scoring
+
+Every edge carries a `confidence` float and an `evidence` dict. Confidence is derived from the
+extraction method:
+
+| Method | Score | Notes |
+|--------|-------|-------|
+| `tree_sitter_ast` | 1.00 | Full AST parse |
+| `dbt_jinja_regex` | 1.00 | `{{ ref() }}` — deterministic |
+| `config_parsing` | 0.95 | YAML config declarations |
+| `sqlglot` | 0.90 | Static SQL parse |
+| `regex` | 0.65 | Simple import regex |
+| `sqlglot_dynamic` | 0.55 | SQL with unresolved Jinja |
+| `inferred` | 0.40 | Shape-based — least reliable |
+
+Edge widths in the module PNG and lineage HTML scale proportionally by confidence.
+
+### Reading the Module Graph PNG
+
+Overlay rings on `module_graph.png`:
+
+| Ring | Colour | Meaning |
+|------|--------|---------|
+| Gold | `#FFD700` | **Hub** — top-10 PageRank |
+| Red | `#FF4757` | **Cycle** — circular dependency |
+| Green | `#2ED573` | **Entry point** — in-degree 0 |
+
+Node labels include short role badges: `[stg]` staging · `[mart]` mart · `[int]` intermediate ·
+`[src]` source · `[macro]` macro · `[test]` test · `[cfg]` config.
+
+### Blind Spots (`blind_spots.json`)
+
+Surfaces everything the pipeline could not fully resolve, as a metric-based JSON:
+- **`summary`** — counts for every category
+- **`parse_failures`** — files where the AST parser errored
+- **`structurally_empty_files`** — parsed OK but produced zero symbols
+- **`dynamic_transformations`** — Jinja/SQL not fully resolvable
+- **`low_confidence_datasets`** — datasets with confidence < 0.70
+- **`low_confidence_edges`** — PRODUCES/CONSUMES edges with confidence < 0.70
+
+### High-Risk Areas (`high_risk_areas.json`)
+
+Aggregated risk signals for onboarding engineers:
+- **High-velocity files** — most git commits in the velocity window (churn risk)
+- **Top hubs** — highest-PageRank modules (single-point-of-failure risk)
+- **Circular dependencies** — SCCs with size > 1 (refactoring debt)
+- **High fan-out transforms** — produce many output datasets
+- **Dynamic hotspots** — incomplete lineage, needs manual tracing
+
+> See [reports/phase1.md](reports/phase1.md) and [reports/phase2.md](reports/phase2.md)
+> for full field references and interpretation guides, including annotated samples from
+> the jaffle-shop run.
 
 ---
 
@@ -260,11 +397,7 @@ uv run pytest tests/ -v
 
 | Phase | Agent | What it does |
 |-------|-------|--------------|
-| 1 ✅ | Surveyor | File scan, import graph, PageRank hubs, git velocity, project-type detection |
-| 2 ✅ | Hydrologist | Data lineage — datasets, transformations, PRODUCES/CONSUMES edges, interactive HTML |
+| 1 ✅ | Surveyor | File scan, import graph, PageRank hubs, git velocity, project-type detection, module classification, edge evidence |
+| 2 ✅ | Hydrologist | Data lineage — datasets, transformations, PRODUCES/CONSUMES edges, dataset classification, blind-spots + high-risk reports |
 | 3 🔜 | Semanticist | LLM-powered purpose annotation for modules and datasets |
 | 4 🔜 | Archivist + Navigator | Semantic search, Q&A chat over the knowledge graph |
-- `src/models/nodes.py`: `DatasetNode`, `TransformationNode` schemas ready
-- `src/analyzers/` — add `sql_lineage.py` (sqlglot-based) and `dag_config_parser.py` (Airflow/dbt YAML)
-
-See the `# TODO Phase 2` comments throughout the codebase for precise hook locations.

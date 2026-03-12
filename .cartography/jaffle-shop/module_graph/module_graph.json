@@ -14,6 +14,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "config",
+      "is_entry_point": true,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.6,
       "id": ".pre-commit-config.yaml"
     },
     {
@@ -27,6 +32,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "config",
+      "is_entry_point": true,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 1.0,
       "id": "dbt_project.yml"
     },
     {
@@ -40,6 +50,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "macro",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "macros/cents_to_dollars.sql"
     },
     {
@@ -53,6 +68,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "macro",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "macros/generate_schema_name.sql"
     },
     {
@@ -66,6 +86,11 @@
       "import_count": 4,
       "dbt_ref_count": 2,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/customers.sql"
     },
     {
@@ -79,6 +104,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/customers.yml"
     },
     {
@@ -92,6 +122,11 @@
       "import_count": 1,
       "dbt_ref_count": 1,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/locations.sql"
     },
     {
@@ -105,6 +140,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/locations.yml"
     },
     {
@@ -118,6 +158,11 @@
       "import_count": 2,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/metricflow_time_spine.sql"
     },
     {
@@ -131,6 +176,11 @@
       "import_count": 6,
       "dbt_ref_count": 4,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/order_items.sql"
     },
     {
@@ -144,6 +194,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/order_items.yml"
     },
     {
@@ -157,6 +212,11 @@
       "import_count": 5,
       "dbt_ref_count": 2,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/orders.sql"
     },
     {
@@ -170,6 +230,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/orders.yml"
     },
     {
@@ -183,6 +248,11 @@
       "import_count": 1,
       "dbt_ref_count": 1,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/products.sql"
     },
     {
@@ -196,6 +266,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/products.yml"
     },
     {
@@ -209,6 +284,11 @@
       "import_count": 1,
       "dbt_ref_count": 1,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/supplies.sql"
     },
     {
@@ -222,6 +302,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "mart",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.85,
       "id": "models/marts/supplies.yml"
     },
     {
@@ -235,6 +320,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "config",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.9,
       "id": "models/staging/__sources.yml"
     },
     {
@@ -248,6 +338,11 @@
       "import_count": 2,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_customers.sql"
     },
     {
@@ -261,6 +356,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_customers.yml"
     },
     {
@@ -274,6 +374,11 @@
       "import_count": 2,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_locations.sql"
     },
     {
@@ -287,6 +392,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_locations.yml"
     },
     {
@@ -300,6 +410,11 @@
       "import_count": 2,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_order_items.sql"
     },
     {
@@ -313,6 +428,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_order_items.yml"
     },
     {
@@ -326,6 +446,11 @@
       "import_count": 2,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_orders.sql"
     },
     {
@@ -339,6 +464,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_orders.yml"
     },
     {
@@ -352,6 +482,11 @@
       "import_count": 2,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_products.sql"
     },
     {
@@ -365,6 +500,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_products.yml"
     },
     {
@@ -378,6 +518,11 @@
       "import_count": 2,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": false,
+      "is_hub": true,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_supplies.sql"
     },
     {
@@ -391,6 +536,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "staging",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.95,
       "id": "models/staging/stg_supplies.yml"
     },
     {
@@ -404,6 +554,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "config",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.6,
       "id": "package-lock.yml"
     },
     {
@@ -417,6 +572,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "config",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 1.0,
       "id": "packages.yml"
     },
     {
@@ -430,6 +590,11 @@
       "import_count": 0,
       "dbt_ref_count": 0,
       "complexity_score": 0.0,
+      "role": "config",
+      "is_entry_point": true,
+      "is_hub": false,
+      "in_cycle": false,
+      "classification_confidence": 0.6,
       "id": "Taskfile.yml"
     },
     {
@@ -437,6 +602,10 @@
       "dataset_type": "dbt_seed",
       "storage_type": "file",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "seed.raw_customers"
     },
     {
@@ -444,6 +613,10 @@
       "dataset_type": "dbt_seed",
       "storage_type": "file",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "seed.raw_items"
     },
     {
@@ -451,6 +624,10 @@
       "dataset_type": "dbt_seed",
       "storage_type": "file",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "seed.raw_orders"
     },
     {
@@ -458,6 +635,10 @@
       "dataset_type": "dbt_seed",
       "storage_type": "file",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "seed.raw_products"
     },
     {
@@ -465,6 +646,10 @@
       "dataset_type": "dbt_seed",
       "storage_type": "file",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "seed.raw_stores"
     },
     {
@@ -472,6 +657,10 @@
       "dataset_type": "dbt_seed",
       "storage_type": "file",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "seed.raw_supplies"
     },
     {
@@ -479,6 +668,10 @@
       "dataset_type": "dbt_source",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "source.ecom.raw_customers"
     },
     {
@@ -486,6 +679,10 @@
       "dataset_type": "dbt_source",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "source.ecom.raw_orders"
     },
     {
@@ -493,6 +690,10 @@
       "dataset_type": "dbt_source",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "source.ecom.raw_items"
     },
     {
@@ -500,6 +701,10 @@
       "dataset_type": "dbt_source",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "source.ecom.raw_stores"
     },
     {
@@ -507,6 +712,10 @@
       "dataset_type": "dbt_source",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "source.ecom.raw_products"
     },
     {
@@ -514,6 +723,10 @@
       "dataset_type": "dbt_source",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "source.ecom.raw_supplies"
     },
     {
@@ -529,6 +742,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 0.44999999999999996,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.cents_to_dollars"
     },
     {
@@ -544,6 +761,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 0.3999999999999999,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.generate_schema_name"
     },
     {
@@ -559,6 +780,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.customers"
     },
     {
@@ -566,6 +791,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.stg_customers"
     },
     {
@@ -573,6 +802,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.orders"
     },
     {
@@ -588,6 +821,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.locations"
     },
     {
@@ -595,6 +832,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.stg_locations"
     },
     {
@@ -610,6 +851,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.metricflow_time_spine"
     },
     {
@@ -625,6 +870,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.order_items"
     },
     {
@@ -632,6 +881,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.stg_order_items"
     },
     {
@@ -639,6 +892,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.stg_orders"
     },
     {
@@ -646,6 +903,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.stg_products"
     },
     {
@@ -653,6 +914,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.stg_supplies"
     },
     {
@@ -676,6 +941,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.products"
     },
     {
@@ -691,6 +960,10 @@
       "dataset_type": "dbt_model",
       "storage_type": "table",
       "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false,
       "id": "model.supplies"
     },
     {
@@ -746,226 +1019,510 @@
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/customers.sql",
+        "expression": "{{ ref('stg_customers') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_customers"
+      },
       "source": "models/marts/customers.sql",
       "target": "models/staging/stg_customers.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/customers.sql",
+        "expression": "{{ ref('orders') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "orders"
+      },
       "source": "models/marts/customers.sql",
       "target": "models/marts/orders.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/locations.sql",
+        "expression": "{{ ref('stg_locations') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_locations"
+      },
       "source": "models/marts/locations.sql",
       "target": "models/staging/stg_locations.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "expression": "{{ ref('stg_order_items') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_order_items"
+      },
       "source": "models/marts/order_items.sql",
       "target": "models/staging/stg_order_items.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "expression": "{{ ref('stg_orders') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_orders"
+      },
       "source": "models/marts/order_items.sql",
       "target": "models/staging/stg_orders.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "expression": "{{ ref('stg_products') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_products"
+      },
       "source": "models/marts/order_items.sql",
       "target": "models/staging/stg_products.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "expression": "{{ ref('stg_supplies') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_supplies"
+      },
       "source": "models/marts/order_items.sql",
       "target": "models/staging/stg_supplies.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/orders.sql",
+        "expression": "{{ ref('stg_orders') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_orders"
+      },
       "source": "models/marts/orders.sql",
       "target": "models/staging/stg_orders.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/orders.sql",
+        "expression": "{{ ref('order_items') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "order_items"
+      },
       "source": "models/marts/orders.sql",
       "target": "models/marts/order_items.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/products.sql",
+        "expression": "{{ ref('stg_products') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_products"
+      },
       "source": "models/marts/products.sql",
       "target": "models/staging/stg_products.sql"
     },
     {
       "edge_type": "DBT_REF",
       "import_count": 1,
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/supplies.sql",
+        "expression": "{{ ref('stg_supplies') }}",
+        "extraction_method": "dbt_jinja_regex",
+        "ref_name": "stg_supplies"
+      },
       "source": "models/marts/supplies.sql",
       "target": "models/staging/stg_supplies.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_customers.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "source.ecom.raw_customers",
       "target": "sql:models/staging/stg_customers.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_orders.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "source.ecom.raw_orders",
       "target": "sql:models/staging/stg_orders.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_order_items.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "source.ecom.raw_items",
       "target": "sql:models/staging/stg_order_items.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_locations.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "source.ecom.raw_stores",
       "target": "sql:models/staging/stg_locations.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_products.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "source.ecom.raw_products",
       "target": "sql:models/staging/stg_products.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_supplies.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "source.ecom.raw_supplies",
       "target": "sql:models/staging/stg_supplies.sql"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 0.44999999999999996,
+      "evidence": {
+        "source_file": "macros/cents_to_dollars.sql",
+        "extraction_method": "sqlglot_dynamic",
+        "transformation_type": "dbt_model",
+        "sql_preview": "{# A basic example for a project-wide macro to cast a column uniformly #}\n\n{% macro cents_to_dollars(column_name) -%}\n  "
+      },
       "source": "sql:macros/cents_to_dollars.sql",
       "target": "model.cents_to_dollars"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 0.3999999999999999,
+      "evidence": {
+        "source_file": "macros/generate_schema_name.sql",
+        "extraction_method": "sqlglot_dynamic",
+        "transformation_type": "dbt_model",
+        "sql_preview": "{% macro generate_schema_name(custom_schema_name, node) %}\n\n    {% set default_schema = target.schema %}\n\n    {# seeds g"
+      },
       "source": "sql:macros/generate_schema_name.sql",
       "target": "model.generate_schema_name"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/customers.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders as (\n\n    select * from {{ ref('orders') "
+      },
       "source": "sql:models/marts/customers.sql",
       "target": "model.customers"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/customers.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_customers",
       "target": "sql:models/marts/customers.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/customers.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.orders",
       "target": "sql:models/marts/customers.sql"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/locations.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nlocations as (\n\n    select * from {{ ref('stg_locations') }}\n\n)\n\nselect * from locations\n"
+      },
       "source": "sql:models/marts/locations.sql",
       "target": "model.locations"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/locations.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_locations",
       "target": "sql:models/marts/locations.sql"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/metricflow_time_spine.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "-- metricflow_time_spine.sql\nwith\n\ndays as (\n\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n    {{ dbt_dat"
+      },
       "source": "sql:models/marts/metricflow_time_spine.sql",
       "target": "model.metricflow_time_spine"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\norder_items as (\n\n    select * from {{ ref('stg_order_items') }}\n\n),\n\n\norders as (\n\n    select * from {{ ref('stg_"
+      },
       "source": "sql:models/marts/order_items.sql",
       "target": "model.order_items"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/orders.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.order_items",
       "target": "sql:models/marts/orders.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_order_items",
       "target": "sql:models/marts/order_items.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_orders",
       "target": "sql:models/marts/order_items.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/orders.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_orders",
       "target": "sql:models/marts/orders.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_products",
       "target": "sql:models/marts/order_items.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/products.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_products",
       "target": "sql:models/marts/products.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/order_items.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_supplies",
       "target": "sql:models/marts/order_items.sql"
     },
     {
       "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/supplies.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model"
+      },
       "source": "model.stg_supplies",
       "target": "sql:models/marts/supplies.sql"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/orders.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\norders as (\n\n    select * from {{ ref('stg_orders') }}\n\n),\n\norder_items as (\n\n    select * from {{ ref('order_item"
+      },
       "source": "sql:models/marts/orders.sql",
       "target": "model.orders"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/products.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n\n)\n\nselect * from products\n"
+      },
       "source": "sql:models/marts/products.sql",
       "target": "model.products"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/marts/supplies.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nsupplies as (\n\n    select * from {{ ref('stg_supplies') }}\n\n)\n\nselect * from supplies\n"
+      },
       "source": "sql:models/marts/supplies.sql",
       "target": "model.supplies"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_customers.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_customers') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ------"
+      },
       "source": "sql:models/staging/stg_customers.sql",
       "target": "model.stg_customers"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_locations.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_stores') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ---------"
+      },
       "source": "sql:models/staging/stg_locations.sql",
       "target": "model.stg_locations"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_order_items.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_items') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------"
+      },
       "source": "sql:models/staging/stg_order_items.sql",
       "target": "model.stg_order_items"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_orders.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_orders') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ---------"
+      },
       "source": "sql:models/staging/stg_orders.sql",
       "target": "model.stg_orders"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_products.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_products') }}\n\n),\n\nrenamed as (\n\n    select\n\n        -------"
+      },
       "source": "sql:models/staging/stg_products.sql",
       "target": "model.stg_products"
     },
     {
       "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "models/staging/stg_supplies.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "dbt_model",
+        "sql_preview": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_supplies') }}\n\n),\n\nrenamed as (\n\n    select\n\n        -------"
+      },
       "source": "sql:models/staging/stg_supplies.sql",
       "target": "model.stg_supplies"
     }

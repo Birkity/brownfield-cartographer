@@ -39,14 +39,16 @@ class CartographyArtifacts:
 
     Directory layout::
 
-        .cartography/
-        ├── cartography_trace.jsonl      # shared audit log (all agents)
-        ├── module_graph/                # Surveyor — static code structure
+        .cartography/<repo-name>/          (or .cartography/ for explicit --output-dir)
+        ├── cartography_trace.jsonl        # shared audit log (all agents)
+        ├── blind_spots.json               # unresolved refs + low-confidence metrics
+        ├── high_risk_areas.json           # hubs, cycles, velocity, fan-out metrics
+        ├── module_graph/                  # Surveyor — static code structure
         │   ├── module_graph.json
         │   ├── module_graph_modules.json
         │   ├── module_graph.png
         │   └── surveyor_stats.json
-        └── data_lineage/                # Hydrologist — data flow & lineage
+        └── data_lineage/                  # Hydrologist — data flow & lineage
             ├── lineage_graph.json
             ├── lineage_graph.html
             └── hydrologist_stats.json
@@ -64,12 +66,16 @@ class CartographyArtifacts:
         self.module_graph_json = self.module_graph_dir / "module_graph.json"
         self.module_graph_modules_json = self.module_graph_dir / "module_graph_modules.json"
         self.stats_json = self.module_graph_dir / "surveyor_stats.json"
-        self.viz_png = self.module_graph_dir / "module_graph.png"
+        self.viz_html = self.module_graph_dir / "module_graph.html"
 
         # Hydrologist — data flow & lineage
         self.lineage_graph_json = self.data_lineage_dir / "lineage_graph.json"
         self.lineage_viz_html = self.data_lineage_dir / "lineage_graph.html"
         self.hydrologist_stats_json = self.data_lineage_dir / "hydrologist_stats.json"
+
+        # Polish layer — enrichment reports
+        self.blind_spots_json = output_dir / "blind_spots.json"
+        self.high_risk_json = output_dir / "high_risk_areas.json"
 
     def ensure_dirs(self) -> None:
         """Create all output subdirectories if they don't exist."""
@@ -120,9 +126,13 @@ def run_phase1(
     surveyor = Surveyor(velocity_days=velocity_days)
     result: SurveyorResult = surveyor.run(repo_root, velocity_days=velocity_days)
 
+    # ---- Enrich graph with classification + confidence ------------------
+    from src.graph.enrichment import classify_module_roles
+    classify_module_roles(result.graph)
+
     # ---- Persist graph --------------------------------------------------
     result.graph.save(artifacts.module_graph_json)
-    result.graph.export_viz(artifacts.viz_png)
+    result.graph.export_viz(artifacts.viz_html)
 
     # ---- Write trace log ------------------------------------------------
     _write_trace(artifacts.trace_jsonl, result)
@@ -160,6 +170,10 @@ def run_phase2(
     hydrologist = Hydrologist()
     result: HydrologistResult = hydrologist.run(graph, repo_root)
 
+    # ---- Enrich dataset classification (before saving!) -----------------
+    from src.graph.enrichment import classify_dataset_roles
+    classify_dataset_roles(graph)
+
     # ---- Persist lineage graph -----------------------------------------
     graph.save_lineage(artifacts.lineage_graph_json)
 
@@ -174,6 +188,19 @@ def run_phase2(
 
     # ---- Re-save the unified graph (now with lineage edges) ------------
     graph.save(artifacts.module_graph_json)
+
+    # ---- Load surveyor stats for reports --------------------------------
+    surveyor_stats: dict = {}
+    try:
+        import json as _json
+        surveyor_stats = _json.loads(artifacts.stats_json.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+
+    # ---- Write blind-spots and high-risk reports ------------------------
+    from src.graph.reporting import write_blind_spots, write_high_risk_areas
+    write_blind_spots(graph, surveyor_stats, result.stats, artifacts.output_dir)
+    write_high_risk_areas(graph, surveyor_stats, result.stats, artifacts.output_dir)
 
     logger.info(
         "Phase 2 complete.  Lineage artifacts written to: %s",

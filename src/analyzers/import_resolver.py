@@ -54,7 +54,20 @@ def build_import_edges(graph: KnowledgeGraph, repo_root: Path) -> int:
                     imp.module, module.path, tracked_paths, dotted_to_path
                 )
             if target:
-                graph.add_import_edge(module.path, target)
+                # Resolved to a known path in the repo → high confidence
+                confidence = 1.0
+                evidence = {
+                    "source_file": module.path,
+                    "line": imp.line,
+                    "expression": imp.module,
+                    "is_relative": imp.is_relative,
+                    "extraction_method": "tree_sitter_ast",
+                }
+                graph.add_import_edge(
+                    module.path, target,
+                    confidence=confidence,
+                    evidence=evidence,
+                )
                 edges_added += 1
 
     return edges_added
@@ -170,7 +183,17 @@ def build_dbt_ref_edges(graph: KnowledgeGraph) -> int:
         for ref_name in module.dbt_refs:
             target = stem_to_path.get(ref_name)
             if target and target != module.path:
-                graph.add_import_edge(module.path, target, edge_type="DBT_REF")
+                graph.add_import_edge(
+                    module.path, target,
+                    edge_type="DBT_REF",
+                    confidence=1.0,
+                    evidence={
+                        "source_file": module.path,
+                        "expression": f"{{{{ ref('{ref_name}') }}}}",
+                        "extraction_method": "dbt_jinja_regex",
+                        "ref_name": ref_name,
+                    },
+                )
                 edges_added += 1
 
     return edges_added
