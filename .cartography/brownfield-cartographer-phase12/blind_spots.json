@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-03-13T10:25:03.819531Z",
+  "summary": {
+    "parse_failures": 0,
+    "grammar_missing": 0,
+    "structurally_empty_files": 1,
+    "dynamic_transformations": 4,
+    "low_confidence_datasets": 4,
+    "low_confidence_edges": 0,
+    "total_blind_spots": 9
+  },
+  "parse_failures": [],
+  "grammar_missing": [],
+  "structurally_empty_files": [
+    {
+      "file": "src/llm/prompt_builder.py",
+      "language": "python",
+      "lines": 216
+    }
+  ],
+  "dynamic_transformations": [
+    {
+      "id": "py:src/analyzers/python_dataflow.py:5",
+      "source_file": "src/analyzers/python_dataflow.py",
+      "transformation_type": "python_pandas",
+      "confidence": 0.5,
+      "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
+    },
+    {
+      "id": "py:src/analyzers/python_dataflow.py:7",
+      "source_file": "src/analyzers/python_dataflow.py",
+      "transformation_type": "python_sql_exec",
+      "confidence": 0.5,
+      "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
+    },
+    {
+      "id": "py:tests/test_phase1_phase2_rubric.py:149",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "transformation_type": "python_pandas",
+      "confidence": 0.5,
+      "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
+    },
+    {
+      "id": "py:tests/test_phase1_phase2_rubric.py:195",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "transformation_type": "python_pandas",
+      "confidence": 0.5,
+      "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
+    }
+  ],
+  "low_confidence_datasets": [
+    {
+      "name": "dynamic.pandas.src/analyzers/python_dataflow.py:5",
+      "dataset_type": "file_read",
+      "confidence": 0.5,
+      "is_source": true,
+      "is_sink": false
+    },
+    {
+      "name": "dynamic.sql_exec.src/analyzers/python_dataflow.py:7",
+      "dataset_type": "table_ref",
+      "confidence": 0.5,
+      "is_source": true,
+      "is_sink": false
+    },
+    {
+      "name": "dynamic.pandas.tests/test_phase1_phase2_rubric.py:149",
+      "dataset_type": "file_read",
+      "confidence": 0.5,
+      "is_source": true,
+      "is_sink": false
+    },
+    {
+      "name": "dynamic.pandas.tests/test_phase1_phase2_rubric.py:195",
+      "dataset_type": "file_read",
+      "confidence": 0.5,
+      "is_source": true,
+      "is_sink": false
+    }
+  ],
+  "low_confidence_edges": []
+}

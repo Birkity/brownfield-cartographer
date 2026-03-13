@@ -1,0 +1,271 @@
+{
+  "datasets": {
+    "dynamic.pandas.src/analyzers/python_dataflow.py:5": {
+      "name": "dynamic.pandas.src/analyzers/python_dataflow.py:5",
+      "storage_type": "file",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "file_read",
+      "source_file": "src/analyzers/python_dataflow.py",
+      "description": null,
+      "columns": [],
+      "confidence": 0.5,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "dynamic.sql_exec.src/analyzers/python_dataflow.py:7": {
+      "name": "dynamic.sql_exec.src/analyzers/python_dataflow.py:7",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": "src/analyzers/python_dataflow.py",
+      "description": null,
+      "columns": [],
+      "confidence": 0.5,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "data/orders.csv": {
+      "name": "data/orders.csv",
+      "storage_type": "file",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "file_read",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "dynamic.pandas.tests/test_phase1_phase2_rubric.py:149": {
+      "name": "dynamic.pandas.tests/test_phase1_phase2_rubric.py:149",
+      "storage_type": "file",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "file_read",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "description": null,
+      "columns": [],
+      "confidence": 0.5,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "out/orders.parquet": {
+      "name": "out/orders.parquet",
+      "storage_type": "file",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "file_write",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": true,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "dynamic.pandas.tests/test_phase1_phase2_rubric.py:195": {
+      "name": "dynamic.pandas.tests/test_phase1_phase2_rubric.py:195",
+      "storage_type": "file",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "file_read",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "description": null,
+      "columns": [],
+      "confidence": 0.5,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    }
+  },
+  "transformations": {
+    "py:src/analyzers/python_dataflow.py:5": {
+      "id": "py:src/analyzers/python_dataflow.py:5",
+      "transformation_type": "python_pandas",
+      "source_file": "src/analyzers/python_dataflow.py",
+      "line_range": [
+        5,
+        5
+      ],
+      "sql_query": null,
+      "source_datasets": [
+        "dynamic.pandas.src/analyzers/python_dataflow.py:5"
+      ],
+      "target_datasets": [],
+      "confidence": 0.5,
+      "is_dynamic": true
+    },
+    "py:src/analyzers/python_dataflow.py:7": {
+      "id": "py:src/analyzers/python_dataflow.py:7",
+      "transformation_type": "python_sql_exec",
+      "source_file": "src/analyzers/python_dataflow.py",
+      "line_range": [
+        7,
+        7
+      ],
+      "sql_query": null,
+      "source_datasets": [
+        "dynamic.sql_exec.src/analyzers/python_dataflow.py:7"
+      ],
+      "target_datasets": [],
+      "confidence": 0.5,
+      "is_dynamic": true
+    },
+    "py:tests/test_phase1_phase2_rubric.py:83": {
+      "id": "py:tests/test_phase1_phase2_rubric.py:83",
+      "transformation_type": "python_pandas",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "line_range": [
+        83,
+        83
+      ],
+      "sql_query": null,
+      "source_datasets": [
+        "data/orders.csv"
+      ],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "py:tests/test_phase1_phase2_rubric.py:149": {
+      "id": "py:tests/test_phase1_phase2_rubric.py:149",
+      "transformation_type": "python_pandas",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "line_range": [
+        149,
+        149
+      ],
+      "sql_query": null,
+      "source_datasets": [
+        "dynamic.pandas.tests/test_phase1_phase2_rubric.py:149"
+      ],
+      "target_datasets": [],
+      "confidence": 0.5,
+      "is_dynamic": true
+    },
+    "py:tests/test_phase1_phase2_rubric.py:150": {
+      "id": "py:tests/test_phase1_phase2_rubric.py:150",
+      "transformation_type": "python_pandas",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "line_range": [
+        150,
+        150
+      ],
+      "sql_query": null,
+      "source_datasets": [],
+      "target_datasets": [
+        "out/orders.parquet"
+      ],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "py:tests/test_phase1_phase2_rubric.py:195": {
+      "id": "py:tests/test_phase1_phase2_rubric.py:195",
+      "transformation_type": "python_pandas",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "line_range": [
+        195,
+        195
+      ],
+      "sql_query": null,
+      "source_datasets": [
+        "dynamic.pandas.tests/test_phase1_phase2_rubric.py:195"
+      ],
+      "target_datasets": [],
+      "confidence": 0.5,
+      "is_dynamic": true
+    },
+    "py:tests/test_phase1_phase2_rubric.py:196": {
+      "id": "py:tests/test_phase1_phase2_rubric.py:196",
+      "transformation_type": "python_pandas",
+      "source_file": "tests/test_phase1_phase2_rubric.py",
+      "line_range": [
+        196,
+        196
+      ],
+      "sql_query": null,
+      "source_datasets": [],
+      "target_datasets": [
+        "out/orders.parquet"
+      ],
+      "confidence": 1.0,
+      "is_dynamic": false
+    }
+  },
+  "edges": [
+    {
+      "source": "dynamic.pandas.src/analyzers/python_dataflow.py:5",
+      "target": "py:src/analyzers/python_dataflow.py:5",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {}
+    },
+    {
+      "source": "dynamic.sql_exec.src/analyzers/python_dataflow.py:7",
+      "target": "py:src/analyzers/python_dataflow.py:7",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {}
+    },
+    {
+      "source": "data/orders.csv",
+      "target": "py:tests/test_phase1_phase2_rubric.py:83",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {}
+    },
+    {
+      "source": "dynamic.pandas.tests/test_phase1_phase2_rubric.py:149",
+      "target": "py:tests/test_phase1_phase2_rubric.py:149",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {}
+    },
+    {
+      "source": "py:tests/test_phase1_phase2_rubric.py:150",
+      "target": "out/orders.parquet",
+      "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {}
+    },
+    {
+      "source": "dynamic.pandas.tests/test_phase1_phase2_rubric.py:195",
+      "target": "py:tests/test_phase1_phase2_rubric.py:195",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {}
+    },
+    {
+      "source": "py:tests/test_phase1_phase2_rubric.py:196",
+      "target": "out/orders.parquet",
+      "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {}
+    }
+  ]
+}

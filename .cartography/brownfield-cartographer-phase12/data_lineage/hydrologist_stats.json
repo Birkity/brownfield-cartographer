@@ -1,0 +1,15 @@
+{
+  "phase": "Phase 2 (Hydrologist)",
+  "is_dbt_project": false,
+  "yaml_configs_parsed": 0,
+  "sources_registered": 0,
+  "seeds_found": 0,
+  "sql_files_analyzed": 0,
+  "python_files_analyzed": 2,
+  "datasets_total": 6,
+  "transformations_total": 7,
+  "produces_edges": 2,
+  "consumes_edges": 5,
+  "dynamic_transformations": 4,
+  "elapsed_seconds": 0.98
+}

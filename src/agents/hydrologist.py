@@ -26,6 +26,7 @@ from src.analyzers.config_analyzer import (
     ConfigAnalysisResult,
     analyze_yaml_file,
 )
+from src.analyzers.notebook_utils import extract_notebook_code
 from src.analyzers.python_dataflow import analyze_python_file
 from src.analyzers.sql_lineage import SQLLineageResult, analyze_sql_file
 from src.graph.knowledge_graph import KnowledgeGraph
@@ -409,7 +410,7 @@ class Hydrologist:
         from src.analyzers.python_dataflow import PythonDataflowResult
 
         results: list[PythonDataflowResult] = []
-        py_modules = [m for m in modules if m.language == Language.PYTHON]
+        py_modules = [m for m in modules if m.language in (Language.PYTHON, Language.NOTEBOOK)]
 
         for mod in py_modules:
             abs_path = Path(mod.abs_path)
@@ -417,8 +418,14 @@ class Hydrologist:
                 continue
 
             try:
-                source_text = abs_path.read_text(encoding="utf-8", errors="replace")
+                if mod.language == Language.NOTEBOOK:
+                    source_text = extract_notebook_code(abs_path)
+                else:
+                    source_text = abs_path.read_text(encoding="utf-8", errors="replace")
             except Exception:
+                continue
+
+            if not source_text.strip():
                 continue
 
             result = analyze_python_file(source_text, mod.path)

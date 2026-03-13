@@ -43,6 +43,7 @@ _LANG_COLOURS: dict[str, str] = {
     "csharp":     "#66BB6A",
     "ruby":       "#F48FB1",
     "shell":      "#A5D6A7",
+    "notebook":   "#C792EA",
     "external":   "#546E7A",
 }
 

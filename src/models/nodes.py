@@ -13,7 +13,7 @@ Phase ownership:
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
@@ -44,6 +44,7 @@ class Language(str, Enum):
     # Scripting
     RUBY = "ruby"
     SHELL = "shell"
+    NOTEBOOK = "notebook"
     UNKNOWN = "unknown"
 
 
@@ -207,6 +208,8 @@ class ModuleNode(BaseModel):
     lines_of_code: int = 0
     complexity_score: float = 0.0
     """Approximated cyclomatic complexity (future: tree-sitter-based)."""
+    comment_ratio: float = 0.0
+    """Ratio of comment lines to non-empty lines in the file."""
 
     change_velocity_30d: int = 0
     """Number of git commits touching this file in the last 30 days."""
@@ -412,7 +415,7 @@ class TraceEntry(BaseModel):
     trust calibration when reading the Onboarding Brief.
     """
 
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     agent: str
     """Which agent produced this entry, e.g. 'Surveyor'."""
 

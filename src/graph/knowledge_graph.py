@@ -57,6 +57,7 @@ class KnowledgeGraph:
             module.path,
             language=module.language.value,
             lines_of_code=module.lines_of_code,
+            comment_ratio=module.comment_ratio,
             change_velocity_30d=module.change_velocity_30d,
             is_dead_code_candidate=module.is_dead_code_candidate,
             parse_error=module.parse_error,
@@ -227,6 +228,52 @@ class KnowledgeGraph:
     def lineage_summary(self) -> dict[str, Any]:
         from src.graph.graph_analytics import compute_lineage_summary
         return compute_lineage_summary(self._g, self._datasets, self._transformations)
+
+    def find_sources(self) -> list[str]:
+        """Return dataset nodes with no incoming PRODUCES edges."""
+        sources: list[str] = []
+        for dataset in self._datasets.values():
+            incoming_produces = any(
+                data.get("edge_type") == "PRODUCES"
+                for _, _, data in self._g.in_edges(dataset.name, data=True)
+            )
+            if not incoming_produces:
+                sources.append(dataset.name)
+        return sorted(sources)
+
+    def find_sinks(self) -> list[str]:
+        """Return dataset nodes with no outgoing CONSUMES edges."""
+        sinks: list[str] = []
+        for dataset in self._datasets.values():
+            outgoing_consumes = any(
+                data.get("edge_type") == "CONSUMES"
+                for _, _, data in self._g.out_edges(dataset.name, data=True)
+            )
+            if not outgoing_consumes:
+                sinks.append(dataset.name)
+        return sorted(sinks)
+
+    def blast_radius(self, node_id: str) -> list[str]:
+        """
+        Return all downstream lineage dependents reachable from *node_id*.
+
+        Traverses the lineage subgraph following edge direction:
+        dataset -> transformation -> dataset.
+        """
+        if not self._g.has_node(node_id):
+            return []
+
+        relevant_edges = [
+            (src, tgt)
+            for src, tgt, data in self._g.edges(data=True)
+            if data.get("edge_type") in ("PRODUCES", "CONSUMES")
+        ]
+        lineage_graph = nx.DiGraph()
+        lineage_graph.add_edges_from(relevant_edges)
+        if node_id not in lineage_graph:
+            return []
+
+        return sorted(nx.descendants(lineage_graph, node_id))
 
     # ------------------------------------------------------------------
     # Visualization (delegated to graph_viz)

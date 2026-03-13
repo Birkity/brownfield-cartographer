@@ -1,0 +1,95 @@
+{
+  "target": "c:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer",
+  "repo_root": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer",
+  "project_type": "python",
+  "files_scanned": 43,
+  "files_parsed_ok": 43,
+  "grammar_not_available": 0,
+  "parse_errors": 0,
+  "import_edges": 88,
+  "dbt_ref_edges": 0,
+  "circular_dependency_clusters": 1,
+  "dead_code_candidates": 11,
+  "top_hubs": [
+    [
+      "src/models/nodes.py",
+      0.11493518571469097
+    ],
+    [
+      "src/graph/knowledge_graph.py",
+      0.08801818283584092
+    ],
+    [
+      "src/llm/ollama_client.py",
+      0.04523004427661663
+    ],
+    [
+      "src/graph/graph_analytics.py",
+      0.03851867787539339
+    ],
+    [
+      "src/graph/graph_viz.py",
+      0.03851867787539339
+    ]
+  ],
+  "high_velocity_files": [
+    [
+      "src/cli.py",
+      11
+    ],
+    [
+      "src/orchestrator.py",
+      11
+    ],
+    [
+      "src/graph/knowledge_graph.py",
+      9
+    ],
+    [
+      "src/models/nodes.py",
+      8
+    ],
+    [
+      "src/analyzers/tree_sitter_analyzer.py",
+      5
+    ],
+    [
+      "src/graph/graph_viz.py",
+      4
+    ],
+    [
+      "src/agents/surveyor.py",
+      4
+    ],
+    [
+      "src/agents/hydrologist.py",
+      3
+    ],
+    [
+      "src/agents/semanticist.py",
+      3
+    ],
+    [
+      "src/analyzers/doc_drift_detector.py",
+      3
+    ]
+  ],
+  "pareto_core": [
+    "src/cli.py",
+    "src/orchestrator.py",
+    "src/graph/knowledge_graph.py",
+    "src/models/nodes.py",
+    "src/analyzers/tree_sitter_analyzer.py",
+    "src/graph/graph_viz.py",
+    "src/agents/surveyor.py",
+    "src/agents/hydrologist.py",
+    "src/agents/semanticist.py",
+    "src/analyzers/doc_drift_detector.py",
+    "src/analyzers/semantic_extractor.py",
+    "src/llm/prompt_builder.py",
+    "src/analyzers/sql_lineage.py",
+    "src/llm/ollama_client.py",
+    "src/analyzers/domain_clusterer.py"
+  ],
+  "elapsed_seconds": 10.82
+}

@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-03-13T10:11:59.557056Z",
+  "velocity_window_days": 30,
+  "summary": {
+    "high_velocity_files": 0,
+    "top_hubs": 5,
+    "circular_dependency_clusters": 0,
+    "files_with_parse_warnings": 0,
+    "high_fanout_transformations": 0,
+    "dynamic_hotspot_transformations": 2
+  },
+  "high_velocity_files": [],
+  "top_hubs": [
+    {
+      "node": "models/staging/stg_products.sql",
+      "pagerank_score": 0.056218,
+      "role": "staging",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    {
+      "node": "models/staging/stg_supplies.sql",
+      "pagerank_score": 0.056218,
+      "role": "staging",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    {
+      "node": "models/staging/stg_orders.sql",
+      "pagerank_score": 0.049949,
+      "role": "staging",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    {
+      "node": "models/staging/stg_locations.sql",
+      "pagerank_score": 0.047465,
+      "role": "staging",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    {
+      "node": "models/marts/order_items.sql",
+      "pagerank_score": 0.041196,
+      "role": "mart",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 1,
+      "out_degree": 4
+    }
+  ],
+  "circular_dependencies": [],
+  "parse_warnings": [],
+  "high_fanout_transformations": [],
+  "dynamic_hotspots": [
+    {
+      "id": "sql:macros/cents_to_dollars.sql",
+      "source_file": "macros/cents_to_dollars.sql",
+      "transformation_type": "dbt_model",
+      "confidence": 0.44999999999999996
+    },
+    {
+      "id": "sql:macros/generate_schema_name.sql",
+      "source_file": "macros/generate_schema_name.sql",
+      "transformation_type": "dbt_model",
+      "confidence": 0.3999999999999999
+    }
+  ]
+}
