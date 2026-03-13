@@ -29,6 +29,8 @@ class TaskType(str, Enum):
     DOMAIN_CLUSTERING = "domain_clustering"
     DOC_DRIFT_DETECTION = "doc_drift_detection"
     ONBOARDING_SYNTHESIS = "onboarding_synthesis"
+    QUERY_REASONING = "query_reasoning"
+    QUERY_SYNTHESIS = "query_synthesis"
 
 
 # Preferred model for each task type
@@ -36,9 +38,11 @@ _ROUTING_TABLE: dict[TaskType, str] = {
     TaskType.PURPOSE_EXTRACTION: "qwen3-coder:480b-cloud",
     TaskType.SQL_EXPLANATION: "qwen3-coder:480b-cloud",
     TaskType.BUSINESS_LOGIC_SCORING: "qwen3-coder:480b-cloud",
+    TaskType.QUERY_REASONING: "qwen3-coder:480b-cloud",
     TaskType.DOMAIN_CLUSTERING: "deepseek-v3.1:671b-cloud",
     TaskType.DOC_DRIFT_DETECTION: "deepseek-v3.1:671b-cloud",
     TaskType.ONBOARDING_SYNTHESIS: "deepseek-v3.1:671b-cloud",
+    TaskType.QUERY_SYNTHESIS: "deepseek-v3.1:671b-cloud",
 }
 
 # Fallback order when the preferred model is unavailable

@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-03-13T13:45:16.798625+00:00",
+  "artifact_root": ".cartography\\jaffle-shop",
+  "query_type": "blast_radius",
+  "models_used": {
+    "reasoning": "qwen3-coder:480b-cloud",
+    "synthesis": "deepseek-v3.1:671b-cloud"
+  },
+  "answer": {
+    "question": "What breaks if source.ecom.raw_orders changes?",
+    "answer": "Changes to source.ecom.raw_orders will directly break the staging model stg_orders.sql, which reads from it. This then propagates to break multiple downstream marts models: customers.sql, order_items.sql, and orders.sql, as they depend on stg_orders or other models that depend on it. Specifically, the downstream impacted models are model.customers, model.order_items, model.orders, and model.stg_orders.",
+    "confidence": 0.95,
+    "citations": [
+      {
+        "source_phase": "phase2",
+        "file_path": "models/staging/stg_orders.sql",
+        "line_start": 1,
+        "line_end": 33,
+        "extraction_method": "phase2_lineage",
+        "description": "dbt_model in models/staging/stg_orders.sql reads source.ecom.raw_orders and writes model.stg_orders for dataset `source.ecom.raw_orders`",
+        "evidence_type": "lineage"
+      },
+      {
+        "source_phase": "phase2",
+        "file_path": "models/marts/customers.sql",
+        "line_start": 1,
+        "line_end": 58,
+        "extraction_method": "phase2_lineage",
+        "description": "dbt_model in models/marts/customers.sql reads model.stg_customers, model.orders and writes model.customers for dataset `source.ecom.raw_orders`",
+        "evidence_type": "lineage"
+      },
+      {
+        "source_phase": "phase2",
+        "file_path": "models/marts/order_items.sql",
+        "line_start": 1,
+        "line_end": 66,
+        "extraction_method": "phase2_lineage",
+        "description": "dbt_model in models/marts/order_items.sql reads model.stg_order_items, model.stg_orders, model.stg_products and writes model.order_items for dataset `source.ecom.raw_orders`",
+        "evidence_type": "lineage"
+      },
+      {
+        "source_phase": "phase2",
+        "file_path": "models/marts/orders.sql",
+        "line_start": 1,
+        "line_end": 77,
+        "extraction_method": "phase2_lineage",
+        "description": "dbt_model in models/marts/orders.sql reads model.stg_orders, model.order_items and writes model.orders for dataset `source.ecom.raw_orders`",
+        "evidence_type": "lineage"
+      }
+    ]
+  }
+}

@@ -64,9 +64,12 @@ class CartographyArtifacts:
         self.module_graph_dir = output_dir / "module_graph"
         self.data_lineage_dir = output_dir / "data_lineage"
         self.semantics_dir = output_dir / "semantics"
+        self.queries_dir = output_dir / "queries"
 
         # Shared
         self.trace_jsonl = output_dir / "cartography_trace.jsonl"
+        self.codebase_md = output_dir / "CODEBASE.md"
+        self.onboarding_brief_md = output_dir / "onboarding_brief.md"
 
         # Surveyor — static code structure
         self.module_graph_json = self.module_graph_dir / "module_graph.json"
@@ -98,6 +101,7 @@ class CartographyArtifacts:
         self.module_graph_dir.mkdir(parents=True, exist_ok=True)
         self.data_lineage_dir.mkdir(parents=True, exist_ok=True)
         self.semantics_dir.mkdir(parents=True, exist_ok=True)
+        self.queries_dir.mkdir(parents=True, exist_ok=True)
 
 
 def run_phase1(
@@ -340,6 +344,24 @@ def run_phase3(
     logger.info(
         "Phase 3 complete.  Semantic artifacts written to: %s",
         artifacts.semantics_dir.resolve(),
+    )
+    return result
+
+
+def run_phase4(artifacts: CartographyArtifacts) -> "ArchivistResult":
+    """
+    Run Phase 4 (Archivist) â€” living context generation from saved artifacts.
+    """
+    from src.agents.archivist import Archivist, ArchivistResult
+
+    logger.info("=== Brownfield Cartographer â€” Phase 4 (Archivist) ===")
+
+    archivist = Archivist(artifacts.output_dir)
+    result: ArchivistResult = archivist.run()
+
+    logger.info(
+        "Phase 4 complete.  Living context written to: %s",
+        artifacts.output_dir.resolve(),
     )
     return result
 

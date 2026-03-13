@@ -11,6 +11,8 @@ from __future__ import annotations
 PURPOSE_EXTRACTION_PROMPT_VERSION = "phase3-purpose-v2"
 DOC_DRIFT_PROMPT_VERSION = "phase3-doc-drift-v2"
 DAY_ONE_SYNTHESIS_PROMPT_VERSION = "phase3-day-one-v2"
+NAVIGATOR_REASONING_PROMPT_VERSION = "phase4-reasoning-v1"
+NAVIGATOR_SYNTHESIS_PROMPT_VERSION = "phase4-synthesis-v1"
 
 # ---------------------------------------------------------------------------
 # System prompts
@@ -27,6 +29,17 @@ SYSTEM_SYNTHESIS = (
     "You are a senior data engineering consultant helping a new team member "
     "understand a brownfield codebase. Your summaries are concise, evidence-based, "
     "and cite specific files and code. Never speculate beyond what the evidence shows."
+)
+
+SYSTEM_NAVIGATOR_REASONING = (
+    "You are a repository reasoning assistant. Analyze the grounded graph and semantic "
+    "evidence provided to you, but do not invent facts or citations. Keep reasoning concise."
+)
+
+SYSTEM_NAVIGATOR_SYNTHESIS = (
+    "You answer repository questions using only grounded evidence that has already been "
+    "retrieved from analysis artifacts. Never invent files, line numbers, datasets, or "
+    "dependencies. If evidence is incomplete, say so and lower confidence."
 )
 
 # ---------------------------------------------------------------------------
@@ -246,4 +259,58 @@ Respond with ONLY a JSON array — one object per file in the SAME ORDER as inpu
     "confidence": <0.0-1.0 float>
   }}
 ]
+"""
+
+# ---------------------------------------------------------------------------
+# Phase 4 Navigator prompts
+# ---------------------------------------------------------------------------
+
+NAVIGATOR_REASONING_PROMPT = """\
+Analyze the repository question using only the grounded evidence already retrieved from the
+knowledge graph and semantic artifacts.
+
+QUESTION: {question}
+QUERY TYPE: {query_type}
+PROMPT VERSION: {prompt_version}
+
+RETRIEVED SUMMARY:
+{retrieved_summary}
+
+STRUCTURED FACTS:
+{facts_json}
+
+AVAILABLE EVIDENCE:
+{citations_json}
+
+Respond with ONLY a JSON object:
+{{
+  "analysis_summary": "<brief reasoning summary grounded in the supplied evidence>",
+  "salient_points": ["<point1>", "<point2>"],
+  "confidence": <0.0-1.0 float>
+}}
+"""
+
+NAVIGATOR_SYNTHESIS_PROMPT = """\
+Answer the repository question using only the grounded evidence supplied below.
+Do not invent or alter citations. If the evidence is incomplete, say so clearly.
+
+QUESTION: {question}
+QUERY TYPE: {query_type}
+PROMPT VERSION: {prompt_version}
+
+RETRIEVED SUMMARY:
+{retrieved_summary}
+
+STRUCTURED FACTS:
+{facts_json}
+
+AVAILABLE CITATIONS:
+{citations_json}
+
+Respond with ONLY a JSON object:
+{{
+  "question": "{question}",
+  "answer": "<grounded explanation that directly answers the question>",
+  "confidence": <0.0-1.0 float>
+}}
 """

@@ -3,9 +3,9 @@ CLI entry point for the Brownfield Cartographer.
 
 Commands:
   analyze   Run Phase 1 (Surveyor) analysis on a local path or GitHub URL.
-            Full pipeline (Phases 1-4) will be available as analysis is complete.
+            Full pipeline (Phases 1-4) runs and writes all artifacts.
 
-  query     [TODO Phase 4] Interactive Navigator query mode.
+  query     Navigator question answering from saved cartography artifacts.
 
 Usage examples:
 
@@ -33,9 +33,7 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich import print as rprint
-
-from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2, run_phase3
+from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2, run_phase3, run_phase4
 from src.utils.repo_loader import RepoLoadError
 
 console = Console(highlight=False)
@@ -148,7 +146,7 @@ def analyze(
 
     console.print(
         Panel.fit(
-            f"[bold cyan]Brownfield Cartographer[/] — Phase 1, 2 & 3\n"
+            f"[bold cyan]Brownfield Cartographer[/] — Phase 1, 2, 3 & 4\n"
             f"[dim]Target:[/] {target}\n"
             f"[dim]Output:[/] {output_path.resolve()}"
             + (f"\n[dim]Repo name:[/] {repo_name}  [dim](auto-derived)[/]" if auto_subfolder else ""),
@@ -188,8 +186,15 @@ def analyze(
         console.print(f"[bold yellow]Phase 3 warning:[/] {exc}")
         logging.exception("Phase 3 (Semanticist) failed — Phase 1/2 artifacts still available")
 
+    archivist_result = None
+    try:
+        archivist_result = run_phase4(artifacts)
+    except Exception as exc:
+        console.print(f"[bold yellow]Phase 4 warning:[/] {exc}")
+        logging.exception("Phase 4 (Archivist) failed — Phase 1/2/3 artifacts still available")
+
     # ---- Print summary --------------------------------------------------
-    _print_summary(artifacts, hydro_result, semantics_result)
+    _print_summary(artifacts, hydro_result, semantics_result, archivist_result)
 
 
 # ---------------------------------------------------------------------------
@@ -215,7 +220,7 @@ def _derive_repo_name(target: str) -> str:
     return Path(t).resolve().name or "unknown-repo"
 
 
-def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
+def _print_summary(artifacts, hydro_result=None, semantics_result=None, archivist_result=None) -> None:
     """Print a Rich-formatted summary after a successful run."""
     stats_path = artifacts.stats_json
     if not stats_path.exists():
@@ -367,6 +372,22 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
             )
         console.print(sem_table)
 
+    if archivist_result is not None:
+        console.print("\n[bold green]Phase 4 (Archivist) complete![/]\n")
+
+        phase4_table = Table(title="Archivist Overview", show_header=False, box=None)
+        phase4_table.add_column("Metric", style="dim")
+        phase4_table.add_column("Value", style="bold")
+        phase4_table.add_row("CODEBASE.md", "[green]yes[/]" if artifacts.codebase_md.exists() else "[red]no[/]")
+        phase4_table.add_row(
+            "onboarding_brief.md",
+            "[green]yes[/]" if artifacts.onboarding_brief_md.exists() else "[red]no[/]",
+        )
+        phase4_table.add_row("Query log directory", str(artifacts.queries_dir.resolve()))
+        for key, value in archivist_result.stats.items():
+            phase4_table.add_row(key.replace("_", " ").title(), str(value))
+        console.print(phase4_table)
+
     # ---- Output paths ----
     console.print("\n[bold]Artifacts written:[/]")
     artifact_names = [
@@ -393,6 +414,12 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
             "reading_order_json",
             "semantic_review_queue_json",
             "semantic_hotspots_json",
+        ])
+    if archivist_result is not None:
+        artifact_names.extend([
+            "codebase_md",
+            "onboarding_brief_md",
+            "queries_dir",
         ])
     for name in artifact_names:
         p = getattr(artifacts, name)
@@ -481,31 +508,91 @@ def lineage_summary(artifact_root: Path, node: str | None, limit: int) -> None:
 
 
 # ---------------------------------------------------------------------------
-# query command (placeholder for Phase 4 Navigator)
+# query command (Phase 4 Navigator)
 # ---------------------------------------------------------------------------
 
 
 @cli.command("query")
+@click.argument("artifact_root", type=click.Path(exists=True, path_type=Path))
+@click.argument("question", required=False)
 @click.option(
-    "--cartography-dir",
-    default=str(DEFAULT_OUTPUT_DIR),
-    show_default=True,
-    help="Path to the .cartography/ directory produced by analyze.",
+    "--json-output",
+    "json_output",
+    is_flag=True,
+    default=False,
+    help="Print the structured answer as JSON.",
 )
-def query(cartography_dir: str) -> None:
+def query(artifact_root: Path, question: str | None, json_output: bool) -> None:
     """
-    [TODO Phase 4] Interactive query interface (Navigator agent).
+    Answer repository questions from saved cartography artifacts without rescanning the repo.
+    """
+    from src.agents.archivist import Archivist
+    from src.agents.navigator import Navigator
 
-    Launches a conversational agent with four tools:
-      find_implementation(concept)
-      trace_lineage(dataset, direction)
-      blast_radius(module_path)
-      explain_module(path)
-    """
+    try:
+        resolved_root = Archivist.discover_artifact_root(artifact_root)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    navigator = Navigator(resolved_root)
+
+    def handle_question(raw_question: str) -> None:
+        result = navigator.answer_question(raw_question)
+        payload = result.response.model_dump(mode="json")
+        if json_output:
+            console.print(json.dumps(payload, indent=2, default=str))
+            return
+
+        console.print(
+            Panel.fit(
+                f"[bold cyan]Navigator Answer[/]\n[dim]Artifact:[/] {resolved_root.resolve()}\n"
+                f"[dim]Query type:[/] {result.query_type}\n"
+                f"[dim]Confidence:[/] {result.response.confidence:.2f}",
+                border_style="cyan",
+            )
+        )
+        console.print(result.response.answer)
+        if result.response.citations:
+            citation_table = Table(title="Citations", show_header=True)
+            citation_table.add_column("File", style="cyan")
+            citation_table.add_column("Lines", style="yellow")
+            citation_table.add_column("Type", style="magenta")
+            citation_table.add_column("Phase", style="green")
+            citation_table.add_column("Description", style="dim")
+            for citation in result.response.citations:
+                if citation.line_start is None and citation.line_end is None:
+                    span = "-"
+                elif citation.line_start == citation.line_end:
+                    span = str(citation.line_start)
+                else:
+                    span = f"{citation.line_start}-{citation.line_end}"
+                citation_table.add_row(
+                    citation.file_path,
+                    span,
+                    citation.evidence_type,
+                    citation.source_phase,
+                    citation.description,
+                )
+            console.print(citation_table)
+        if result.log_path:
+            console.print(f"[dim]Logged query -> {result.log_path.resolve()}[/]")
+
+    if question:
+        handle_question(question)
+        return
+
     console.print(
-        "[yellow]The Navigator query interface will be available in Phase 4.[/]\n"
-        "Run [bold]cartographer analyze[/] first to produce the knowledge graph."
+        Panel.fit(
+            f"[bold cyan]Navigator Interactive Mode[/]\n[dim]Artifact:[/] {resolved_root.resolve()}\n"
+            "[dim]Enter a blank line to exit.[/]",
+            border_style="cyan",
+        )
     )
+    while True:
+        raw_question = console.input("[bold cyan]question[/] > ").strip()
+        if not raw_question:
+            break
+        handle_question(raw_question)
 
 
 if __name__ == "__main__":
