@@ -402,6 +402,84 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
             console.print(f"  [red][--][/] {p.resolve()} (not found)")
 
 
+def _resolve_lineage_artifact(path: Path) -> Path:
+    """Accept a repo artifact dir, data_lineage dir, or direct lineage file."""
+    if path.is_file():
+        return path
+    direct = path / "lineage_graph.json"
+    if direct.exists():
+        return direct
+    nested = path / "data_lineage" / "lineage_graph.json"
+    if nested.exists():
+        return nested
+    raise click.ClickException(f"Could not find lineage_graph.json under {path}")
+
+
+def _print_lineage_summary_table(title: str, items: list[str], limit: int) -> None:
+    table = Table(title=title, show_header=True)
+    table.add_column("Node", style="cyan")
+    for item in items[:limit]:
+        table.add_row(item)
+    console.print(table)
+
+
+@cli.command("lineage-summary")
+@click.argument("artifact_root", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--node",
+    default=None,
+    help="Optional dataset/transformation id to compute blast radius for.",
+)
+@click.option(
+    "--limit",
+    default=10,
+    show_default=True,
+    help="Maximum number of nodes to display per section.",
+)
+def lineage_summary(artifact_root: Path, node: str | None, limit: int) -> None:
+    """
+    Print source, sink, and blast-radius summaries from a saved lineage artifact.
+    """
+    from src.graph.knowledge_graph import KnowledgeGraph
+
+    lineage_path = _resolve_lineage_artifact(artifact_root)
+    graph = KnowledgeGraph.load_lineage_artifact(lineage_path)
+
+    sources = graph.find_sources()
+    sinks = graph.find_sinks()
+
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Lineage Summary[/]\n[dim]Artifact:[/] {lineage_path.resolve()}",
+            border_style="cyan",
+        )
+    )
+
+    _print_lineage_summary_table("Source Datasets", sources, limit)
+    _print_lineage_summary_table("Sink Datasets", sinks, limit)
+
+    if node:
+        blast = graph.blast_radius(node)
+        title = f"Blast Radius: {node}"
+        _print_lineage_summary_table(title, blast, limit)
+        return
+
+    candidate_nodes = sources[: min(len(sources), limit)]
+    if not candidate_nodes:
+        console.print("[yellow]No lineage nodes available for blast-radius summary.[/]")
+        return
+
+    blast_table = Table(title="Blast Radius Summary", show_header=True)
+    blast_table.add_column("Node", style="cyan")
+    blast_table.add_column("Downstream dependents", justify="right")
+    blast_table.add_column("Preview", style="dim")
+    for candidate in candidate_nodes:
+        blast = graph.blast_radius(candidate)
+        preview = ", ".join(blast[:3]) if blast else "-"
+        blast_table.add_row(candidate, str(len(blast)), preview)
+    console.print(blast_table)
+
+
 # ---------------------------------------------------------------------------
 # query command (placeholder for Phase 4 Navigator)
 # ---------------------------------------------------------------------------

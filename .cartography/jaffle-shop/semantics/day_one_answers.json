@@ -3,93 +3,84 @@
   "questions": [
     {
       "question": "What does this codebase do at a high level?",
-      "answer": "This is a dbt analytics codebase that transforms e-commerce data into business-ready data marts for order analytics, customer insights, product management, and operational reporting. It processes raw order, product, customer, and supply chain data through staging models into semantic data marts with calculated metrics for financial reporting and business intelligence.",
-      "cited_files": [
-        "models/marts/order_items.yml",
-        "models/marts/orders.yml",
-        "models/staging/stg_orders.sql",
-        "models/marts/customers.yml"
-      ],
-      "citations": [
-        {
-          "source_phase": "phase3",
-          "file_path": "models/marts/order_items.yml",
-          "line_start": 43,
-          "line_end": 87,
-          "extraction_method": "phase1_symbol",
-          "description": "Defines business logic for order items including revenue calculations and item classification for analytical reporting",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase3",
-          "file_path": "models/marts/orders.yml",
-          "line_start": 1,
-          "line_end": 31,
-          "extraction_method": "phase1_symbol",
-          "description": "Defines data mart for order analytics with key order details, totals, timestamps, and item breakdowns",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase3",
-          "file_path": "models/staging/stg_orders.sql",
-          "line_start": 14,
-          "line_end": 16,
-          "extraction_method": "phase2_lineage",
-          "description": "Transforms raw e-commerce order data by renaming fields, converting cent values to dollars, and truncating timestamps",
-          "evidence_type": "semantic"
-        }
-      ],
-      "confidence": 0.95
-    },
-    {
-      "question": "What are the main data flows and where does data come from?",
-      "answer": "Data flows from raw sources through staging models to analytical marts. Source data includes: 1) e-commerce order data (orders, order items), 2) product catalog data, 3) customer data, and 4) supply chain cost data. The lineage shows 6 dbt sources and 6 seeds feeding into 15 staging models, which then transform into 15 mart models. Key flows: stg_orders \u2192 orders mart; stg_products + stg_supplies \u2192 order_items mart; stg_customers + stg_orders \u2192 customers mart.",
+      "answer": "This is a dbt (Data Build Tool) project that transforms raw e-commerce data into analytical data marts for business intelligence. It processes customer, product, order, and supply chain data to support customer relationship management, order analytics, product management, and financial reporting.",
       "cited_files": [
         "models/staging/stg_orders.sql",
-        "models/marts/order_items.sql",
-        "models/staging/stg_products.sql",
-        "models/staging/stg_supplies.sql"
+        "models/marts/orders.sql",
+        "models/marts/customers.sql",
+        "models/staging/stg_products.sql"
       ],
       "citations": [
         {
           "source_phase": "phase3",
           "file_path": "models/staging/stg_orders.sql",
           "line_start": 14,
-          "line_end": 16,
+          "line_end": 27,
           "extraction_method": "phase2_lineage",
-          "description": "Transforms raw e-commerce order data as first step in order analytics pipeline",
-          "evidence_type": "lineage"
+          "description": "Transforms raw e-commerce order data into standardized format for analytics",
+          "evidence_type": "semantic"
         },
         {
           "source_phase": "phase3",
-          "file_path": "models/marts/order_items.sql",
-          "line_start": 30,
-          "line_end": 34,
+          "file_path": "models/marts/orders.sql",
+          "line_start": 15,
+          "line_end": 40,
           "extraction_method": "phase2_lineage",
-          "description": "Joins staging tables for orders, products, and supplies to calculate total supply costs per product",
-          "evidence_type": "lineage"
+          "description": "Creates comprehensive orders mart with enriched data for business insights",
+          "evidence_type": "semantic"
         }
       ],
       "confidence": 0.9
     },
     {
-      "question": "What are the critical modules that a new engineer should understand first?",
-      "answer": "Start with these 5 core modules: 1) models/marts/order_items.yml (business logic for revenue calculations), 2) macros/cents_to_dollars.sql (financial unit conversion used throughout), 3) models/marts/orders.sql (core order mart with item aggregation), 4) models/staging/stg_orders.sql (primary staging transformation), and 5) models/marts/customers.yml (customer analytics foundation). These represent the highest PageRank modules and cover the main business domains.",
+      "question": "What are the main data flows and where does data come from?",
+      "answer": "Data flows from raw sources through staging models to analytical marts. The lineage shows 6 dbt_source datasets (raw data inputs) and 6 dbt_seed datasets (static reference data). Staging models clean and standardize data (e.g., converting cents to dollars, renaming fields), then marts enrich and aggregate this data for business reporting.",
       "cited_files": [
-        "models/marts/order_items.yml",
-        "macros/cents_to_dollars.sql",
-        "models/marts/orders.sql",
+        "lineage_summary",
         "models/staging/stg_orders.sql",
-        "models/marts/customers.yml"
+        "models/staging/stg_products.sql",
+        "macros/cents_to_dollars.sql"
       ],
       "citations": [
         {
+          "source_phase": "phase1",
+          "file_path": "lineage_summary",
+          "line_start": null,
+          "line_end": null,
+          "extraction_method": "llm_inference",
+          "description": "Shows 6 source datasets and 6 seed datasets as data inputs",
+          "evidence_type": "lineage"
+        },
+        {
           "source_phase": "phase3",
-          "file_path": "models/marts/order_items.yml",
-          "line_start": 43,
-          "line_end": 87,
-          "extraction_method": "phase1_symbol",
-          "description": "Top PageRank module defining core business logic for order items and revenue calculations",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 14,
+          "line_end": 27,
+          "extraction_method": "phase2_lineage",
+          "description": "Transforms raw order data with field renaming and unit conversion",
+          "evidence_type": "semantic"
+        }
+      ],
+      "confidence": 0.85
+    },
+    {
+      "question": "What are the critical modules that a new engineer should understand first?",
+      "answer": "Start with the core staging models (stg_orders.sql, stg_products.sql, stg_customers.yml) as they form the foundation. Then understand the key marts (orders.sql, customers.sql, order_items.sql) that drive business reporting. The cents_to_dollars.sql macro is critical for financial consistency.",
+      "cited_files": [
+        "module_purposes",
+        "macros/cents_to_dollars.sql",
+        "models/staging/stg_orders.sql",
+        "models/staging/stg_products.sql",
+        "models/marts/orders.sql"
+      ],
+      "citations": [
+        {
+          "source_phase": "phase1",
+          "file_path": "module_purposes",
+          "line_start": null,
+          "line_end": null,
+          "extraction_method": "llm_inference",
+          "description": "Top modules by PageRank include key staging and mart models",
           "evidence_type": "semantic"
         },
         {
@@ -98,7 +89,7 @@
           "line_start": 3,
           "line_end": 21,
           "extraction_method": "phase1_symbol",
-          "description": "Critical utility macro used for consistent financial reporting across all monetary values",
+          "description": "Critical for consistent financial reporting across platforms",
           "evidence_type": "semantic"
         }
       ],
@@ -106,61 +97,61 @@
     },
     {
       "question": "Where are the highest-risk areas and technical debt?",
-      "answer": "The codebase has 7 dead-code candidates (unspecified modules) representing technical debt. However, there are 0 architectural hubs, 0 circular dependencies, and 0 parse errors, indicating good structural health. The main risk areas are likely in the dead code modules that should be cleaned up. No high-risk architectural patterns were detected in the analysis.",
+      "answer": "The codebase appears well-structured with no circular dependencies or architectural hubs. The main concern is 7 dead code candidates that should be investigated for removal. No other high-risk areas or significant technical debt are evident from the provided evidence.",
       "cited_files": [
-        "EVIDENCE SUMMARY",
-        "HIGH RISK AREAS"
+        "blind_spots",
+        "high_risk_areas"
       ],
       "citations": [
         {
-          "source_phase": "phase1",
-          "file_path": "EVIDENCE SUMMARY",
+          "source_phase": "phase3",
+          "file_path": "blind_spots",
           "line_start": null,
           "line_end": null,
           "extraction_method": "llm_inference",
-          "description": "7 dead-code candidates identified but specific modules not named in evidence",
+          "description": "7 dead-code candidates identified needing investigation",
           "evidence_type": "hotspot"
         },
         {
-          "source_phase": "phase1",
-          "file_path": "HIGH RISK AREAS",
+          "source_phase": "phase3",
+          "file_path": "high_risk_areas",
           "line_start": null,
           "line_end": null,
           "extraction_method": "llm_inference",
-          "description": "0 hubs and 0 circular dependencies indicate good architectural health",
+          "description": "No hubs or circular dependencies detected",
           "evidence_type": "hotspot"
         }
       ],
-      "confidence": 0.85
+      "confidence": 0.8
     },
     {
       "question": "What are the blind spots \u2014 areas where the analysis may be incomplete?",
-      "answer": "Key blind spots: 1) 7 dead-code candidates identified but not named, 2) lineage shows 2 dynamic transformations not detailed, 3) source system configurations and connection details not visible, 4) testing coverage and data quality checks not documented, 5) deployment pipelines and environment configurations not shown, 6) specific business logic for complex calculations may need deeper inspection beyond YAML definitions.",
+      "answer": "The main blind spots are the 7 dead code candidates that require investigation. Additionally, the evidence doesn't show specific data source configurations, data quality tests, or production deployment patterns. The domain cluster analysis shows well-defined boundaries but doesn't reveal implementation details or potential data quality issues.",
       "cited_files": [
-        "BLIND SPOTS",
-        "LINEAGE SUMMARY"
+        "blind_spots",
+        "domain_clusters"
       ],
       "citations": [
         {
-          "source_phase": "phase1",
-          "file_path": "BLIND SPOTS",
+          "source_phase": "phase3",
+          "file_path": "blind_spots",
           "line_start": null,
           "line_end": null,
           "extraction_method": "llm_inference",
-          "description": "7 dead-code candidates identified but specific modules not named",
-          "evidence_type": "drift"
+          "description": "7 modules identified as dead code candidates needing validation",
+          "evidence_type": "hotspot"
         },
         {
           "source_phase": "phase2",
-          "file_path": "LINEAGE SUMMARY",
+          "file_path": "domain_clusters",
           "line_start": null,
           "line_end": null,
           "extraction_method": "llm_inference",
-          "description": "2 dynamic transformations present but not detailed in evidence",
-          "evidence_type": "drift"
+          "description": "Domain analysis shows logical grouping but lacks implementation details",
+          "evidence_type": "semantic"
         }
       ],
-      "confidence": 0.9
+      "confidence": 0.85
     }
   ]
 }

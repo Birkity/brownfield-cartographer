@@ -86,6 +86,7 @@ def _collect_blind_spots(
             and not m.classes
             and m.lines_of_code > 5
             and not m.parse_error
+            and m.role != "macro"
             and m.language.value not in ("yaml", "shell", "unknown")
         )
     ]

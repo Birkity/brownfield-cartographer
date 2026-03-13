@@ -1,84 +1,18 @@
 {
-  "generated_at": "2026-03-13T09:26:25.369328Z",
+  "generated_at": "2026-03-13T11:16:58.952568Z",
   "summary": {
     "parse_failures": 0,
     "grammar_missing": 0,
-    "structurally_empty_files": 2,
-    "dynamic_transformations": 2,
-    "low_confidence_datasets": 2,
-    "low_confidence_edges": 2,
-    "total_blind_spots": 8
+    "structurally_empty_files": 0,
+    "dynamic_transformations": 0,
+    "low_confidence_datasets": 0,
+    "low_confidence_edges": 0,
+    "total_blind_spots": 0
   },
   "parse_failures": [],
   "grammar_missing": [],
-  "structurally_empty_files": [
-    {
-      "file": "macros/cents_to_dollars.sql",
-      "language": "sql",
-      "lines": 16
-    },
-    {
-      "file": "macros/generate_schema_name.sql",
-      "language": "sql",
-      "lines": 16
-    }
-  ],
-  "dynamic_transformations": [
-    {
-      "id": "sql:macros/cents_to_dollars.sql",
-      "source_file": "macros/cents_to_dollars.sql",
-      "transformation_type": "dbt_model",
-      "confidence": 0.44999999999999996,
-      "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
-    },
-    {
-      "id": "sql:macros/generate_schema_name.sql",
-      "source_file": "macros/generate_schema_name.sql",
-      "transformation_type": "dbt_model",
-      "confidence": 0.3999999999999999,
-      "note": "Contains dynamic Jinja/SQL that could not be fully resolved"
-    }
-  ],
-  "low_confidence_datasets": [
-    {
-      "name": "model.cents_to_dollars",
-      "dataset_type": "dbt_model",
-      "confidence": 0.44999999999999996,
-      "is_source": false,
-      "is_sink": true
-    },
-    {
-      "name": "model.generate_schema_name",
-      "dataset_type": "dbt_model",
-      "confidence": 0.3999999999999999,
-      "is_source": false,
-      "is_sink": true
-    }
-  ],
-  "low_confidence_edges": [
-    {
-      "from": "sql:macros/cents_to_dollars.sql",
-      "to": "model.cents_to_dollars",
-      "edge_type": "PRODUCES",
-      "confidence": 0.44999999999999996,
-      "evidence": {
-        "source_file": "macros/cents_to_dollars.sql",
-        "extraction_method": "sqlglot_dynamic",
-        "transformation_type": "dbt_model",
-        "sql_preview": "{# A basic example for a project-wide macro to cast a column uniformly #}\n\n{% macro cents_to_dollars(column_name) -%}\n  "
-      }
-    },
-    {
-      "from": "sql:macros/generate_schema_name.sql",
-      "to": "model.generate_schema_name",
-      "edge_type": "PRODUCES",
-      "confidence": 0.3999999999999999,
-      "evidence": {
-        "source_file": "macros/generate_schema_name.sql",
-        "extraction_method": "sqlglot_dynamic",
-        "transformation_type": "dbt_model",
-        "sql_preview": "{% macro generate_schema_name(custom_schema_name, node) %}\n\n    {% set default_schema = target.schema %}\n\n    {# seeds g"
-      }
-    }
-  ]
+  "structurally_empty_files": [],
+  "dynamic_transformations": [],
+  "low_confidence_datasets": [],
+  "low_confidence_edges": []
 }

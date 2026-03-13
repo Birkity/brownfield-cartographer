@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from src.analyzers.notebook_utils import extract_notebook_code
+from src.analyzers.notebook_utils import extract_notebook_source
 from src.models.nodes import ImportInfo, Language, ModuleNode
 from src.analyzers.ts_grammar import _get_grammar, _make_parser
 from src.analyzers.ts_extractors import (
@@ -110,7 +110,7 @@ def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNod
 
     try:
         if language == Language.NOTEBOOK:
-            source = extract_notebook_code(abs_path).encode("utf-8")
+            source = extract_notebook_source(abs_path).rendered_code.encode("utf-8")
         else:
             source = abs_path.read_bytes()
     except OSError as exc:

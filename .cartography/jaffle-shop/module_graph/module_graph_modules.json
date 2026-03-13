@@ -8,6 +8,7 @@
     "classes": [],
     "lines_of_code": 14,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -21,10 +22,10 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.6,
-    "purpose_statement": "This configuration file defines pre-commit hooks for automated code quality checks and formatting. It specifies repositories and hook IDs that validate YAML files, fix whitespace issues, manage requirements files, and enforce Python code style using Ruff.",
+    "purpose_statement": "This configuration file defines pre-commit hooks that automatically validate and format code before commits are made, ensuring code quality and consistency across the repository.",
     "semantic_summary": null,
     "business_logic_score": 0.1,
-    "domain_cluster": "Development & Operations Tooling",
+    "domain_cluster": "Data Infrastructure & Governance",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -35,7 +36,23 @@
         "line_start": 1,
         "line_end": 14,
         "extraction_method": "phase1_symbol",
-        "description": "repos key with multiple hook configurations including check-yaml, end-of-file-fixer, trailing-whitespace, requirements-txt-fixer, ruff-check, and ruff-format"
+        "description": "YAML configuration defining repos and hooks for pre-commit framework"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": ".pre-commit-config.yaml",
+        "line_start": 5,
+        "line_end": 7,
+        "extraction_method": "phase1_symbol",
+        "description": "check-yaml, end-of-file-fixer, trailing-whitespace hooks for basic code hygiene"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": ".pre-commit-config.yaml",
+        "line_start": 12,
+        "line_end": 14,
+        "extraction_method": "phase1_symbol",
+        "description": "ruff-check and ruff-format hooks for Python code linting and formatting"
       },
       {
         "source_phase": "phase1",
@@ -48,7 +65,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:28:59.993927Z",
+    "semantic_generation_timestamp": "2026-03-13T11:20:51.824516Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.027778
   },
@@ -61,6 +78,7 @@
     "classes": [],
     "lines_of_code": 30,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -92,7 +110,7 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 1.0,
-    "purpose_statement": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It specifies how data models should be materialized and sets up the project structure for dbt operations.",
+    "purpose_statement": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, resource paths, and model configurations. It specifies database connection settings, directory structures, and materialization strategies for different model types.",
     "semantic_summary": null,
     "business_logic_score": 0.1,
     "domain_cluster": "Data Infrastructure & Governance",
@@ -104,9 +122,9 @@
         "source_phase": "phase3",
         "file_path": "dbt_project.yml",
         "line_start": 3,
-        "line_end": 4,
+        "line_end": 5,
         "extraction_method": "phase1_symbol",
-        "description": "name: \"jaffle_shop\" and version: \"3.0.0\" define core project identity"
+        "description": "Project metadata including name, version and required dbt version"
       },
       {
         "source_phase": "phase3",
@@ -114,7 +132,7 @@
         "line_start": 12,
         "line_end": 17,
         "extraction_method": "phase1_symbol",
-        "description": "model-paths, analysis-paths, test-paths, seed-paths, macro-paths, snapshot-paths define project directory structure"
+        "description": "Path configurations for models, analyses, tests, seeds, macros and snapshots"
       },
       {
         "source_phase": "phase3",
@@ -122,15 +140,7 @@
         "line_start": 33,
         "line_end": 38,
         "extraction_method": "phase1_symbol",
-        "description": "models section defines materialization strategies for staging (view) and marts (table)"
-      },
-      {
-        "source_phase": "phase3",
-        "file_path": "dbt_project.yml",
-        "line_start": 27,
-        "line_end": 31,
-        "extraction_method": "phase1_symbol",
-        "description": "seeds configuration with schema and conditional loading settings"
+        "description": "Model materialization configurations for staging (view) and marts (table)"
       },
       {
         "source_phase": "phase1",
@@ -159,7 +169,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:28:55.138953Z",
+    "semantic_generation_timestamp": "2026-03-13T11:19:38.999308Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.027778
   },
@@ -172,6 +182,7 @@
     "classes": [],
     "lines_of_code": 16,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0625,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": null,
@@ -183,10 +194,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Converts monetary values from cents to dollars format for consistent financial reporting across the organization.",
+    "purpose_statement": "Converts monetary values from cents to dollars format for consistent financial reporting across different database platforms.",
     "semantic_summary": null,
     "business_logic_score": 0.9,
-    "domain_cluster": "Order Analytics & Revenue",
+    "domain_cluster": "Data Infrastructure & Governance",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -197,22 +208,14 @@
         "line_start": 3,
         "line_end": 21,
         "extraction_method": "phase1_symbol",
-        "description": "Macro definition shows business logic for converting cents to dollars with database-specific implementations"
-      },
-      {
-        "source_phase": "phase2",
-        "file_path": "macros/cents_to_dollars.sql",
-        "line_start": 1,
-        "line_end": 21,
-        "extraction_method": "phase2_lineage",
-        "description": "Transformation dbt_model reads none and writes model.cents_to_dollars"
+        "description": "Macro definition shows currency conversion logic with adapter-specific implementations for different databases"
       }
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:32:26.729759Z",
+    "semantic_generation_timestamp": "2026-03-13T11:26:39.176687Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.333333
+    "hotspot_fusion_score": 0.25
   },
   "macros/generate_schema_name.sql": {
     "path": "macros/generate_schema_name.sql",
@@ -223,6 +226,7 @@
     "classes": [],
     "lines_of_code": 16,
     "complexity_score": 0.0,
+    "comment_ratio": 0.25,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": null,
@@ -234,7 +238,7 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Organizes data assets into appropriate database schemas based on resource type and environment for data governance and separation of concerns.",
+    "purpose_statement": "Defines naming conventions for database schemas to organize data assets according to environment and resource type for better data governance.",
     "semantic_summary": null,
     "business_logic_score": 0.85,
     "domain_cluster": "Data Infrastructure & Governance",
@@ -248,22 +252,14 @@
         "line_start": 1,
         "line_end": 23,
         "extraction_method": "phase1_symbol",
-        "description": "Macro implements business rules for schema naming with conditional logic for seeds, custom schemas, and production vs non-production environments"
-      },
-      {
-        "source_phase": "phase2",
-        "file_path": "macros/generate_schema_name.sql",
-        "line_start": 1,
-        "line_end": 23,
-        "extraction_method": "phase2_lineage",
-        "description": "Transformation dbt_model reads none and writes model.generate_schema_name"
+        "description": "Macro implements conditional logic for schema naming based on resource type and environment targeting"
       }
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:32:26.730249Z",
+    "semantic_generation_timestamp": "2026-03-13T11:26:39.177003Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.319444
+    "hotspot_fusion_score": 0.236111
   },
   "models/marts/customers.sql": {
     "path": "models/marts/customers.sql",
@@ -303,6 +299,7 @@
     "classes": [],
     "lines_of_code": 38,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": null,
@@ -317,10 +314,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "Creates a comprehensive customer analytics dataset that enables business insights into customer purchasing behavior, retention metrics, and lifetime value calculations for marketing and sales strategies.",
+    "purpose_statement": "Creates a comprehensive customer analytics dataset that enables customer segmentation and lifetime value analysis by aggregating order history with customer demographics.",
     "semantic_summary": null,
     "business_logic_score": 0.8,
-    "domain_cluster": "Customer Analytics & Relationship Management",
+    "domain_cluster": "Customer Relationship Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -328,10 +325,10 @@
       {
         "source_phase": "phase1",
         "file_path": "models/marts/customers.sql",
-        "line_start": 20,
+        "line_start": 17,
         "line_end": 26,
         "extraction_method": "phase1_symbol",
-        "description": "Calculates key business metrics including lifetime orders, repeat buyer status, first/last order dates, and lifetime spending"
+        "description": "Calculates lifetime metrics including spend, order count, and repeat buyer status"
       },
       {
         "source_phase": "phase2",
@@ -339,7 +336,7 @@
         "line_start": 46,
         "line_end": 49,
         "extraction_method": "phase2_lineage",
-        "description": "Classifies customers as 'returning' or 'new' for marketing segmentation strategies"
+        "description": "Segments customers into new vs returning types for marketing purposes"
       },
       {
         "source_phase": "phase2",
@@ -392,7 +389,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:02.921793Z",
+    "semantic_generation_timestamp": "2026-03-13T11:22:27.886838Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.305555
   },
@@ -405,6 +402,7 @@
     "classes": [],
     "lines_of_code": 104,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -421,10 +419,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "This file defines a customer data mart that aggregates key customer-level metrics including lifetime spending, order counts, and customer type classification. It serves as a centralized source for customer analytics and supports downstream metrics like average order value and lifetime value calculations.",
+    "purpose_statement": "This file defines a customer data mart that aggregates lifetime spending, order counts, and customer segmentation metrics. It enables downstream reporting on customer value and behavior through semantic modeling and pre-defined metrics.",
     "semantic_summary": null,
-    "business_logic_score": 0.8,
-    "domain_cluster": "Customer Analytics & Relationship Management",
+    "business_logic_score": 0.85,
+    "domain_cluster": "Customer Relationship Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -435,7 +433,7 @@
         "line_start": 1,
         "line_end": 32,
         "extraction_method": "phase1_symbol",
-        "description": "models.customers definition with columns for lifetime_spend, count_lifetime_orders, customer_type"
+        "description": "models section defines customer entity with lifetime spend and order history columns"
       },
       {
         "source_phase": "phase3",
@@ -443,7 +441,7 @@
         "line_start": 33,
         "line_end": 71,
         "extraction_method": "phase1_symbol",
-        "description": "semantic_models.customers with measures for customers, count_lifetime_orders, lifetime_spend"
+        "description": "semantic_models section defines customer grain with measures for orders and lifetime spend"
       },
       {
         "source_phase": "phase3",
@@ -451,15 +449,7 @@
         "line_start": 72,
         "line_end": 94,
         "extraction_method": "phase1_symbol",
-        "description": "metrics definitions for lifetime_spend_pretax, count_lifetime_orders, average_order_value"
-      },
-      {
-        "source_phase": "phase3",
-        "file_path": "models/marts/customers.yml",
-        "line_start": 95,
-        "line_end": 104,
-        "extraction_method": "phase1_symbol",
-        "description": "saved_queries.customer_order_metrics exporting key customer metrics"
+        "description": "metrics section defines LTV, order count, and derived average order value metrics"
       },
       {
         "source_phase": "phase1",
@@ -488,9 +478,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:29:48.102210Z",
+    "semantic_generation_timestamp": "2026-03-13T11:21:52.331171Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.222222
+    "hotspot_fusion_score": 0.236111
   },
   "models/marts/locations.sql": {
     "path": "models/marts/locations.sql",
@@ -509,6 +499,7 @@
     "classes": [],
     "lines_of_code": 5,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": null,
@@ -522,10 +513,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "Provides a centralized view of location data to support geographic analysis and site-based business operations.",
+    "purpose_statement": "Provides location data for business sites, transforming raw location information into a standardized format for reporting and analysis.",
     "semantic_summary": null,
-    "business_logic_score": 0.1,
-    "domain_cluster": "Location & Operational Analytics",
+    "business_logic_score": 0.7,
+    "domain_cluster": "Location & Tax Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.8,
@@ -536,7 +527,15 @@
         "line_start": 5,
         "line_end": 5,
         "extraction_method": "phase2_lineage",
-        "description": "SQL query selects all data from stg_locations model, indicating it's creating a mart view of location information"
+        "description": "SQL query selects all data from stg_locations reference, indicating location data transformation"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/marts/locations.sql",
+        "line_start": 1,
+        "line_end": 9,
+        "extraction_method": "heuristic",
+        "description": "Simple SELECT * transformation suggests standardization of location data for downstream use"
       },
       {
         "source_phase": "phase2",
@@ -565,9 +564,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:31:00.270607Z",
+    "semantic_generation_timestamp": "2026-03-13T11:24:41.388611Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.111111
+    "hotspot_fusion_score": 0.277778
   },
   "models/marts/locations.yml": {
     "path": "models/marts/locations.yml",
@@ -578,6 +577,7 @@
     "classes": [],
     "lines_of_code": 24,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -591,13 +591,13 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "Establishes location dimension definitions for business intelligence reporting, enabling analysis of location performance metrics and temporal trends with standardized geographic identifiers.",
+    "purpose_statement": "Establishes location-based dimensions and metrics for business intelligence reporting, particularly focusing on tax rate analysis across different locations.",
     "semantic_summary": null,
-    "business_logic_score": 0.5,
-    "domain_cluster": "Location & Operational Analytics",
+    "business_logic_score": 0.7,
+    "domain_cluster": "Location & Tax Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
-    "semantic_confidence": 0.8,
+    "semantic_confidence": 0.9,
     "semantic_evidence": [
       {
         "source_phase": "phase1",
@@ -605,7 +605,7 @@
         "line_start": 3,
         "line_end": 4,
         "extraction_method": "phase1_symbol",
-        "description": "Description states 'Location dimension table. The grain of the table is one row per location' for BI purposes"
+        "description": "Description states 'Location dimension table. The grain of the table is one row per location.'"
       },
       {
         "source_phase": "phase1",
@@ -613,7 +613,7 @@
         "line_start": 21,
         "line_end": 24,
         "extraction_method": "phase1_symbol",
-        "description": "Defines average_tax_rate measure for business performance analysis"
+        "description": "Defines average_tax_rate measure for financial analysis"
       },
       {
         "source_phase": "phase1",
@@ -626,9 +626,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:02.923191Z",
+    "semantic_generation_timestamp": "2026-03-13T11:22:27.887406Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.138889
+    "hotspot_fusion_score": 0.194444
   },
   "models/marts/metricflow_time_spine.sql": {
     "path": "models/marts/metricflow_time_spine.sql",
@@ -654,6 +654,7 @@
     "classes": [],
     "lines_of_code": 11,
     "complexity_score": 0.0,
+    "comment_ratio": 0.1818,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": null,
@@ -665,7 +666,7 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "Generates a comprehensive date dimension table to enable time-based analysis and reporting across all business metrics.",
+    "purpose_statement": "Generates a comprehensive date spine for time-series analysis and metric calculations across business reporting periods.",
     "semantic_summary": null,
     "business_logic_score": 0.6,
     "domain_cluster": "Data Infrastructure & Governance",
@@ -676,10 +677,18 @@
       {
         "source_phase": "phase1",
         "file_path": "models/marts/metricflow_time_spine.sql",
+        "line_start": 1,
+        "line_end": 1,
+        "extraction_method": "phase1_symbol",
+        "description": "filename and comment 'metricflow_time_spine.sql' indicates purpose for metric time dimension"
+      },
+      {
+        "source_phase": "phase2",
+        "file_path": "models/marts/metricflow_time_spine.sql",
         "line_start": 7,
         "line_end": 7,
-        "extraction_method": "phase1_symbol",
-        "description": "Generates base dates using dbt_date.get_base_dates for time-series analysis"
+        "extraction_method": "phase2_lineage",
+        "description": "dbt_date.get_base_dates function call with 10-year range (365*10) generates comprehensive business date range"
       },
       {
         "source_phase": "phase2",
@@ -708,7 +717,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:36.424744Z",
+    "semantic_generation_timestamp": "2026-03-13T11:23:13.311267Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.25
   },
@@ -764,6 +773,7 @@
     "classes": [],
     "lines_of_code": 36,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -780,10 +790,10 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "This model creates a comprehensive view of order items by joining staging tables for orders, products, and supplies to calculate total supply costs per product. It provides enriched order item data including product details, order timestamps, and aggregated supply chain costs for business analysis.",
+    "purpose_statement": "This mart model creates a comprehensive view of order items by joining staging tables for orders, products, and supplies to calculate total supply costs per product and enrich order item data with product details and order timestamps.",
     "semantic_summary": null,
     "business_logic_score": 0.8,
-    "domain_cluster": "Order Analytics & Revenue",
+    "domain_cluster": "Order Processing & Analytics",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -794,7 +804,7 @@
         "line_start": 30,
         "line_end": 34,
         "extraction_method": "phase2_lineage",
-        "description": "Aggregation of supply costs by product_id in order_supplies_summary CTE"
+        "description": "Aggregates supply costs by product_id in order_supplies_summary CTE"
       },
       {
         "source_phase": "phase3",
@@ -802,15 +812,15 @@
         "line_start": 43,
         "line_end": 54,
         "extraction_method": "phase2_lineage",
-        "description": "Join logic combining order items with orders, products, and supply cost data"
+        "description": "Joins multiple staging tables to create enriched order item records with product details and supply costs"
       },
       {
         "source_phase": "phase2",
         "file_path": "models/marts/order_items.sql",
-        "line_start": 48,
-        "line_end": 52,
-        "extraction_method": "phase1_symbol",
-        "description": "Selection of product attributes (product_name, product_price, is_food_item, is_drink_item) indicating business categorization"
+        "line_start": 1,
+        "line_end": 66,
+        "extraction_method": "heuristic",
+        "description": "dbt mart model pattern with multiple CTEs for data transformation"
       },
       {
         "source_phase": "phase2",
@@ -855,7 +865,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:27:48.508833Z",
+    "semantic_generation_timestamp": "2026-03-13T11:17:32.493533Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.515992
   },
@@ -868,6 +878,7 @@
     "classes": [],
     "lines_of_code": 174,
     "complexity_score": 0.0,
+    "comment_ratio": 0.023,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -885,10 +896,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "This file defines the business logic and semantic model for order items, including revenue calculations, food/drink item classification, and related metrics. It serves as a mart layer component that aggregates and structures data about individual items within customer orders for analytical reporting.",
+    "purpose_statement": "This file defines the order items mart, which contains detailed information about individual items within orders, including their revenue, cost, and categorization as food or drink items. It also includes business logic for calculating various revenue metrics and testing supply cost calculations.",
     "semantic_summary": null,
-    "business_logic_score": 0.9,
-    "domain_cluster": "Order Analytics & Revenue",
+    "business_logic_score": 0.85,
+    "domain_cluster": "Order Processing & Analytics",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -898,24 +909,24 @@
         "file_path": "models/marts/order_items.yml",
         "line_start": 43,
         "line_end": 87,
-        "extraction_method": "phase1_symbol",
-        "description": "Semantic model defining order item entities, dimensions, and measures including revenue calculations"
+        "extraction_method": "phase2_lineage",
+        "description": "semantic_models section defines order_item entity with measures for revenue, food_revenue, drink_revenue, and median_revenue"
       },
       {
         "source_phase": "phase3",
         "file_path": "models/marts/order_items.yml",
         "line_start": 88,
-        "line_end": 168,
-        "extraction_method": "phase1_symbol",
-        "description": "Metrics definitions including simple, ratio, derived, and cumulative revenue metrics"
+        "line_end": 169,
+        "extraction_method": "phase2_lineage",
+        "description": "metrics section defines various revenue metrics including simple, ratio, derived, and cumulative metrics"
       },
       {
         "source_phase": "phase3",
         "file_path": "models/marts/order_items.yml",
-        "line_start": 1,
-        "line_end": 174,
-        "extraction_method": "heuristic",
-        "description": "YAML structure defining mart-level business logic for order item analytics"
+        "line_start": 14,
+        "line_end": 42,
+        "extraction_method": "phase2_lineage",
+        "description": "unit_tests section includes test_supply_costs_sum_correctly for validating supply cost calculations"
       },
       {
         "source_phase": "phase1",
@@ -944,9 +955,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:29:40.111944Z",
+    "semantic_generation_timestamp": "2026-03-13T11:21:40.381071Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.25
+    "hotspot_fusion_score": 0.236111
   },
   "models/marts/orders.sql": {
     "path": "models/marts/orders.sql",
@@ -993,6 +1004,7 @@
     "classes": [],
     "lines_of_code": 53,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1007,10 +1019,10 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "This model creates a comprehensive orders mart by enriching staged order data with summarized item-level metrics and customer ordering sequence information. It determines order characteristics like whether an order contains food or drink items and calculates totals for cost, price, and item counts.",
+    "purpose_statement": "This model creates a comprehensive orders mart by enriching staged order data with summarized item-level metrics and customer ordering sequence information. It provides key business insights including order costs, item counts, food/drink categorization, and customer order history for downstream analytics and reporting.",
     "semantic_summary": null,
     "business_logic_score": 0.85,
-    "domain_cluster": "Order Analytics & Revenue",
+    "domain_cluster": "Order Processing & Analytics",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -1019,9 +1031,9 @@
         "source_phase": "phase3",
         "file_path": "models/marts/orders.sql",
         "line_start": 15,
-        "line_end": 39,
+        "line_end": 40,
         "extraction_method": "phase2_lineage",
-        "description": "order_items_summary CTE aggregates supply costs, product prices, and counts food/drink items per order"
+        "description": "order_items_summary CTE computes supply cost, product price, and item type counts"
       },
       {
         "source_phase": "phase3",
@@ -1029,7 +1041,7 @@
         "line_start": 42,
         "line_end": 61,
         "extraction_method": "phase2_lineage",
-        "description": "compute_booleans CTE joins orders with item summaries and derives is_food_order/is_drink_order flags"
+        "description": "compute_booleans CTE joins order data with item summaries and derives food/drink order flags"
       },
       {
         "source_phase": "phase3",
@@ -1037,7 +1049,7 @@
         "line_start": 63,
         "line_end": 75,
         "extraction_method": "phase2_lineage",
-        "description": "customer_order_count CTE adds customer_order_number using window function ordered by timestamp"
+        "description": "customer_order_count CTE calculates customer order sequence using window function"
       },
       {
         "source_phase": "phase2",
@@ -1082,7 +1094,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:27:00.572594Z",
+    "semantic_generation_timestamp": "2026-03-13T11:17:17.008458Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.491975
   },
@@ -1095,6 +1107,7 @@
     "classes": [],
     "lines_of_code": 179,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1112,10 +1125,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "This file defines a data mart for order analytics, containing key order details like totals, timestamps, and item breakdowns (food/drink). It supports downstream reporting through semantic models, metrics, and saved queries for business insights.",
+    "purpose_statement": "This file defines a data mart for order analytics, containing key order details like totals, timestamps, and item breakdowns. It supports downstream reporting through semantic models, metrics, and saved queries focused on order trends and customer behavior.",
     "semantic_summary": null,
-    "business_logic_score": 0.85,
-    "domain_cluster": "Order Analytics & Revenue",
+    "business_logic_score": 0.7,
+    "domain_cluster": "Order Processing & Analytics",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -1126,7 +1139,7 @@
         "line_start": 1,
         "line_end": 31,
         "extraction_method": "phase1_symbol",
-        "description": "Model definition with columns describing order attributes such as order_total, ordered_at, is_food_order, is_drink_order"
+        "description": "Model definition with columns such as order_total, ordered_at, is_food_order, and relationships to stg_customers"
       },
       {
         "source_phase": "phase3",
@@ -1142,7 +1155,7 @@
         "line_start": 78,
         "line_end": 122,
         "extraction_method": "phase1_symbol",
-        "description": "Semantic model defining entities and measures for order-based analytics"
+        "description": "Semantic model defining measures and dimensions for order-level analysis including revenue and item counts"
       },
       {
         "source_phase": "phase3",
@@ -1150,7 +1163,7 @@
         "line_start": 123,
         "line_end": 168,
         "extraction_method": "phase1_symbol",
-        "description": "Metrics definitions including order_total, new_customer_orders, food_orders, drink_orders"
+        "description": "Metrics definitions for order totals, new customers, large orders, and food/drink order segmentation"
       },
       {
         "source_phase": "phase3",
@@ -1158,7 +1171,7 @@
         "line_start": 169,
         "line_end": 183,
         "extraction_method": "phase1_symbol",
-        "description": "Saved query aggregating multiple metrics by time dimension for reporting purposes"
+        "description": "Saved query aggregating core order metrics by day for export and reporting purposes"
       },
       {
         "source_phase": "phase1",
@@ -1187,9 +1200,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:29:06.793532Z",
+    "semantic_generation_timestamp": "2026-03-13T11:21:26.115820Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.236111
+    "hotspot_fusion_score": 0.194444
   },
   "models/marts/products.sql": {
     "path": "models/marts/products.sql",
@@ -1208,6 +1221,7 @@
     "classes": [],
     "lines_of_code": 5,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": null,
@@ -1224,7 +1238,7 @@
     "purpose_statement": "Provides a cleaned and standardized view of product data for business reporting and analysis.",
     "semantic_summary": null,
     "business_logic_score": 0.3,
-    "domain_cluster": "Product & Supply Chain Management",
+    "domain_cluster": "Product & Menu Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.8,
@@ -1235,7 +1249,7 @@
         "line_start": 5,
         "line_end": 5,
         "extraction_method": "phase2_lineage",
-        "description": "Selects all fields from stg_products without transformation, indicating minimal business logic"
+        "description": "Selects all columns from stg_products, indicating this is a pass-through mart model for product data"
       },
       {
         "source_phase": "phase2",
@@ -1264,7 +1278,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:32:00.277017Z",
+    "semantic_generation_timestamp": "2026-03-13T11:26:25.518871Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.166666
   },
@@ -1277,6 +1291,7 @@
     "classes": [],
     "lines_of_code": 26,
     "complexity_score": 0.0,
+    "comment_ratio": 0.1538,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1290,12 +1305,12 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "Defines product dimension metadata to support business intelligence reporting and analysis by categorizing products and enabling metric calculations across product types and pricing.",
+    "purpose_statement": "Defines the product dimension for semantic modeling, enabling consistent product categorization and pricing analysis across business metrics.",
     "semantic_summary": null,
-    "business_logic_score": 0.4,
-    "domain_cluster": "Product & Supply Chain Management",
-    "doc_drift_detected": false,
-    "doc_drift_level": "no_drift",
+    "business_logic_score": 0.6,
+    "domain_cluster": "Product & Menu Management",
+    "doc_drift_detected": true,
+    "doc_drift_level": "likely_drift",
     "semantic_confidence": 0.85,
     "semantic_evidence": [
       {
@@ -1304,7 +1319,7 @@
         "line_start": 4,
         "line_end": 5,
         "extraction_method": "phase1_symbol",
-        "description": "Description states 'Product dimension table. The grain of the table is one row per product' indicating dimensional modeling for BI"
+        "description": "Description states 'Product dimension table. The grain of the table is one row per product.'"
       },
       {
         "source_phase": "phase1",
@@ -1312,7 +1327,7 @@
         "line_start": 13,
         "line_end": 26,
         "extraction_method": "phase1_symbol",
-        "description": "Defines categorical dimensions like product_name, product_type, and product_price for business analysis"
+        "description": "Defines product attributes like type, category, and price for analytical context"
       },
       {
         "source_phase": "phase1",
@@ -1325,9 +1340,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:02.922349Z",
+    "semantic_generation_timestamp": "2026-03-13T11:22:27.887133Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.111111
+    "hotspot_fusion_score": 0.166667
   },
   "models/marts/supplies.sql": {
     "path": "models/marts/supplies.sql",
@@ -1346,6 +1361,7 @@
     "classes": [],
     "lines_of_code": 5,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": true,
     "last_modified": null,
@@ -1359,10 +1375,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "Delivers supply chain data in a format suitable for operational reporting and inventory management.",
+    "purpose_statement": "Delivers a unified view of supply chain data to support inventory and supplier management decisions.",
     "semantic_summary": null,
     "business_logic_score": 0.3,
-    "domain_cluster": "Product & Supply Chain Management",
+    "domain_cluster": "Product & Menu Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.8,
@@ -1373,7 +1389,7 @@
         "line_start": 5,
         "line_end": 5,
         "extraction_method": "phase2_lineage",
-        "description": "Selects all fields from stg_supplies without transformation, indicating minimal business logic"
+        "description": "Selects all columns from stg_supplies, indicating this is a pass-through mart model for supply data"
       },
       {
         "source_phase": "phase2",
@@ -1402,7 +1418,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:32:00.277518Z",
+    "semantic_generation_timestamp": "2026-03-13T11:26:25.519243Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.166666
   },
@@ -1415,6 +1431,7 @@
     "classes": [],
     "lines_of_code": 24,
     "complexity_score": 0.0,
+    "comment_ratio": 0.1667,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1428,10 +1445,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.85,
-    "purpose_statement": "Defines the supplies semantic model to enable business users to analyze supply chain metrics by joining supply and product information.",
+    "purpose_statement": "Defines the supplies semantic model to enable business metrics analysis by supply characteristics like cost and perishability.",
     "semantic_summary": null,
     "business_logic_score": 0.8,
-    "domain_cluster": "Product & Supply Chain Management",
+    "domain_cluster": "Product & Menu Management",
     "doc_drift_detected": true,
     "doc_drift_level": "likely_drift",
     "semantic_confidence": 0.9,
@@ -1442,7 +1459,15 @@
         "line_start": 5,
         "line_end": 5,
         "extraction_method": "phase1_symbol",
-        "description": "Description states 'Supplies dimension table. The grain of the table is one row per supply and product combination.'"
+        "description": "description: 'Supplies dimension table. The grain of the table is one row per supply and product combination.'"
+      },
+      {
+        "source_phase": "phase1",
+        "file_path": "models/marts/supplies.yml",
+        "line_start": 19,
+        "line_end": 24,
+        "extraction_method": "phase1_symbol",
+        "description": "dimensions including supply_name, supply_cost, is_perishable_supply indicate business categorization and costing analysis"
       },
       {
         "source_phase": "phase1",
@@ -1455,7 +1480,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:36.419646Z",
+    "semantic_generation_timestamp": "2026-03-13T11:23:13.310330Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.222222
   },
@@ -1468,6 +1493,7 @@
     "classes": [],
     "lines_of_code": 19,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1482,7 +1508,7 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.9,
-    "purpose_statement": "Configures source data definitions and metadata for the e-commerce system's raw data tables.",
+    "purpose_statement": "Configures the connection to raw e-commerce data sources to enable downstream data transformation and analysis.",
     "semantic_summary": null,
     "business_logic_score": 0.2,
     "domain_cluster": "Data Infrastructure & Governance",
@@ -1496,7 +1522,7 @@
         "line_start": 3,
         "line_end": 20,
         "extraction_method": "phase1_symbol",
-        "description": "Defines YAML source configurations including raw_customers, raw_orders, raw_items, raw_stores, raw_products, and raw_supplies with descriptions"
+        "description": "Defines sources configuration including ecom schema with tables for customers, orders, items, stores, products, and supplies"
       },
       {
         "source_phase": "phase1",
@@ -1517,7 +1543,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:32:00.279124Z",
+    "semantic_generation_timestamp": "2026-03-13T11:26:25.519880Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.055556
   },
@@ -1545,6 +1571,7 @@
     "classes": [],
     "lines_of_code": 13,
     "complexity_score": 0.0,
+    "comment_ratio": 0.1538,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1556,29 +1583,21 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "This staging model transforms raw customer data by renaming fields to establish consistent business identifiers and terminology for downstream analytics use.",
+    "purpose_statement": "This staging model transforms raw customer data by renaming fields to standardized column names. It selects customer identifiers and names from the source system for downstream consumption.",
     "semantic_summary": null,
     "business_logic_score": 0.3,
-    "domain_cluster": "Customer Analytics & Relationship Management",
+    "domain_cluster": "Customer Relationship Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
-    "semantic_confidence": 0.9,
+    "semantic_confidence": 0.95,
     "semantic_evidence": [
       {
         "source_phase": "phase3",
         "file_path": "models/staging/stg_customers.sql",
         "line_start": 14,
         "line_end": 17,
-        "extraction_method": "phase3-purpose-v2",
-        "description": "id renamed to customer_id and name renamed to customer_name in SELECT clause"
-      },
-      {
-        "source_phase": "phase3",
-        "file_path": "models/staging/stg_customers.sql",
-        "line_start": 5,
-        "line_end": 5,
-        "extraction_method": "phase3-purpose-v2",
-        "description": "Source reference to ecom.raw_customers indicates input dataset"
+        "extraction_method": "phase2_lineage",
+        "description": "id as customer_id, name as customer_name"
       },
       {
         "source_phase": "phase2",
@@ -1607,7 +1626,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:28:30.256548Z",
+    "semantic_generation_timestamp": "2026-03-13T11:18:50.882350Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.339197
   },
@@ -1620,6 +1639,7 @@
     "classes": [],
     "lines_of_code": 9,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1633,13 +1653,13 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Maintains cleaned customer master data to support customer relationship management and sales analytics.",
+    "purpose_statement": "Maintains cleaned customer information for business relationship management, with each row representing a unique customer.",
     "semantic_summary": null,
-    "business_logic_score": 0.2,
-    "domain_cluster": "Customer Analytics & Relationship Management",
+    "business_logic_score": 0.9,
+    "domain_cluster": "Customer Relationship Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
-    "semantic_confidence": 0.9,
+    "semantic_confidence": 0.95,
     "semantic_evidence": [
       {
         "source_phase": "phase1",
@@ -1660,9 +1680,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:31:00.268646Z",
+    "semantic_generation_timestamp": "2026-03-13T11:24:41.388164Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.055556
+    "hotspot_fusion_score": 0.25
   },
   "models/staging/stg_locations.sql": {
     "path": "models/staging/stg_locations.sql",
@@ -1688,6 +1708,7 @@
     "classes": [],
     "lines_of_code": 17,
     "complexity_score": 0.0,
+    "comment_ratio": 0.2353,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1699,10 +1720,10 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "This staging model transforms raw store data into a standardized format by renaming columns and extracting date components. It serves as an intermediate layer between raw e-commerce store data and downstream analytics models.",
+    "purpose_statement": "This staging model transforms raw store data into a standardized format by renaming fields and extracting date components. It serves as an intermediate layer between raw e-commerce store data and downstream analytics models.",
     "semantic_summary": null,
     "business_logic_score": 0.3,
-    "domain_cluster": "Location & Operational Analytics",
+    "domain_cluster": "Location & Tax Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.9,
@@ -1712,8 +1733,8 @@
         "file_path": "models/staging/stg_locations.sql",
         "line_start": 14,
         "line_end": 23,
-        "extraction_method": "phase2_lineage",
-        "description": "Column renaming operations: id\u2192location_id, name\u2192location_name, tax_rate, and date truncation of opened_at"
+        "extraction_method": "phase1_symbol",
+        "description": "Field renaming operations: id\u2192location_id, name\u2192location_name, and timestamp truncation for opened_date"
       },
       {
         "source_phase": "phase3",
@@ -1750,9 +1771,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:28:25.866772Z",
+    "semantic_generation_timestamp": "2026-03-13T11:18:44.289795Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.428394
+    "hotspot_fusion_score": 0.428395
   },
   "models/staging/stg_locations.yml": {
     "path": "models/staging/stg_locations.yml",
@@ -1763,6 +1784,7 @@
     "classes": [],
     "lines_of_code": 42,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1777,10 +1799,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Provides a cleaned and standardized list of open locations for business reporting and analysis, ensuring each location has a unique identifier and properly formatted opening date.",
+    "purpose_statement": "Provides a cleaned and standardized list of open locations for downstream analytics, ensuring each location is uniquely identified and properly formatted.",
     "semantic_summary": null,
     "business_logic_score": 0.3,
-    "domain_cluster": "Location & Operational Analytics",
+    "domain_cluster": "Location & Tax Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.9,
@@ -1791,7 +1813,7 @@
         "line_start": 3,
         "line_end": 3,
         "extraction_method": "phase1_symbol",
-        "description": "Description states 'List of open locations with basic cleaning and transformation applied, one row per location'"
+        "description": "Description states 'List of open locations with basic cleaning and transformation applied'"
       },
       {
         "source_phase": "phase2",
@@ -1799,7 +1821,7 @@
         "line_start": 13,
         "line_end": 13,
         "extraction_method": "phase2_lineage",
-        "description": "Unit test validates proper truncation of opened_at timestamp to date format for business reporting"
+        "description": "Unit test confirms transformation of opened_at to opened_date for analytical use"
       },
       {
         "source_phase": "phase1",
@@ -1820,7 +1842,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:02.921063Z",
+    "semantic_generation_timestamp": "2026-03-13T11:22:27.886451Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.083333
   },
@@ -1848,6 +1870,7 @@
     "classes": [],
     "lines_of_code": 13,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0769,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1859,12 +1882,12 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "This staging model transforms raw e-commerce item data into a standardized format by renaming and selecting key fields such as order item ID, order ID, and product ID. It serves as an intermediate layer between raw data ingestion and downstream analytics or modeling.",
+    "purpose_statement": "This staging model transforms raw e-commerce item data into a standardized format by renaming and selecting key fields such as order item ID, order ID, and product ID.",
     "semantic_summary": null,
     "business_logic_score": 0.3,
-    "domain_cluster": "Order Analytics & Revenue",
-    "doc_drift_detected": true,
-    "doc_drift_level": "likely_drift",
+    "domain_cluster": "Order Processing & Analytics",
+    "doc_drift_detected": false,
+    "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
     "semantic_evidence": [
       {
@@ -1872,7 +1895,7 @@
         "file_path": "models/staging/stg_order_items.sql",
         "line_start": 14,
         "line_end": 16,
-        "extraction_method": "phase2_lineage",
+        "extraction_method": "phase3-purpose-v2",
         "description": "Field renaming logic mapping 'id' to 'order_item_id', 'sku' to 'product_id'"
       },
       {
@@ -1880,7 +1903,7 @@
         "file_path": "models/staging/stg_order_items.sql",
         "line_start": 5,
         "line_end": 5,
-        "extraction_method": "phase1_symbol",
+        "extraction_method": "phase3-purpose-v2",
         "description": "Source reference to 'ecom.raw_items' indicates input dataset"
       },
       {
@@ -1910,9 +1933,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:28:39.545809Z",
+    "semantic_generation_timestamp": "2026-03-13T11:19:04.196872Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.321606
+    "hotspot_fusion_score": 0.321605
   },
   "models/staging/stg_order_items.yml": {
     "path": "models/staging/stg_order_items.yml",
@@ -1923,6 +1946,7 @@
     "classes": [],
     "lines_of_code": 16,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -1936,10 +1960,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Provides cleaned and validated individual food and drink item data from orders to support detailed order analysis and revenue tracking.",
+    "purpose_statement": "Provides cleaned and validated individual food and drink item data to support order-level business analysis and reporting.",
     "semantic_summary": null,
     "business_logic_score": 0.7,
-    "domain_cluster": "Order Analytics & Revenue",
+    "domain_cluster": "Order Processing & Analytics",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.9,
@@ -1950,7 +1974,15 @@
         "line_start": 3,
         "line_end": 3,
         "extraction_method": "phase1_symbol",
-        "description": "Description states 'Individual food and drink items that make up our orders, one row per item.'"
+        "description": "description: 'Individual food and drink items that make up our orders, one row per item.'"
+      },
+      {
+        "source_phase": "phase1",
+        "file_path": "models/staging/stg_order_items.yml",
+        "line_start": 10,
+        "line_end": 11,
+        "extraction_method": "phase1_symbol",
+        "description": "column order_id described as 'The corresponding order each order item belongs to' showing relationship to order business entity"
       },
       {
         "source_phase": "phase1",
@@ -1963,7 +1995,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:36.420688Z",
+    "semantic_generation_timestamp": "2026-03-13T11:23:13.310650Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.194444
   },
@@ -1991,6 +2023,7 @@
     "classes": [],
     "lines_of_code": 22,
     "complexity_score": 0.0,
+    "comment_ratio": 0.1364,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2002,10 +2035,10 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity for downstream analytics use.",
+    "purpose_statement": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity. It serves as a standardized intermediate layer for downstream analytics and reporting on order transactions.",
     "semantic_summary": null,
     "business_logic_score": 0.7,
-    "domain_cluster": "Order Analytics & Revenue",
+    "domain_cluster": "Order Processing & Analytics",
     "doc_drift_detected": true,
     "doc_drift_level": "likely_drift",
     "semantic_confidence": 0.95,
@@ -2014,17 +2047,9 @@
         "source_phase": "phase3",
         "file_path": "models/staging/stg_orders.sql",
         "line_start": 14,
-        "line_end": 16,
+        "line_end": 27,
         "extraction_method": "phase2_lineage",
-        "description": "Field renaming: id \u2192 order_id, store_id \u2192 location_id, customer \u2192 customer_id"
-      },
-      {
-        "source_phase": "phase3",
-        "file_path": "models/staging/stg_orders.sql",
-        "line_start": 19,
-        "line_end": 24,
-        "extraction_method": "phase2_lineage",
-        "description": "Currency conversion from cents to dollars using cents_to_dollars macro"
+        "description": "Field renaming (id\u2192order_id, store_id\u2192location_id, customer\u2192customer_id) and currency conversion using {{ cents_to_dollars() }} macro"
       },
       {
         "source_phase": "phase3",
@@ -2032,7 +2057,7 @@
         "line_start": 27,
         "line_end": 27,
         "extraction_method": "phase2_lineage",
-        "description": "Timestamp truncation using dbt.date_trunc('day','ordered_at')"
+        "description": "Timestamp truncation using {{ dbt.date_trunc('day','ordered_at') }}"
       },
       {
         "source_phase": "phase2",
@@ -2061,9 +2086,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:27:53.739471Z",
+    "semantic_generation_timestamp": "2026-03-13T11:17:41.982850Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.643154
+    "hotspot_fusion_score": 0.643153
   },
   "models/staging/stg_orders.yml": {
     "path": "models/staging/stg_orders.yml",
@@ -2074,6 +2099,7 @@
     "classes": [],
     "lines_of_code": 12,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2087,13 +2113,13 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Maintains clean and validated order-level data with financial calculations to ensure data integrity for business reporting and analytics.",
+    "purpose_statement": "Maintains clean and validated order transaction data with financial consistency checks for accurate business reporting.",
     "semantic_summary": null,
-    "business_logic_score": 0.75,
-    "domain_cluster": "Order Analytics & Revenue",
+    "business_logic_score": 0.8,
+    "domain_cluster": "Order Processing & Analytics",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
-    "semantic_confidence": 0.95,
+    "semantic_confidence": 0.9,
     "semantic_evidence": [
       {
         "source_phase": "phase1",
@@ -2101,7 +2127,7 @@
         "line_start": 3,
         "line_end": 3,
         "extraction_method": "phase1_symbol",
-        "description": "Description states 'Order data with basic cleaning and transformation applied, one row per order.'"
+        "description": "description: 'Order data with basic cleaning and transformation applied, one row per order.'"
       },
       {
         "source_phase": "phase1",
@@ -2109,7 +2135,7 @@
         "line_start": 5,
         "line_end": 6,
         "extraction_method": "phase1_symbol",
-        "description": "Data test validates financial calculation: 'order_total - tax_paid = subtotal'"
+        "description": "data_tests includes expression validation ensuring 'order_total - tax_paid = subtotal' for financial accuracy"
       },
       {
         "source_phase": "phase1",
@@ -2122,9 +2148,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:30:36.423655Z",
+    "semantic_generation_timestamp": "2026-03-13T11:23:13.310962Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.208333
+    "hotspot_fusion_score": 0.222222
   },
   "models/staging/stg_products.sql": {
     "path": "models/staging/stg_products.sql",
@@ -2150,6 +2176,7 @@
     "classes": [],
     "lines_of_code": 20,
     "complexity_score": 0.0,
+    "comment_ratio": 0.2,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2161,10 +2188,10 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "This staging model transforms raw product data from the e-commerce system into a standardized format suitable for analytics. It cleans and renames fields, converts price units from cents to dollars, and adds boolean flags to classify products as food or drink items.",
+    "purpose_statement": "This staging model transforms raw product data from the e-commerce system into a standardized format suitable for analytics. It cleans and renames fields, converts price units from cents to dollars, and adds boolean flags to categorize products as food or drink items.",
     "semantic_summary": null,
     "business_logic_score": 0.7,
-    "domain_cluster": "Product & Supply Chain Management",
+    "domain_cluster": "Product & Menu Management",
     "doc_drift_detected": true,
     "doc_drift_level": "likely_drift",
     "semantic_confidence": 0.95,
@@ -2174,16 +2201,8 @@
         "file_path": "models/staging/stg_products.sql",
         "line_start": 14,
         "line_end": 28,
-        "extraction_method": "phase3-purpose-v2",
-        "description": "Field renaming (sku\u2192product_id, name\u2192product_name), price conversion with cents_to_dollars macro, and boolean logic for food/drink classification"
-      },
-      {
-        "source_phase": "phase2",
-        "file_path": "models/staging/stg_products.sql",
-        "line_start": 5,
-        "line_end": 5,
-        "extraction_method": "phase1_symbol",
-        "description": "Source reference to ecom.raw_products indicates input dataset"
+        "extraction_method": "phase2_lineage",
+        "description": "Field renaming (sku\u2192product_id, name\u2192product_name), price conversion via {{ cents_to_dollars('price') }}, and boolean logic for is_food_item/is_drink_item"
       },
       {
         "source_phase": "phase2",
@@ -2212,7 +2231,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:28:04.169262Z",
+    "semantic_generation_timestamp": "2026-03-13T11:18:13.746736Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.694445
   },
@@ -2225,6 +2244,7 @@
     "classes": [],
     "lines_of_code": 9,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2238,13 +2258,13 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Manages standardized product information for food and beverage items to enable consistent sales and inventory reporting.",
+    "purpose_statement": "Manages product information for food and drink items available for ordering, with each row representing a unique product.",
     "semantic_summary": null,
-    "business_logic_score": 0.2,
-    "domain_cluster": "Product & Supply Chain Management",
+    "business_logic_score": 0.9,
+    "domain_cluster": "Product & Menu Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
-    "semantic_confidence": 0.9,
+    "semantic_confidence": 0.95,
     "semantic_evidence": [
       {
         "source_phase": "phase1",
@@ -2265,9 +2285,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:31:00.269648Z",
+    "semantic_generation_timestamp": "2026-03-13T11:24:41.388371Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.055556
+    "hotspot_fusion_score": 0.25
   },
   "models/staging/stg_supplies.sql": {
     "path": "models/staging/stg_supplies.sql",
@@ -2293,6 +2313,7 @@
     "classes": [],
     "lines_of_code": 19,
     "complexity_score": 0.0,
+    "comment_ratio": 0.2105,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2304,10 +2325,10 @@
     "is_hub": true,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "This staging model transforms raw supply data from the ecom source into a standardized format for downstream analytics. It cleans and renames fields, generates a surrogate key, and converts cost values to dollars.",
+    "purpose_statement": "This staging model transforms raw supply data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields, generates surrogate keys, and converts cost values from cents to dollars while preserving all original supply information.",
     "semantic_summary": null,
-    "business_logic_score": 0.6,
-    "domain_cluster": "Product & Supply Chain Management",
+    "business_logic_score": 0.3,
+    "domain_cluster": "Product & Menu Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.95,
@@ -2317,24 +2338,24 @@
         "file_path": "models/staging/stg_supplies.sql",
         "line_start": 14,
         "line_end": 14,
-        "extraction_method": "phase2_lineage",
-        "description": "{{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid"
+        "extraction_method": "phase3",
+        "description": "dbt_utils.generate_surrogate_key(['id', 'sku']) creates supply_uuid"
       },
       {
         "source_phase": "phase3",
         "file_path": "models/staging/stg_supplies.sql",
         "line_start": 22,
         "line_end": 22,
-        "extraction_method": "phase2_lineage",
-        "description": "{{ cents_to_dollars('cost') }} as supply_cost"
+        "extraction_method": "phase3",
+        "description": "cents_to_dollars('cost') converts cost values"
       },
       {
         "source_phase": "phase3",
         "file_path": "models/staging/stg_supplies.sql",
         "line_start": 5,
         "line_end": 5,
-        "extraction_method": "phase1_symbol",
-        "description": "select * from {{ source('ecom', 'raw_supplies') }}"
+        "extraction_method": "phase3",
+        "description": "source('ecom', 'raw_supplies') references raw supply data"
       },
       {
         "source_phase": "phase2",
@@ -2363,9 +2384,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:28:15.831005Z",
+    "semantic_generation_timestamp": "2026-03-13T11:18:28.404733Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.666667
+    "hotspot_fusion_score": 0.583333
   },
   "models/staging/stg_supplies.yml": {
     "path": "models/staging/stg_supplies.yml",
@@ -2376,6 +2397,7 @@
     "classes": [],
     "lines_of_code": 11,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2389,10 +2411,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.95,
-    "purpose_statement": "Tracks supply expenses with detailed cost history, enabling financial analysis of procurement spending over time.",
+    "purpose_statement": "Tracks supply expense costs for business operations, with each row representing a supply cost entry that may change over time.",
     "semantic_summary": null,
-    "business_logic_score": 0.3,
-    "domain_cluster": "Product & Supply Chain Management",
+    "business_logic_score": 0.8,
+    "domain_cluster": "Product & Menu Management",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.9,
@@ -2403,7 +2425,7 @@
         "line_start": 4,
         "line_end": 6,
         "extraction_method": "phase1_symbol",
-        "description": "Description states 'List of our supply expenses data with basic cleaning and transformation applied' and explains cost fluctuation tracking"
+        "description": "Description states 'List of our supply expenses data with basic cleaning and transformation applied' and explains supply costs fluctuate over time"
       },
       {
         "source_phase": "phase1",
@@ -2416,9 +2438,9 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:31:00.267810Z",
+    "semantic_generation_timestamp": "2026-03-13T11:24:41.387920Z",
     "semantic_fallback_used": false,
-    "hotspot_fusion_score": 0.083333
+    "hotspot_fusion_score": 0.222222
   },
   "package-lock.yml": {
     "path": "package-lock.yml",
@@ -2429,6 +2451,7 @@
     "classes": [],
     "lines_of_code": 8,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2466,6 +2489,7 @@
     "classes": [],
     "lines_of_code": 7,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2502,6 +2526,7 @@
     "classes": [],
     "lines_of_code": 32,
     "complexity_score": 0.0,
+    "comment_ratio": 0.0,
     "change_velocity_30d": 0,
     "is_dead_code_candidate": false,
     "last_modified": null,
@@ -2526,10 +2551,10 @@
     "is_hub": false,
     "in_cycle": false,
     "classification_confidence": 0.6,
-    "purpose_statement": "Defines automated workflows for environment setup, data generation, and database loading operations.",
+    "purpose_statement": "Defines automated workflows for environment setup, data generation, and database operations to streamline development processes.",
     "semantic_summary": null,
     "business_logic_score": 0.1,
-    "domain_cluster": "Development & Operations Tooling",
+    "domain_cluster": "Data Infrastructure & Governance",
     "doc_drift_detected": false,
     "doc_drift_level": "no_drift",
     "semantic_confidence": 0.9,
@@ -2540,7 +2565,7 @@
         "line_start": 9,
         "line_end": 40,
         "extraction_method": "phase1_symbol",
-        "description": "Contains YAML-defined tasks for venv creation, package installation, data generation, seeding, and cleanup"
+        "description": "Contains task definitions for venv creation, package installation, data generation (gen), database seeding (seed), and cleanup operations"
       },
       {
         "source_phase": "phase1",
@@ -2569,7 +2594,7 @@
     ],
     "semantic_model_used": "qwen3-coder:480b-cloud",
     "semantic_prompt_version": "phase3-purpose-v2",
-    "semantic_generation_timestamp": "2026-03-13T09:32:00.278623Z",
+    "semantic_generation_timestamp": "2026-03-13T11:26:25.519572Z",
     "semantic_fallback_used": false,
     "hotspot_fusion_score": 0.027778
   }

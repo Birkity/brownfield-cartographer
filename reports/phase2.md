@@ -222,6 +222,16 @@ A fully metric-based JSON replacing the previous `.md` files. Every section has 
 
 ---
 
+## March 13, 2026 Update
+
+- dbt macros are now excluded from the executable lineage DAG instead of being emitted as low-confidence pseudo-transformations.
+- The current jaffle-shop run produces `sql_files_analyzed = 13`, `macro_sql_files_skipped = 2`, `datasets_total = 25`, `transformations_total = 13`, and `dynamic_transformations = 0`.
+- `blind_spots.json` now reports zero items across all categories on jaffle-shop because macro utility files no longer create artificial unresolved lineage.
+- Python dataflow detection now uses tree-sitter-based structural call analysis first, with regex fallback only for graceful degradation.
+- Notebook support is now cell-aware: code cells are reconstructed into parser-safe source, notebook magics are commented safely, and line-based dataflow detections are preserved in reconstructed notebook order.
+- `KnowledgeGraph.find_sources()`, `find_sinks()`, and `blast_radius()` are now surfaced both in tests and through the CLI summary view.
+- The CLI now includes `cartographer lineage-summary <artifact-root> [--node ...]` to print sources, sinks, and blast radius directly from saved lineage artifacts.
+
 ## High-Risk Areas Report (`high_risk_areas.json`)
 
 Metric-based JSON replacing the previous `.md`. All six risk dimensions are machine-queryable.

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-13T09:26:25.370675Z",
+  "generated_at": "2026-03-13T11:16:58.953524Z",
   "velocity_window_days": 30,
   "summary": {
     "high_velocity_files": 0,
@@ -7,7 +7,7 @@
     "circular_dependency_clusters": 0,
     "files_with_parse_warnings": 0,
     "high_fanout_transformations": 0,
-    "dynamic_hotspot_transformations": 2
+    "dynamic_hotspot_transformations": 0
   },
   "high_velocity_files": [],
   "top_hubs": [
@@ -60,18 +60,5 @@
   "circular_dependencies": [],
   "parse_warnings": [],
   "high_fanout_transformations": [],
-  "dynamic_hotspots": [
-    {
-      "id": "sql:macros/cents_to_dollars.sql",
-      "source_file": "macros/cents_to_dollars.sql",
-      "transformation_type": "dbt_model",
-      "confidence": 0.44999999999999996
-    },
-    {
-      "id": "sql:macros/generate_schema_name.sql",
-      "source_file": "macros/generate_schema_name.sql",
-      "transformation_type": "dbt_model",
-      "confidence": 0.3999999999999999
-    }
-  ]
+  "dynamic_hotspots": []
 }

@@ -181,6 +181,13 @@ Three concentric overlay rings mark special structural properties:
 
 ---
 
+## March 13, 2026 Update
+
+- Phase 1 still parses all 33 jaffle-shop files with 0 grammar-missing files and 0 real parse errors.
+- `comment_ratio` is now populated on `ModuleNode` records, including reconstructed notebook modules when `.ipynb` files are present.
+- Notebooks are routed as first-class `notebook` modules and reconstructed into parser-safe Python-like source before AST extraction.
+- The current jaffle-shop reference run still shows `dbt_ref_edges = 11`, `import_edges = 0`, `dead_code_candidates = 7`, and the same top PageRank hubs.
+
 ## Surveyor Stats JSON schema
 
 `surveyor_stats.json` surface-level structure:

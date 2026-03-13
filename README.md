@@ -21,7 +21,8 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 
 | Language | Extensions | Analysis method | What is extracted |
 |----------|-----------|-----------------|-------------------|
-| Python | `.py`, `.pyi` | tree-sitter AST | imports, functions, classes, cyclomatic complexity |
+| Python | `.py`, `.pyi` | tree-sitter AST | imports, functions, classes, cyclomatic complexity, data I/O calls |
+| Notebook | `.ipynb` | cell-aware notebook reconstruction + tree-sitter AST | Python imports, notebook dataflow, comment ratio |
 | SQL | `.sql` | tree-sitter AST + sqlglot | table references, `{{ ref() }}` / `{{ source() }}` dbt dependencies |
 | YAML | `.yml`, `.yaml` | tree-sitter AST | top-level keys |
 | JavaScript | `.js`, `.mjs`, `.cjs` | tree-sitter AST | imports, functions |
@@ -117,6 +118,13 @@ uv run cartographer analyze /tmp/jaffle-shop --velocity-days 90
 
 ```bash
 uv run cartographer --verbose analyze /tmp/jaffle-shop
+```
+
+### Lineage summary view
+
+```bash
+uv run cartographer lineage-summary ./.cartography/jaffle-shop
+uv run cartographer lineage-summary ./.cartography/jaffle-shop --node source.ecom.raw_orders
 ```
 
 ---
@@ -227,6 +235,13 @@ Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 pro
 - **Semantic review queue**: `.cartography/jaffle-shop/semantics/semantic_review_queue.json` lists modules that need human follow-up
 
 ---
+
+### Phase 2 reference update (March 13, 2026)
+
+- The current jaffle-shop run produces **25 datasets**, **13 SQL transformations**, and **30 lineage edges**.
+- `blind_spots.json` is now **0 across all categories** because dbt macros are excluded from executable lineage instead of being represented as low-confidence pseudo-models.
+- `hydrologist_stats.json` records `macro_sql_files_skipped = 2`, which keeps macro utility files visible in Phase 1 without polluting Phase 2 lineage.
+- `cartographer lineage-summary ./.cartography/jaffle-shop --node source.ecom.raw_orders` prints the saved source/sink sets plus the downstream blast radius for a concrete dataset.
 
 ## Project Structure
 

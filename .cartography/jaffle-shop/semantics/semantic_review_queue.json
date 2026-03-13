@@ -14,24 +14,24 @@
           "file_path": "models/staging/stg_products.sql",
           "line_start": 14,
           "line_end": 28,
-          "extraction_method": "phase3-purpose-v2",
-          "description": "Field renaming (sku\u2192product_id, name\u2192product_name), price conversion with cents_to_dollars macro, and boolean logic for food/drink classification",
+          "extraction_method": "phase2_lineage",
+          "description": "Field renaming (sku\u2192product_id, name\u2192product_name), price conversion via {{ cents_to_dollars('price') }}, and boolean logic for is_food_item/is_drink_item",
           "evidence_type": "semantic"
         },
         {
           "source_phase": "phase2",
           "file_path": "models/staging/stg_products.sql",
-          "line_start": 5,
-          "line_end": 5,
-          "extraction_method": "phase1_symbol",
-          "description": "Source reference to ecom.raw_products indicates input dataset",
+          "line_start": 1,
+          "line_end": 34,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_products and writes model.stg_products",
           "evidence_type": "semantic"
         }
       ]
     },
     {
       "file_path": "models/staging/stg_orders.sql",
-      "hotspot_fusion_score": 0.643154,
+      "hotspot_fusion_score": 0.643153,
       "semantic_confidence": 0.95,
       "doc_drift_level": "likely_drift",
       "reasons": [
@@ -42,18 +42,18 @@
           "source_phase": "phase3",
           "file_path": "models/staging/stg_orders.sql",
           "line_start": 14,
-          "line_end": 16,
+          "line_end": 27,
           "extraction_method": "phase2_lineage",
-          "description": "Field renaming: id \u2192 order_id, store_id \u2192 location_id, customer \u2192 customer_id",
+          "description": "Field renaming (id\u2192order_id, store_id\u2192location_id, customer\u2192customer_id) and currency conversion using {{ cents_to_dollars() }} macro",
           "evidence_type": "semantic"
         },
         {
           "source_phase": "phase3",
           "file_path": "models/staging/stg_orders.sql",
-          "line_start": 19,
-          "line_end": 24,
+          "line_start": 27,
+          "line_end": 27,
           "extraction_method": "phase2_lineage",
-          "description": "Currency conversion from cents to dollars using cents_to_dollars macro",
+          "description": "Timestamp truncation using {{ dbt.date_trunc('day','ordered_at') }}",
           "evidence_type": "semantic"
         }
       ]
@@ -73,7 +73,7 @@
           "line_start": 30,
           "line_end": 34,
           "extraction_method": "phase2_lineage",
-          "description": "Aggregation of supply costs by product_id in order_supplies_summary CTE",
+          "description": "Aggregates supply costs by product_id in order_supplies_summary CTE",
           "evidence_type": "semantic"
         },
         {
@@ -82,7 +82,7 @@
           "line_start": 43,
           "line_end": 54,
           "extraction_method": "phase2_lineage",
-          "description": "Join logic combining order items with orders, products, and supply cost data",
+          "description": "Joins multiple staging tables to create enriched order item records with product details and supply costs",
           "evidence_type": "semantic"
         }
       ]
@@ -100,9 +100,9 @@
           "source_phase": "phase3",
           "file_path": "models/marts/orders.sql",
           "line_start": 15,
-          "line_end": 39,
+          "line_end": 40,
           "extraction_method": "phase2_lineage",
-          "description": "order_items_summary CTE aggregates supply costs, product prices, and counts food/drink items per order",
+          "description": "order_items_summary CTE computes supply cost, product price, and item type counts",
           "evidence_type": "semantic"
         },
         {
@@ -111,96 +111,7 @@
           "line_start": 42,
           "line_end": 61,
           "extraction_method": "phase2_lineage",
-          "description": "compute_booleans CTE joins orders with item summaries and derives is_food_order/is_drink_order flags",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "macros/cents_to_dollars.sql",
-      "hotspot_fusion_score": 0.333333,
-      "semantic_confidence": 0.95,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation",
-        "unresolved lineage case"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase1",
-          "file_path": "macros/cents_to_dollars.sql",
-          "line_start": 3,
-          "line_end": 21,
-          "extraction_method": "phase1_symbol",
-          "description": "Macro definition shows business logic for converting cents to dollars with database-specific implementations",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase2",
-          "file_path": "macros/cents_to_dollars.sql",
-          "line_start": 1,
-          "line_end": 21,
-          "extraction_method": "phase2_lineage",
-          "description": "Transformation dbt_model reads none and writes model.cents_to_dollars",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "models/staging/stg_order_items.sql",
-      "hotspot_fusion_score": 0.321606,
-      "semantic_confidence": 0.95,
-      "doc_drift_level": "likely_drift",
-      "reasons": [
-        "documentation drift (likely_drift)"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase3",
-          "file_path": "models/staging/stg_order_items.sql",
-          "line_start": 14,
-          "line_end": 16,
-          "extraction_method": "phase2_lineage",
-          "description": "Field renaming logic mapping 'id' to 'order_item_id', 'sku' to 'product_id'",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase3",
-          "file_path": "models/staging/stg_order_items.sql",
-          "line_start": 5,
-          "line_end": 5,
-          "extraction_method": "phase1_symbol",
-          "description": "Source reference to 'ecom.raw_items' indicates input dataset",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "macros/generate_schema_name.sql",
-      "hotspot_fusion_score": 0.319444,
-      "semantic_confidence": 0.9,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation",
-        "unresolved lineage case"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase1",
-          "file_path": "macros/generate_schema_name.sql",
-          "line_start": 1,
-          "line_end": 23,
-          "extraction_method": "phase1_symbol",
-          "description": "Macro implements business rules for schema naming with conditional logic for seeds, custom schemas, and production vs non-production environments",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase2",
-          "file_path": "macros/generate_schema_name.sql",
-          "line_start": 1,
-          "line_end": 23,
-          "extraction_method": "phase2_lineage",
-          "description": "Transformation dbt_model reads none and writes model.generate_schema_name",
+          "description": "compute_booleans CTE joins order data with item summaries and derives food/drink order flags",
           "evidence_type": "semantic"
         }
       ]
@@ -217,10 +128,10 @@
         {
           "source_phase": "phase1",
           "file_path": "models/marts/customers.sql",
-          "line_start": 20,
+          "line_start": 17,
           "line_end": 26,
           "extraction_method": "phase1_symbol",
-          "description": "Calculates key business metrics including lifetime orders, repeat buyer status, first/last order dates, and lifetime spending",
+          "description": "Calculates lifetime metrics including spend, order count, and repeat buyer status",
           "evidence_type": "semantic"
         },
         {
@@ -229,13 +140,42 @@
           "line_start": 46,
           "line_end": 49,
           "extraction_method": "phase2_lineage",
-          "description": "Classifies customers as 'returning' or 'new' for marketing segmentation strategies",
+          "description": "Segments customers into new vs returning types for marketing purposes",
           "evidence_type": "semantic"
         }
       ]
     },
     {
-      "file_path": "models/marts/order_items.yml",
+      "file_path": "models/marts/locations.sql",
+      "hotspot_fusion_score": 0.277778,
+      "semantic_confidence": 0.8,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "SQL query selects all data from stg_locations reference, indicating location data transformation",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 1,
+          "line_end": 9,
+          "extraction_method": "heuristic",
+          "description": "Simple SELECT * transformation suggests standardization of location data for downstream use",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/cents_to_dollars.sql",
       "hotspot_fusion_score": 0.25,
       "semantic_confidence": 0.95,
       "doc_drift_level": "no_drift",
@@ -244,21 +184,79 @@
       ],
       "evidence": [
         {
-          "source_phase": "phase3",
-          "file_path": "models/marts/order_items.yml",
-          "line_start": 43,
-          "line_end": 87,
+          "source_phase": "phase1",
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": 3,
+          "line_end": 21,
           "extraction_method": "phase1_symbol",
-          "description": "Semantic model defining order item entities, dimensions, and measures including revenue calculations",
+          "description": "Macro definition shows currency conversion logic with adapter-specific implementations for different databases",
           "evidence_type": "semantic"
         },
         {
           "source_phase": "phase3",
-          "file_path": "models/marts/order_items.yml",
-          "line_start": 88,
-          "line_end": 168,
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": null,
+          "line_end": null,
+          "extraction_method": "documentation_scan",
+          "description": "No inline documentation found in the module.",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_customers.yml",
+      "hotspot_fusion_score": 0.25,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_customers.yml",
+          "line_start": 3,
+          "line_end": 3,
           "extraction_method": "phase1_symbol",
-          "description": "Metrics definitions including simple, ratio, derived, and cumulative revenue metrics",
+          "description": "Description states 'Customer data with basic cleaning and transformation applied, one row per customer'",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_customers.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_products.yml",
+      "hotspot_fusion_score": 0.25,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_products.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product'",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_products.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models",
           "evidence_type": "semantic"
         }
       ]
@@ -275,55 +273,26 @@
         {
           "source_phase": "phase1",
           "file_path": "models/marts/metricflow_time_spine.sql",
-          "line_start": 7,
-          "line_end": 7,
+          "line_start": 1,
+          "line_end": 1,
           "extraction_method": "phase1_symbol",
-          "description": "Generates base dates using dbt_date.get_base_dates for time-series analysis",
+          "description": "filename and comment 'metricflow_time_spine.sql' indicates purpose for metric time dimension",
           "evidence_type": "semantic"
         },
         {
           "source_phase": "phase2",
           "file_path": "models/marts/metricflow_time_spine.sql",
-          "line_start": 1,
-          "line_end": 19,
+          "line_start": 7,
+          "line_end": 7,
           "extraction_method": "phase2_lineage",
-          "description": "Transformation dbt_model reads none and writes model.metricflow_time_spine",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "models/marts/orders.yml",
-      "hotspot_fusion_score": 0.236111,
-      "semantic_confidence": 0.95,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase3",
-          "file_path": "models/marts/orders.yml",
-          "line_start": 1,
-          "line_end": 31,
-          "extraction_method": "phase1_symbol",
-          "description": "Model definition with columns describing order attributes such as order_total, ordered_at, is_food_order, is_drink_order",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase3",
-          "file_path": "models/marts/orders.yml",
-          "line_start": 32,
-          "line_end": 77,
-          "extraction_method": "phase1_symbol",
-          "description": "Unit tests validating transformation logic from order items to boolean flags for food/drink orders",
+          "description": "dbt_date.get_base_dates function call with 10-year range (365*10) generates comprehensive business date range",
           "evidence_type": "semantic"
         }
       ]
     },
     {
       "file_path": "models/marts/customers.yml",
-      "hotspot_fusion_score": 0.222222,
+      "hotspot_fusion_score": 0.236111,
       "semantic_confidence": 0.95,
       "doc_drift_level": "no_drift",
       "reasons": [
@@ -336,7 +305,7 @@
           "line_start": 1,
           "line_end": 32,
           "extraction_method": "phase1_symbol",
-          "description": "models.customers definition with columns for lifetime_spend, count_lifetime_orders, customer_type",
+          "description": "models section defines customer entity with lifetime spend and order history columns",
           "evidence_type": "semantic"
         },
         {
@@ -345,7 +314,65 @@
           "line_start": 33,
           "line_end": 71,
           "extraction_method": "phase1_symbol",
-          "description": "semantic_models.customers with measures for customers, count_lifetime_orders, lifetime_spend",
+          "description": "semantic_models section defines customer grain with measures for orders and lifetime spend",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/order_items.yml",
+      "hotspot_fusion_score": 0.236111,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 43,
+          "line_end": 87,
+          "extraction_method": "phase2_lineage",
+          "description": "semantic_models section defines order_item entity with measures for revenue, food_revenue, drink_revenue, and median_revenue",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 88,
+          "line_end": 169,
+          "extraction_method": "phase2_lineage",
+          "description": "metrics section defines various revenue metrics including simple, ratio, derived, and cumulative metrics",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/generate_schema_name.sql",
+      "hotspot_fusion_score": 0.236111,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/generate_schema_name.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase1_symbol",
+          "description": "Macro implements conditional logic for schema naming based on resource type and environment targeting",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "macros/generate_schema_name.sql",
+          "line_start": null,
+          "line_end": null,
+          "extraction_method": "documentation_scan",
+          "description": "No inline documentation found in the module.",
           "evidence_type": "semantic"
         }
       ]
@@ -365,24 +392,24 @@
           "line_start": 5,
           "line_end": 5,
           "extraction_method": "phase1_symbol",
-          "description": "Description states 'Supplies dimension table. The grain of the table is one row per supply and product combination.'",
+          "description": "description: 'Supplies dimension table. The grain of the table is one row per supply and product combination.'",
           "evidence_type": "semantic"
         },
         {
           "source_phase": "phase1",
           "file_path": "models/marts/supplies.yml",
-          "line_start": 1,
-          "line_end": 1,
-          "extraction_method": "phase1_yaml_key",
-          "description": "YAML key semantic_models",
+          "line_start": 19,
+          "line_end": 24,
+          "extraction_method": "phase1_symbol",
+          "description": "dimensions including supply_name, supply_cost, is_perishable_supply indicate business categorization and costing analysis",
           "evidence_type": "semantic"
         }
       ]
     },
     {
       "file_path": "models/staging/stg_orders.yml",
-      "hotspot_fusion_score": 0.208333,
-      "semantic_confidence": 0.95,
+      "hotspot_fusion_score": 0.222222,
+      "semantic_confidence": 0.9,
       "doc_drift_level": "no_drift",
       "reasons": [
         "missing documentation"
@@ -394,7 +421,7 @@
           "line_start": 3,
           "line_end": 3,
           "extraction_method": "phase1_symbol",
-          "description": "Description states 'Order data with basic cleaning and transformation applied, one row per order.'",
+          "description": "description: 'Order data with basic cleaning and transformation applied, one row per order.'",
           "evidence_type": "semantic"
         },
         {
@@ -403,7 +430,94 @@
           "line_start": 5,
           "line_end": 6,
           "extraction_method": "phase1_symbol",
-          "description": "Data test validates financial calculation: 'order_total - tax_paid = subtotal'",
+          "description": "data_tests includes expression validation ensuring 'order_total - tax_paid = subtotal' for financial accuracy",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_supplies.yml",
+      "hotspot_fusion_score": 0.222222,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_supplies.yml",
+          "line_start": 4,
+          "line_end": 6,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'List of our supply expenses data with basic cleaning and transformation applied' and explains supply costs fluctuate over time",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_supplies.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/orders.yml",
+      "hotspot_fusion_score": 0.194444,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.yml",
+          "line_start": 1,
+          "line_end": 31,
+          "extraction_method": "phase1_symbol",
+          "description": "Model definition with columns such as order_total, ordered_at, is_food_order, and relationships to stg_customers",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.yml",
+          "line_start": 32,
+          "line_end": 77,
+          "extraction_method": "phase1_symbol",
+          "description": "Unit tests validating transformation logic from order items to boolean flags for food/drink orders",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/locations.yml",
+      "hotspot_fusion_score": 0.194444,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/locations.yml",
+          "line_start": 3,
+          "line_end": 4,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Location dimension table. The grain of the table is one row per location.'",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/locations.yml",
+          "line_start": 21,
+          "line_end": 24,
+          "extraction_method": "phase1_symbol",
+          "description": "Defines average_tax_rate measure for financial analysis",
           "evidence_type": "semantic"
         }
       ]
@@ -423,16 +537,45 @@
           "line_start": 3,
           "line_end": 3,
           "extraction_method": "phase1_symbol",
-          "description": "Description states 'Individual food and drink items that make up our orders, one row per item.'",
+          "description": "description: 'Individual food and drink items that make up our orders, one row per item.'",
           "evidence_type": "semantic"
         },
         {
           "source_phase": "phase1",
           "file_path": "models/staging/stg_order_items.yml",
-          "line_start": 1,
-          "line_end": 1,
-          "extraction_method": "phase1_yaml_key",
-          "description": "YAML key models",
+          "line_start": 10,
+          "line_end": 11,
+          "extraction_method": "phase1_symbol",
+          "description": "column order_id described as 'The corresponding order each order item belongs to' showing relationship to order business entity",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/products.yml",
+      "hotspot_fusion_score": 0.166667,
+      "semantic_confidence": 0.85,
+      "doc_drift_level": "likely_drift",
+      "reasons": [
+        "documentation drift (likely_drift)"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/products.yml",
+          "line_start": 4,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Product dimension table. The grain of the table is one row per product.'",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/products.yml",
+          "line_start": 13,
+          "line_end": 26,
+          "extraction_method": "phase1_symbol",
+          "description": "Defines product attributes like type, category, and price for analytical context",
           "evidence_type": "semantic"
         }
       ]
@@ -452,7 +595,7 @@
           "line_start": 5,
           "line_end": 5,
           "extraction_method": "phase2_lineage",
-          "description": "Selects all fields from stg_products without transformation, indicating minimal business logic",
+          "description": "Selects all columns from stg_products, indicating this is a pass-through mart model for product data",
           "evidence_type": "semantic"
         },
         {
@@ -481,7 +624,7 @@
           "line_start": 5,
           "line_end": 5,
           "extraction_method": "phase2_lineage",
-          "description": "Selects all fields from stg_supplies without transformation, indicating minimal business logic",
+          "description": "Selects all columns from stg_supplies, indicating this is a pass-through mart model for supply data",
           "evidence_type": "semantic"
         },
         {
@@ -491,64 +634,6 @@
           "line_end": 9,
           "extraction_method": "phase2_lineage",
           "description": "Transformation dbt_model reads model.stg_supplies and writes model.supplies",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "models/marts/locations.yml",
-      "hotspot_fusion_score": 0.138889,
-      "semantic_confidence": 0.8,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase1",
-          "file_path": "models/marts/locations.yml",
-          "line_start": 3,
-          "line_end": 4,
-          "extraction_method": "phase1_symbol",
-          "description": "Description states 'Location dimension table. The grain of the table is one row per location' for BI purposes",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase1",
-          "file_path": "models/marts/locations.yml",
-          "line_start": 21,
-          "line_end": 24,
-          "extraction_method": "phase1_symbol",
-          "description": "Defines average_tax_rate measure for business performance analysis",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "models/marts/locations.sql",
-      "hotspot_fusion_score": 0.111111,
-      "semantic_confidence": 0.8,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase2",
-          "file_path": "models/marts/locations.sql",
-          "line_start": 5,
-          "line_end": 5,
-          "extraction_method": "phase2_lineage",
-          "description": "SQL query selects all data from stg_locations model, indicating it's creating a mart view of location information",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase2",
-          "file_path": "models/marts/locations.sql",
-          "line_start": 1,
-          "line_end": 9,
-          "extraction_method": "phase2_lineage",
-          "description": "Transformation dbt_model reads model.stg_locations and writes model.locations",
           "evidence_type": "semantic"
         }
       ]
@@ -568,7 +653,7 @@
           "line_start": 3,
           "line_end": 3,
           "extraction_method": "phase1_symbol",
-          "description": "Description states 'List of open locations with basic cleaning and transformation applied, one row per location'",
+          "description": "Description states 'List of open locations with basic cleaning and transformation applied'",
           "evidence_type": "semantic"
         },
         {
@@ -577,36 +662,7 @@
           "line_start": 13,
           "line_end": 13,
           "extraction_method": "phase2_lineage",
-          "description": "Unit test validates proper truncation of opened_at timestamp to date format for business reporting",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "models/staging/stg_supplies.yml",
-      "hotspot_fusion_score": 0.083333,
-      "semantic_confidence": 0.9,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase1",
-          "file_path": "models/staging/stg_supplies.yml",
-          "line_start": 4,
-          "line_end": 6,
-          "extraction_method": "phase1_symbol",
-          "description": "Description states 'List of our supply expenses data with basic cleaning and transformation applied' and explains cost fluctuation tracking",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase1",
-          "file_path": "models/staging/stg_supplies.yml",
-          "line_start": 1,
-          "line_end": 1,
-          "extraction_method": "phase1_yaml_key",
-          "description": "YAML key models",
+          "description": "Unit test confirms transformation of opened_at to opened_date for analytical use",
           "evidence_type": "semantic"
         }
       ]
@@ -626,7 +682,7 @@
           "line_start": 3,
           "line_end": 20,
           "extraction_method": "phase1_symbol",
-          "description": "Defines YAML source configurations including raw_customers, raw_orders, raw_items, raw_stores, raw_products, and raw_supplies with descriptions",
+          "description": "Defines sources configuration including ecom schema with tables for customers, orders, items, stores, products, and supplies",
           "evidence_type": "semantic"
         },
         {
@@ -636,64 +692,6 @@
           "line_end": 1,
           "extraction_method": "phase1_yaml_key",
           "description": "YAML key version",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "models/staging/stg_customers.yml",
-      "hotspot_fusion_score": 0.055556,
-      "semantic_confidence": 0.9,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase1",
-          "file_path": "models/staging/stg_customers.yml",
-          "line_start": 3,
-          "line_end": 3,
-          "extraction_method": "phase1_symbol",
-          "description": "Description states 'Customer data with basic cleaning and transformation applied, one row per customer'",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase1",
-          "file_path": "models/staging/stg_customers.yml",
-          "line_start": 1,
-          "line_end": 1,
-          "extraction_method": "phase1_yaml_key",
-          "description": "YAML key models",
-          "evidence_type": "semantic"
-        }
-      ]
-    },
-    {
-      "file_path": "models/staging/stg_products.yml",
-      "hotspot_fusion_score": 0.055556,
-      "semantic_confidence": 0.9,
-      "doc_drift_level": "no_drift",
-      "reasons": [
-        "missing documentation"
-      ],
-      "evidence": [
-        {
-          "source_phase": "phase1",
-          "file_path": "models/staging/stg_products.yml",
-          "line_start": 3,
-          "line_end": 3,
-          "extraction_method": "phase1_symbol",
-          "description": "Description states 'Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product'",
-          "evidence_type": "semantic"
-        },
-        {
-          "source_phase": "phase1",
-          "file_path": "models/staging/stg_products.yml",
-          "line_start": 1,
-          "line_end": 1,
-          "extraction_method": "phase1_yaml_key",
-          "description": "YAML key models",
           "evidence_type": "semantic"
         }
       ]
@@ -713,16 +711,16 @@
           "line_start": 1,
           "line_end": 14,
           "extraction_method": "phase1_symbol",
-          "description": "repos key with multiple hook configurations including check-yaml, end-of-file-fixer, trailing-whitespace, requirements-txt-fixer, ruff-check, and ruff-format",
+          "description": "YAML configuration defining repos and hooks for pre-commit framework",
           "evidence_type": "semantic"
         },
         {
-          "source_phase": "phase1",
+          "source_phase": "phase3",
           "file_path": ".pre-commit-config.yaml",
-          "line_start": 1,
-          "line_end": 1,
-          "extraction_method": "phase1_yaml_key",
-          "description": "YAML key repos",
+          "line_start": 5,
+          "line_end": 7,
+          "extraction_method": "phase1_symbol",
+          "description": "check-yaml, end-of-file-fixer, trailing-whitespace hooks for basic code hygiene",
           "evidence_type": "semantic"
         }
       ]
@@ -740,9 +738,9 @@
           "source_phase": "phase3",
           "file_path": "dbt_project.yml",
           "line_start": 3,
-          "line_end": 4,
+          "line_end": 5,
           "extraction_method": "phase1_symbol",
-          "description": "name: \"jaffle_shop\" and version: \"3.0.0\" define core project identity",
+          "description": "Project metadata including name, version and required dbt version",
           "evidence_type": "semantic"
         },
         {
@@ -751,7 +749,7 @@
           "line_start": 12,
           "line_end": 17,
           "extraction_method": "phase1_symbol",
-          "description": "model-paths, analysis-paths, test-paths, seed-paths, macro-paths, snapshot-paths define project directory structure",
+          "description": "Path configurations for models, analyses, tests, seeds, macros and snapshots",
           "evidence_type": "semantic"
         }
       ]
@@ -771,7 +769,7 @@
           "line_start": 9,
           "line_end": 40,
           "extraction_method": "phase1_symbol",
-          "description": "Contains YAML-defined tasks for venv creation, package installation, data generation, seeding, and cleanup",
+          "description": "Contains task definitions for venv creation, package installation, data generation (gen), database seeding (seed), and cleanup operations",
           "evidence_type": "semantic"
         },
         {

@@ -337,6 +337,55 @@ class KnowledgeGraph:
         logger.info("Saved lineage graph → %s", output_path)
 
     @classmethod
+    def load_lineage_artifact(cls, input_path: Path) -> "KnowledgeGraph":
+        """Load a saved lineage_graph.json artifact into a KnowledgeGraph."""
+        graph = cls()
+        with input_path.open("r", encoding="utf-8") as fh:
+            raw = json.load(fh)
+
+        for name, dataset_data in raw.get("datasets", {}).items():
+            try:
+                dataset = DatasetNode.model_validate(dataset_data)
+            except Exception as exc:
+                logger.warning("Could not deserialise DatasetNode %s: %s", name, exc)
+                continue
+            graph.add_dataset_node(dataset)
+
+        for transformation_id, transformation_data in raw.get("transformations", {}).items():
+            try:
+                transformation = TransformationNode.model_validate(transformation_data)
+            except Exception as exc:
+                logger.warning(
+                    "Could not deserialise TransformationNode %s: %s",
+                    transformation_id,
+                    exc,
+                )
+                continue
+            graph.add_transformation_node(transformation)
+
+        for edge in raw.get("edges", []):
+            source = edge.get("source")
+            target = edge.get("target")
+            if not source or not target:
+                continue
+            graph._g.add_edge(
+                source,
+                target,
+                edge_type=edge.get("edge_type", ""),
+                confidence=edge.get("confidence", 1.0),
+                evidence=edge.get("evidence", {}),
+            )
+
+        logger.info(
+            "Loaded lineage graph: %d datasets, %d transformations, %d edges from %s",
+            len(graph._datasets),
+            len(graph._transformations),
+            graph._g.number_of_edges(),
+            input_path,
+        )
+        return graph
+
+    @classmethod
     def load(cls, input_path: Path) -> "KnowledgeGraph":
         """Load a previously-saved graph from node-link JSON."""
         graph = cls()

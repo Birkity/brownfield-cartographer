@@ -2,7 +2,7 @@
   "ollama_available": true,
   "purpose_statements_generated": 31,
   "purpose_statements_attempted": 31,
-  "domains_found": 6,
+  "domains_found": 5,
   "clustering_method": "llm_refined",
   "drift_checks_performed": 31,
   "drift_detected": 5,
@@ -13,10 +13,10 @@
   "review_queue_items": 27,
   "llm_budget": {
     "total_calls": 29,
-    "total_prompt_tokens": 31478,
-    "total_eval_tokens": 12645,
-    "total_elapsed_seconds": 570.2,
+    "total_prompt_tokens": 31338,
+    "total_eval_tokens": 11569,
+    "total_elapsed_seconds": 743.42,
     "failures": 0
   },
-  "elapsed_seconds": 574.44
+  "elapsed_seconds": 869.64
 }

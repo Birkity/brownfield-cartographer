@@ -1,13 +1,17 @@
 import json
+import logging
 import shutil
 import unittest
 import uuid
 from pathlib import Path
 
+from click.testing import CliRunner
+
 from src.agents.hydrologist import Hydrologist
 from src.agents.surveyor import Surveyor
 from src.analyzers.python_dataflow import analyze_python_file
 from src.analyzers.sql_lineage import analyze_sql_file
+from src.cli import cli
 from src.orchestrator import run_phase1, run_phase2
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[1]
@@ -84,6 +88,15 @@ def orphan() -> str:
       ],
       "metadata": {},
       "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\\n",
+        "select * from orders\\n"
+      ],
+      "metadata": {},
+      "outputs": []
     }
   ],
   "metadata": {},
@@ -151,6 +164,15 @@ df.to_parquet("out/orders.parquet")
 """)
 
 
+def _build_macro_repo(root: Path) -> None:
+    _build_mixed_repo(root)
+    _write(root / "macros" / "util.sql", """
+{% macro cents_to_dollars(column_name) %}
+  ({{ column_name }} / 100)
+{% endmacro %}
+""")
+
+
 class Phase1Phase2RubricTests(unittest.TestCase):
     def setUp(self) -> None:
         TEST_TMP_ROOT.mkdir(parents=True, exist_ok=True)
@@ -198,6 +220,7 @@ frame.to_parquet("out/orders.parquet")
         result = analyze_python_file(source, "pipelines/example.py")
 
         self.assertEqual(len(result.records), 2)
+        self.assertEqual(result.records[0].extraction_method, "tree_sitter_ast")
         self.assertTrue(result.records[0].is_dynamic)
         self.assertEqual(result.records[0].confidence, 0.5)
         self.assertEqual(result.records[1].target, "out/orders.parquet")
@@ -214,6 +237,54 @@ frame.to_parquet("out/orders.parquet")
         self.assertEqual(result.stats["python_files_analyzed"], 1)
         datasets = {dataset.name for dataset in result.graph.all_datasets()}
         self.assertIn("data/orders.csv", datasets)
+        notebook_read = next(
+            xform for xform in result.graph.all_transformations()
+            if xform.source_file == "notebooks/exploration.ipynb"
+        )
+        self.assertEqual(notebook_read.line_range, (4, 4))
+
+    def test_phase2_skips_macros_from_lineage_artifacts(self) -> None:
+        repo_root = _make_temp_dir("phase2_macro_repo")
+        output_root = _make_temp_dir("phase2_macro_output")
+        self.addCleanup(self._cleanup_path, repo_root)
+        self.addCleanup(self._cleanup_path, output_root)
+        _build_macro_repo(repo_root)
+
+        artifacts, graph, resolved_root = run_phase1(str(repo_root), output_dir=output_root)
+        hydro_result = run_phase2(artifacts, graph, resolved_root)
+        lineage_payload = json.loads(artifacts.lineage_graph_json.read_text(encoding="utf-8"))
+        blind_spots_payload = json.loads(artifacts.blind_spots_json.read_text(encoding="utf-8"))
+
+        self.assertEqual(hydro_result.stats["macro_sql_files_skipped"], 1)
+        self.assertNotIn("sql:macros/util.sql", lineage_payload["transformations"])
+        self.assertEqual(blind_spots_payload["summary"]["dynamic_transformations"], 0)
+
+    def test_lineage_summary_cli_prints_sources_sinks_and_blast_radius(self) -> None:
+        repo_root = _make_temp_dir("phase2_cli_repo")
+        output_root = _make_temp_dir("phase2_cli_output")
+        self.addCleanup(self._cleanup_path, repo_root)
+        self.addCleanup(self._cleanup_path, output_root)
+        _build_mixed_repo(repo_root)
+
+        artifacts, graph, resolved_root = run_phase1(str(repo_root), output_dir=output_root)
+        run_phase2(artifacts, graph, resolved_root)
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            [
+                "lineage-summary",
+                str(output_root),
+                "--node",
+                "source.ecom.orders",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertIn("Source Datasets", result.output)
+        self.assertIn("Sink Datasets", result.output)
+        self.assertIn("Blast Radius: source.ecom.orders", result.output)
+        logging.getLogger().handlers.clear()
 
     def test_phase2_sql_lineage_handles_dbt_refs_sources_ctes_and_line_range(self) -> None:
         sql = """

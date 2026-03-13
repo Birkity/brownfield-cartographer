@@ -204,40 +204,6 @@
       "is_final_model": false,
       "is_intermediate_model": false
     },
-    "model.cents_to_dollars": {
-      "name": "model.cents_to_dollars",
-      "storage_type": "table",
-      "schema_snapshot": null,
-      "freshness_sla": null,
-      "owner": null,
-      "is_source_of_truth": false,
-      "dataset_type": "dbt_model",
-      "source_file": "macros/cents_to_dollars.sql",
-      "description": "",
-      "columns": [],
-      "confidence": 0.44999999999999996,
-      "is_source_dataset": false,
-      "is_sink_dataset": true,
-      "is_final_model": false,
-      "is_intermediate_model": false
-    },
-    "model.generate_schema_name": {
-      "name": "model.generate_schema_name",
-      "storage_type": "table",
-      "schema_snapshot": null,
-      "freshness_sla": null,
-      "owner": null,
-      "is_source_of_truth": false,
-      "dataset_type": "dbt_model",
-      "source_file": "macros/generate_schema_name.sql",
-      "description": "",
-      "columns": [],
-      "confidence": 0.3999999999999999,
-      "is_source_dataset": false,
-      "is_sink_dataset": true,
-      "is_final_model": false,
-      "is_intermediate_model": false
-    },
     "model.customers": {
       "name": "model.customers",
       "storage_type": "table",
@@ -495,38 +461,6 @@
     }
   },
   "transformations": {
-    "sql:macros/cents_to_dollars.sql": {
-      "id": "sql:macros/cents_to_dollars.sql",
-      "transformation_type": "dbt_model",
-      "source_file": "macros/cents_to_dollars.sql",
-      "line_range": [
-        1,
-        21
-      ],
-      "sql_query": "{# A basic example for a project-wide macro to cast a column uniformly #}\n\n{% macro cents_to_dollars(column_name) -%}\n    {{ return(adapter.dispatch('cents_to_dollars')(column_name)) }}\n{%- endmacro %}\n\n{% macro default__cents_to_dollars(column_name) -%}\n    ({{ column_name }} / 100)::numeric(16, 2)\n{%- endmacro %}\n\n{% macro postgres__cents_to_dollars(column_name) -%}\n    ({{ column_name }}::numeric(16, 2) / 100)\n{%- endmacro %}\n\n{% macro bigquery__cents_to_dollars(column_name) %}\n    round(cast",
-      "source_datasets": [],
-      "target_datasets": [
-        "model.cents_to_dollars"
-      ],
-      "confidence": 0.44999999999999996,
-      "is_dynamic": true
-    },
-    "sql:macros/generate_schema_name.sql": {
-      "id": "sql:macros/generate_schema_name.sql",
-      "transformation_type": "dbt_model",
-      "source_file": "macros/generate_schema_name.sql",
-      "line_range": [
-        1,
-        23
-      ],
-      "sql_query": "{% macro generate_schema_name(custom_schema_name, node) %}\n\n    {% set default_schema = target.schema %}\n\n    {# seeds go in a global `raw` schema #}\n    {% if node.resource_type == 'seed' %}\n        {{ custom_schema_name | trim }}\n\n    {# non-specified schemas go to the default target schema #}\n    {% elif custom_schema_name is none %}\n        {{ default_schema }}\n\n\n    {# specified custom schema names go to the schema name prepended with the the default schema name in prod (as this is an examp",
-      "source_datasets": [],
-      "target_datasets": [
-        "model.generate_schema_name"
-      ],
-      "confidence": 0.3999999999999999,
-      "is_dynamic": true
-    },
     "sql:models/marts/customers.sql": {
       "id": "sql:models/marts/customers.sql",
       "transformation_type": "dbt_model",
@@ -830,30 +764,6 @@
         "source_file": "models/staging/stg_supplies.sql",
         "extraction_method": "sqlglot",
         "transformation_type": "dbt_model"
-      }
-    },
-    {
-      "source": "sql:macros/cents_to_dollars.sql",
-      "target": "model.cents_to_dollars",
-      "edge_type": "PRODUCES",
-      "confidence": 0.44999999999999996,
-      "evidence": {
-        "source_file": "macros/cents_to_dollars.sql",
-        "extraction_method": "sqlglot_dynamic",
-        "transformation_type": "dbt_model",
-        "sql_preview": "{# A basic example for a project-wide macro to cast a column uniformly #}\n\n{% macro cents_to_dollars(column_name) -%}\n  "
-      }
-    },
-    {
-      "source": "sql:macros/generate_schema_name.sql",
-      "target": "model.generate_schema_name",
-      "edge_type": "PRODUCES",
-      "confidence": 0.3999999999999999,
-      "evidence": {
-        "source_file": "macros/generate_schema_name.sql",
-        "extraction_method": "sqlglot_dynamic",
-        "transformation_type": "dbt_model",
-        "sql_preview": "{% macro generate_schema_name(custom_schema_name, node) %}\n\n    {% set default_schema = target.schema %}\n\n    {# seeds g"
       }
     },
     {
