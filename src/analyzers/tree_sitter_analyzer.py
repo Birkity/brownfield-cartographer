@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from src.analyzers.notebook_utils import extract_notebook_source
 from src.models.nodes import ImportInfo, Language, ModuleNode
 from src.analyzers.ts_grammar import _get_grammar, _make_parser
 from src.analyzers.ts_extractors import (
@@ -36,6 +37,7 @@ _REGEX_ONLY_LANGUAGES = {
 
 _GRAMMAR_KEY_MAP: dict[Language, str] = {
     Language.PYTHON: "python",
+    Language.NOTEBOOK: "python",
     Language.SQL: "sql",
     Language.YAML: "yaml",
     Language.JAVASCRIPT: "javascript",
@@ -48,6 +50,55 @@ def count_lines(source: bytes) -> int:
     return sum(1 for line in source.split(b"\n") if line.strip())
 
 
+def _count_comment_ratio(text: str, language: Language) -> float:
+    """Best-effort comment ratio by language using line-based heuristics."""
+    lines = [line for line in text.splitlines() if line.strip()]
+    if not lines:
+        return 0.0
+
+    comment_lines = 0
+    in_block_comment = False
+    for raw_line in lines:
+        line = raw_line.strip()
+
+        if language in (Language.PYTHON, Language.YAML, Language.SHELL, Language.NOTEBOOK):
+            if line.startswith("#"):
+                comment_lines += 1
+                continue
+
+        if language in (Language.JAVASCRIPT, Language.TYPESCRIPT, Language.JAVA, Language.KOTLIN, Language.SCALA, Language.GO, Language.RUST, Language.CSHARP):
+            if in_block_comment:
+                comment_lines += 1
+                if "*/" in line:
+                    in_block_comment = False
+                continue
+            if line.startswith("//"):
+                comment_lines += 1
+                continue
+            if line.startswith("/*"):
+                comment_lines += 1
+                if "*/" not in line:
+                    in_block_comment = True
+                continue
+
+        if language == Language.SQL:
+            if in_block_comment:
+                comment_lines += 1
+                if "*/" in line:
+                    in_block_comment = False
+                continue
+            if line.startswith("--") or line.startswith("{#"):
+                comment_lines += 1
+                continue
+            if line.startswith("/*"):
+                comment_lines += 1
+                if "*/" not in line:
+                    in_block_comment = True
+                continue
+
+    return round(comment_lines / len(lines), 4)
+
+
 def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNode:
     """
     Parse a single source file and return a populated ModuleNode.
@@ -58,13 +109,17 @@ def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNod
     node = ModuleNode(path=rel_path, abs_path=str(abs_path), language=language)
 
     try:
-        source = abs_path.read_bytes()
+        if language == Language.NOTEBOOK:
+            source = extract_notebook_source(abs_path).rendered_code.encode("utf-8")
+        else:
+            source = abs_path.read_bytes()
     except OSError as exc:
         node.parse_error = f"Could not read file: {exc}"
         logger.warning("Cannot read %s: %s", abs_path, exc)
         return node
 
     node.lines_of_code = count_lines(source)
+    node.comment_ratio = _count_comment_ratio(source.decode("utf-8", errors="replace"), language)
 
     # dbt ref() extraction for SQL (regex, no grammar needed) — runs before
     # grammar check so dbt refs are captured even without tree-sitter-sql.
@@ -101,7 +156,7 @@ def analyze_file(abs_path: Path, rel_path: str, language: Language) -> ModuleNod
         return node
 
     try:
-        if language == Language.PYTHON:
+        if language in (Language.PYTHON, Language.NOTEBOOK):
             node.imports = _parse_python_imports(root, rel_path)
             node.functions = _parse_python_functions(root, rel_path)
             node.classes = _parse_python_classes(root, rel_path)

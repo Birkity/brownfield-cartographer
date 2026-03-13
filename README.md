@@ -10,10 +10,10 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 
 | Phase | Agent | Status |
 |-------|-------|--------|
-| 1 | Surveyor (Static Structure) | ✅ Complete |
-| 2 | Hydrologist (Data Lineage) | ✅ Complete |
-| 3 | Semanticist (LLM Purpose Analysis) | 🔜 Planned |
-| 4 | Archivist + Navigator | 🔜 Planned |
+| 1 | Surveyor (Static Structure) | Complete |
+| 2 | Hydrologist (Data Lineage) | Complete |
+| 3 | Semanticist (LLM Purpose Analysis) | Complete |
+| 4 | Archivist + Navigator | Planned |
 
 ---
 
@@ -21,7 +21,8 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 
 | Language | Extensions | Analysis method | What is extracted |
 |----------|-----------|-----------------|-------------------|
-| Python | `.py`, `.pyi` | tree-sitter AST | imports, functions, classes, cyclomatic complexity |
+| Python | `.py`, `.pyi` | tree-sitter AST | imports, functions, classes, cyclomatic complexity, data I/O calls |
+| Notebook | `.ipynb` | cell-aware notebook reconstruction + tree-sitter AST | Python imports, notebook dataflow, comment ratio |
 | SQL | `.sql` | tree-sitter AST + sqlglot | table references, `{{ ref() }}` / `{{ source() }}` dbt dependencies |
 | YAML | `.yml`, `.yaml` | tree-sitter AST | top-level keys |
 | JavaScript | `.js`, `.mjs`, `.cjs` | tree-sitter AST | imports, functions |
@@ -35,7 +36,7 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 | Ruby | `.rb` | regex | `require` / `require_relative` |
 | Shell | `.sh`, `.bash`, `.zsh` | LOC only | file inventoried |
 
-> Regex-based languages need **no extra installation** — they work immediately after `uv pip install -e .`
+> Regex-based languages need **no extra installation** and work immediately after `uv pip install -e .`
 
 ---
 
@@ -44,6 +45,7 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 - Python 3.11+
 - [uv](https://github.com/astral-sh/uv) (`pip install uv`)
 - Git (required for git-velocity analysis and GitHub URL cloning)
+- [Ollama](https://ollama.com/) (required for Phase 3 LLM analysis; optional, graceful degradation without it)
 
 ---
 
@@ -62,9 +64,10 @@ This installs all required dependencies including:
 - `sqlglot` for SQL lineage parsing (Phase 2)
 - `pyyaml` for YAML config analysis (Phase 2)
 - `pyvis` for interactive lineage visualization (Phase 2)
+- `requests` for Ollama REST API communication (Phase 3)
 
 > **Java, Kotlin, Scala, Go, Rust, C#, Ruby, Shell** are supported out of the box via regex-based
-> import extraction — no additional grammar packages needed for these languages.
+> import extraction; no additional grammar packages are needed for these languages.
 
 > `tree-sitter-sql` is included as a standard dependency. All 33 files in
 > jaffle-shop (Python, YAML, SQL, JS/TS) are fully parsed via AST with **zero
@@ -117,6 +120,50 @@ uv run cartographer analyze /tmp/jaffle-shop --velocity-days 90
 uv run cartographer --verbose analyze /tmp/jaffle-shop
 ```
 
+### Lineage summary view
+
+```bash
+uv run cartographer lineage-summary ./.cartography/jaffle-shop
+uv run cartographer lineage-summary ./.cartography/jaffle-shop --node source.ecom.raw_orders
+```
+
+---
+
+## Ollama Setup (Phase 3)
+
+Phase 3 requires Ollama running locally with at least one of these models:
+
+```bash
+# Install Ollama from https://ollama.com/
+# Pull the recommended models:
+ollama pull qwen3-coder:480b-cloud    # code analysis tasks
+ollama pull deepseek-v3.1:671b-cloud  # synthesis & clustering tasks
+```
+
+If Ollama is not running or no models are found, Phase 3 gracefully degrades to
+heuristic-only mode: purpose statements are generated from metadata (role, dbt-refs,
+function names), domain clustering uses lineage dataset subjects, and a documentation-
+presence scan flags undocumented files. Day-One synthesis is skipped.
+
+---
+
+## Phase 3 Highlights
+
+The upgraded Semanticist now adds:
+
+- semantic provenance fields on module nodes:
+  `semantic_model_used`, `semantic_prompt_version`, `semantic_generation_timestamp`,
+  `semantic_fallback_used`
+- structured semantic evidence objects with:
+  `source_phase`, `file_path`, `line_start`, `line_end`, `extraction_method`,
+  `description`
+- Day-One answers with structured citations, line ranges, and evidence types
+- `semantic_hotspots.json`, which ranks onboarding-critical modules using fused signals
+- `semantic_review_queue.json`, which flags modules that still need human review
+
+When exact evidence cannot be grounded honestly, the pipeline leaves line ranges as
+`null` and surfaces the result in the review queue instead of fabricating citations.
+
 ---
 
 ## Output Artifacts
@@ -148,6 +195,23 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 | `blind_spots.json` | Metric-based JSON: parse failures, dynamic transforms, low-confidence datasets + edges |
 | `high_risk_areas.json` | Metric-based JSON: hubs, cycles, high-velocity files, fan-out transforms, dynamic hotspots |
 
+### Phase 3 - `semantics/`
+
+| File | Description |
+|------|-------------|
+| `semantic_enrichment.json` | Full semantic output for every module, including purpose, drift, structured evidence, and hotspot rankings |
+| `semantic_index.json` | Compact lookup: module-to-purpose summary, domain membership, top hotspots, and top reading-order entries |
+| `day_one_answers.json` | Five FDE Day-One Q&A with legacy `cited_files`, structured `citations`, line ranges, and evidence types |
+| `reading_order.json` | Ranked onboarding guide: every module ordered by domain importance, business logic score, and hotspot context |
+| `semanticist_stats.json` | Run stats: LLM calls, token usage, elapsed time, drift count, documentation-missing count, hotspot count, and review queue count |
+| `semantic_review_queue.json` | Canonical semantic review queue with modules, reasons, scores, and evidence |
+
+### Additional Phase 3 outputs
+
+| File | Location | Description |
+|------|----------|-------------|
+| `semantic_hotspots.json` | `.cartography/<repo-name>/` | Ranked hotspot fusion output combining PageRank, git velocity, lineage fan-out, and business logic score |
+
 ### Expected output for jaffle-shop
 
 Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 produce:
@@ -161,8 +225,23 @@ Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 pro
 - **Project type**: `dbt` (auto-detected from `dbt_project.yml`)
 - **Risk reports**: `blind_spots.json` (8 total blind spots — 2 macros flagged dynamic), `high_risk_areas.json`
 - **Output location**: `.cartography/jaffle-shop/` (auto-derived subfolder)
+- **Purpose statements**: 31/31 modules enriched with purpose statements and semantic provenance fields
+- **Structured evidence**: semantic outputs now carry file paths, line ranges, extraction methods, and source phases
+- **Domain clusters**: semantic clustering remains part of the Phase 3 output
+- **Doc drift**: drift and documentation-missing signals are emitted per module
+- **Reading order**: 33-item onboarding guide written to `reading_order.json`
+- **Day-One answers**: 5 FDE Day-One Q&A generated with structured citations and legacy `cited_files`
+- **Hotspot fusion**: `.cartography/jaffle-shop/semantic_hotspots.json` ranks onboarding-critical modules
+- **Semantic review queue**: `.cartography/jaffle-shop/semantics/semantic_review_queue.json` lists modules that need human follow-up
 
 ---
+
+### Phase 2 reference update (March 13, 2026)
+
+- The current jaffle-shop run produces **25 datasets**, **13 SQL transformations**, and **30 lineage edges**.
+- `blind_spots.json` is now **0 across all categories** because dbt macros are excluded from executable lineage instead of being represented as low-confidence pseudo-models.
+- `hydrologist_stats.json` records `macro_sql_files_skipped = 2`, which keeps macro utility files visible in Phase 1 without polluting Phase 2 lineage.
+- `cartographer lineage-summary ./.cartography/jaffle-shop --node source.ecom.raw_orders` prints the saved source/sink sets plus the downstream blast radius for a concrete dataset.
 
 ## Project Structure
 
@@ -178,16 +257,24 @@ src/
 │   ├── dbt_helpers.py         # Regex extraction of {{ ref() }} and {{ source() }} from SQL
 │   ├── sql_lineage.py         # [Phase 2] sqlglot-based SQL lineage & dataset extraction
 │   ├── config_analyzer.py     # [Phase 2] YAML config parsing (dbt sources/seeds/models)
-│   └── python_dataflow.py     # [Phase 2] pandas/spark read/write + SQL execution detection
+│   ├── python_dataflow.py     # [Phase 2] pandas/spark read/write + SQL execution detection
+│   ├── semantic_extractor.py  # [Phase 3] LLM purpose extraction + business logic scoring
+│   ├── domain_clusterer.py    # [Phase 3] Heuristic + LLM domain clustering
+│   └── doc_drift_detector.py  # [Phase 3] Documentation drift detection
 ├── agents/
 │   ├── surveyor.py            # Surveyor: file scan → graph → PageRank/SCC
-│   └── hydrologist.py         # [Phase 2] Hydrologist: data lineage → datasets + transforms
+│   ├── hydrologist.py         # [Phase 2] Hydrologist: data lineage → datasets + transforms
+│   └── semanticist.py         # [Phase 3] Semanticist: LLM purpose → domains → drift → Day-One
 ├── graph/
 │   ├── knowledge_graph.py     # NetworkX wrapper + analytics + PNG/HTML visualization
 │   ├── graph_viz.py           # Module graph PNG (role rings, confidence-scaled edges)
 │   ├── graph_analytics.py     # PageRank, SCC, degree stats
 │   ├── enrichment.py          # Module + dataset classification; confidence scoring
 │   └── reporting.py           # Blind-spots + high-risk markdown/JSON report writers
+├── llm/                       # [Phase 3] LLM integration layer
+│   ├── ollama_client.py       # Ollama REST client, ContextWindowBudget
+│   ├── model_router.py        # Task-aware model routing (qwen3-coder vs deepseek-v3.1)
+│   └── prompt_builder.py      # Structured prompt templates for all semantic tasks
 └── utils/
     ├── repo_loader.py          # Local path or GitHub URL → local Path (--full-history support)
     ├── file_inventory.py       # Walk repo, filter by language
@@ -195,7 +282,8 @@ src/
 
 reports/
 ├── phase1.md                  # Phase 1 feature reference (classification, evidence, visualization)
-└── phase2.md                  # Phase 2 feature reference (lineage, blind spots, high-risk)
+├── phase2.md                  # Phase 2 feature reference (lineage, blind spots, high-risk)
+└── phase3.md                  # Phase 3 feature reference (LLM semantics, domains, Day-One)
 ```
 
 ---
@@ -206,19 +294,27 @@ By default artifacts are written to `.cartography/<repo-name>/` so multiple repo
 
 ```
 .cartography/
-└── jaffle-shop/                    ← derived from the target path or URL
-    ├── cartography_trace.jsonl     ← shared audit log (all agents)
-    ├── blind_spots.json            ← metric-based blind-spot signals
-    ├── high_risk_areas.json        ← metric-based risk signals
-    ├── module_graph/               ← Phase 1 (Surveyor) artifacts
+└── jaffle-shop/                    # derived from the target path or URL
+    ├── cartography_trace.jsonl     # shared audit log (all agents)
+    ├── blind_spots.json            # metric-based blind-spot signals
+    ├── high_risk_areas.json        # metric-based risk signals
+    ├── semantic_hotspots.json      # Phase 3 hotspot fusion artifact
+    ├── module_graph/               # Phase 1 (Surveyor) artifacts
     │   ├── module_graph.json
     │   ├── module_graph_modules.json
     │   ├── module_graph.png
     │   └── surveyor_stats.json
-    └── data_lineage/               ← Phase 2 (Hydrologist) artifacts
-        ├── lineage_graph.json
-        ├── lineage_graph.html
-        └── hydrologist_stats.json
+    ├── data_lineage/               # Phase 2 (Hydrologist) artifacts
+    │   ├── lineage_graph.json
+    │   ├── lineage_graph.html
+    │   └── hydrologist_stats.json
+    └── semantics/                  # Phase 3 (Semanticist) artifacts
+        ├── semantic_enrichment.json
+        ├── semantic_index.json
+        ├── day_one_answers.json
+        ├── semantic_review_queue.json
+        ├── reading_order.json
+        └── semanticist_stats.json
 ```
 
 To write to an exact directory (bypass auto-subfolder): `--output-dir ./my-output`
@@ -359,6 +455,29 @@ The HTML visualization opens in any browser — no server needed, fully self-con
 
 ---
 
+## Inspecting The New Semantic Outputs
+
+After a run, these commands are the quickest way to inspect the new Phase 3 outputs:
+
+```bash
+cat .cartography/<repo-name>/semantic_hotspots.json
+cat .cartography/<repo-name>/semantics/day_one_answers.json
+cat .cartography/<repo-name>/module_graph/module_graph_modules.json
+cat .cartography/<repo-name>/semantics/semantic_review_queue.json
+```
+
+What to look for:
+
+- provenance fields on module nodes:
+  `semantic_model_used`, `semantic_prompt_version`,
+  `semantic_generation_timestamp`, `semantic_fallback_used`
+- structured `semantic_evidence` entries with grounded file and line metadata
+- Day-One `citations` objects with `file_path`, `line_start`, `line_end`, and `evidence_type`
+- hotspot ranking breakdowns in `semantic_hotspots.json`
+- review queue entries in `semantic_review_queue.json`
+
+---
+
 ## Running on Any Repo Type
 
 Phase 1 v3 automatically detects the project type and supports 14 languages. Run it on anything:
@@ -387,8 +506,8 @@ The CLI overview table will show a **Project type** row (e.g. `go`, `java-maven`
 # Install with dev extras
 uv pip install -e ".[dev]"
 
-# Run tests (few exist at this stage)
-uv run pytest tests/ -v
+# Run tests
+python -m unittest tests.test_phase3_semantics -v
 ```
 
 ---
@@ -397,7 +516,7 @@ uv run pytest tests/ -v
 
 | Phase | Agent | What it does |
 |-------|-------|--------------|
-| 1 ✅ | Surveyor | File scan, import graph, PageRank hubs, git velocity, project-type detection, module classification, edge evidence |
-| 2 ✅ | Hydrologist | Data lineage — datasets, transformations, PRODUCES/CONSUMES edges, dataset classification, blind-spots + high-risk reports |
-| 3 🔜 | Semanticist | LLM-powered purpose annotation for modules and datasets |
-| 4 🔜 | Archivist + Navigator | Semantic search, Q&A chat over the knowledge graph |
+| 1 | Surveyor | File scan, import graph, PageRank hubs, git velocity, project-type detection, module classification, and edge evidence |
+| 2 | Hydrologist | Data lineage: datasets, transformations, PRODUCES/CONSUMES edges, dataset classification, blind-spots, and high-risk reports |
+| 3 | Semanticist | Purpose annotation, structured evidence, Day-One synthesis, hotspot fusion, and semantic review queue |
+| 4 | Archivist + Navigator | Semantic search and Q&A over the knowledge graph |

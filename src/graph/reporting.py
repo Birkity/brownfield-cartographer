@@ -16,7 +16,7 @@ Design principles:
 
 from __future__ import annotations
 
-import datetime
+from datetime import datetime, timezone
 import json
 import logging
 from pathlib import Path
@@ -86,6 +86,7 @@ def _collect_blind_spots(
             and not m.classes
             and m.lines_of_code > 5
             and not m.parse_error
+            and m.role != "macro"
             and m.language.value not in ("yaml", "shell", "unknown")
         )
     ]
@@ -131,7 +132,7 @@ def _collect_blind_spots(
             })
 
     return {
-        "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "summary": {
             "parse_failures": len(parse_failures),
             "grammar_missing": surveyor_stats.get("grammar_not_available", 0),
@@ -251,7 +252,7 @@ def _collect_high_risk(
     ]
 
     return {
-        "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "velocity_window_days": surveyor_stats.get("velocity_days", 30),
         "summary": {
             "high_velocity_files": len(velocity_files),

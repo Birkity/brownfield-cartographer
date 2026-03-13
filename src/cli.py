@@ -35,7 +35,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich import print as rprint
 
-from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2
+from src.orchestrator import DEFAULT_OUTPUT_DIR, run_phase1, run_phase2, run_phase3
 from src.utils.repo_loader import RepoLoadError
 
 console = Console(highlight=False)
@@ -148,7 +148,7 @@ def analyze(
 
     console.print(
         Panel.fit(
-            f"[bold cyan]Brownfield Cartographer[/] — Phase 1 & 2\n"
+            f"[bold cyan]Brownfield Cartographer[/] — Phase 1, 2 & 3\n"
             f"[dim]Target:[/] {target}\n"
             f"[dim]Output:[/] {output_path.resolve()}"
             + (f"\n[dim]Repo name:[/] {repo_name}  [dim](auto-derived)[/]" if auto_subfolder else ""),
@@ -180,8 +180,16 @@ def analyze(
         logging.exception("Phase 2 (Hydrologist) failed — Phase 1 artifacts still available")
         hydro_result = None
 
+    # ---- Run Phase 3 (Semanticist) --------------------------------------
+    semantics_result = None
+    try:
+        semantics_result = run_phase3(artifacts, graph, repo_root)
+    except Exception as exc:
+        console.print(f"[bold yellow]Phase 3 warning:[/] {exc}")
+        logging.exception("Phase 3 (Semanticist) failed — Phase 1/2 artifacts still available")
+
     # ---- Print summary --------------------------------------------------
-    _print_summary(artifacts, hydro_result)
+    _print_summary(artifacts, hydro_result, semantics_result)
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +215,7 @@ def _derive_repo_name(target: str) -> str:
     return Path(t).resolve().name or "unknown-repo"
 
 
-def _print_summary(artifacts, hydro_result=None) -> None:
+def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
     """Print a Rich-formatted summary after a successful run."""
     stats_path = artifacts.stats_json
     if not stats_path.exists():
@@ -295,6 +303,70 @@ def _print_summary(artifacts, hydro_result=None) -> None:
         lineage_table.add_row("Elapsed", f"{hs.get('elapsed_seconds', '?')}s")
         console.print(lineage_table)
 
+    # ---- Phase 3 semantics summary ----
+    if semantics_result is not None:
+        console.print("\n[bold green]Phase 3 (Semanticist) complete![/]\n")
+
+        sem_table = Table(title="Semantics Overview", show_header=False, box=None)
+        sem_table.add_column("Metric", style="dim")
+        sem_table.add_column("Value", style="bold")
+
+        sem_table.add_row(
+            "Ollama available",
+            "[green]yes[/]" if semantics_result.ollama_available else "[yellow]no (heuristic only)[/]",
+        )
+        sem_table.add_row(
+            "Purpose statements",
+            str(len(semantics_result.purpose_results)),
+        )
+        if semantics_result.clustering:
+            sem_table.add_row(
+                "Domain clusters",
+                str(len(semantics_result.clustering.domains)),
+            )
+            sem_table.add_row(
+                "Clustering method",
+                semantics_result.clustering.method or "unknown",
+            )
+        sem_table.add_row(
+            "Doc-drift detections",
+            str(len(semantics_result.drift_results)),
+        )
+        drift_count = sum(1 for d in semantics_result.drift_results if d.drift_level != "no_drift")
+        if drift_count:
+            sem_table.add_row(
+                "[yellow]Files with drift[/yellow]",
+                str(drift_count),
+            )
+        if semantics_result.day_one_answers:
+            question_count = len(semantics_result.day_one_answers.get("questions", []))
+            sem_table.add_row("Day-One answers", str(question_count))
+        doc_missing = sum(
+            1 for d in semantics_result.drift_results
+            if getattr(d, "documentation_missing", False)
+        )
+        if doc_missing:
+            sem_table.add_row(
+                "[dim]Files missing documentation[/dim]",
+                str(doc_missing),
+            )
+        reading_order = getattr(semantics_result, "reading_order", [])
+        if reading_order:
+            sem_table.add_row("Reading order items", str(len(reading_order)))
+        hotspots = getattr(semantics_result, "hotspot_rankings", [])
+        if hotspots:
+            sem_table.add_row("Semantic hotspots", str(len(hotspots)))
+        review_queue = getattr(semantics_result, "review_queue", [])
+        if review_queue:
+            sem_table.add_row("Review queue items", str(len(review_queue)))
+        if semantics_result.budget_summary:
+            bs = semantics_result.budget_summary
+            sem_table.add_row(
+                "LLM calls / tokens",
+                f"{bs.get('total_calls', 0)} calls, ~{bs.get('total_prompt_tokens', 0)} prompt tokens",
+            )
+        console.print(sem_table)
+
     # ---- Output paths ----
     console.print("\n[bold]Artifacts written:[/]")
     artifact_names = [
@@ -312,12 +384,100 @@ def _print_summary(artifacts, hydro_result=None) -> None:
             "blind_spots_json",
             "high_risk_json",
         ])
+    if semantics_result is not None:
+        artifact_names.extend([
+            "semantic_enrichment_json",
+            "semantic_index_json",
+            "day_one_answers_json",
+            "semanticist_stats_json",
+            "reading_order_json",
+            "semantic_review_queue_json",
+            "semantic_hotspots_json",
+        ])
     for name in artifact_names:
         p = getattr(artifacts, name)
         if p.exists():
             console.print(f"  [green][OK][/] {p.resolve()}")
         else:
             console.print(f"  [red][--][/] {p.resolve()} (not found)")
+
+
+def _resolve_lineage_artifact(path: Path) -> Path:
+    """Accept a repo artifact dir, data_lineage dir, or direct lineage file."""
+    if path.is_file():
+        return path
+    direct = path / "lineage_graph.json"
+    if direct.exists():
+        return direct
+    nested = path / "data_lineage" / "lineage_graph.json"
+    if nested.exists():
+        return nested
+    raise click.ClickException(f"Could not find lineage_graph.json under {path}")
+
+
+def _print_lineage_summary_table(title: str, items: list[str], limit: int) -> None:
+    table = Table(title=title, show_header=True)
+    table.add_column("Node", style="cyan")
+    for item in items[:limit]:
+        table.add_row(item)
+    console.print(table)
+
+
+@cli.command("lineage-summary")
+@click.argument("artifact_root", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--node",
+    default=None,
+    help="Optional dataset/transformation id to compute blast radius for.",
+)
+@click.option(
+    "--limit",
+    default=10,
+    show_default=True,
+    help="Maximum number of nodes to display per section.",
+)
+def lineage_summary(artifact_root: Path, node: str | None, limit: int) -> None:
+    """
+    Print source, sink, and blast-radius summaries from a saved lineage artifact.
+    """
+    from src.graph.knowledge_graph import KnowledgeGraph
+
+    lineage_path = _resolve_lineage_artifact(artifact_root)
+    graph = KnowledgeGraph.load_lineage_artifact(lineage_path)
+
+    sources = graph.find_sources()
+    sinks = graph.find_sinks()
+
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Lineage Summary[/]\n[dim]Artifact:[/] {lineage_path.resolve()}",
+            border_style="cyan",
+        )
+    )
+
+    _print_lineage_summary_table("Source Datasets", sources, limit)
+    _print_lineage_summary_table("Sink Datasets", sinks, limit)
+
+    if node:
+        blast = graph.blast_radius(node)
+        title = f"Blast Radius: {node}"
+        _print_lineage_summary_table(title, blast, limit)
+        return
+
+    candidate_nodes = sources[: min(len(sources), limit)]
+    if not candidate_nodes:
+        console.print("[yellow]No lineage nodes available for blast-radius summary.[/]")
+        return
+
+    blast_table = Table(title="Blast Radius Summary", show_header=True)
+    blast_table.add_column("Node", style="cyan")
+    blast_table.add_column("Downstream dependents", justify="right")
+    blast_table.add_column("Preview", style="dim")
+    for candidate in candidate_nodes:
+        blast = graph.blast_radius(candidate)
+        preview = ", ".join(blast[:3]) if blast else "-"
+        blast_table.add_row(candidate, str(len(blast)), preview)
+    console.print(blast_table)
 
 
 # ---------------------------------------------------------------------------

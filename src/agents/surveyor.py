@@ -19,7 +19,7 @@ Phase 2 integration point (Hydrologist):
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -92,7 +92,7 @@ class Surveyor:
         graph = KnowledgeGraph()
 
         logger.info("Surveyor starting analysis of %s", repo_root)
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # ---- Step 1: inventory all files --------------------------------
         inventory = FileInventory()
@@ -128,6 +128,7 @@ class Surveyor:
         parsed_ok = 0
         parse_errors = 0
         grammar_missing = 0
+        tracked_rel_paths = {item.rel_posix() for item in items}
 
         for item in items:
             rel_posix = item.rel_posix()
@@ -218,7 +219,7 @@ class Surveyor:
             )
         )
 
-        elapsed = (datetime.utcnow() - start_time).total_seconds()
+        elapsed = (datetime.now(timezone.utc) - start_time).total_seconds()
         project_type = detect_project_type(repo_root)
         stats = {
             "project_type": project_type,
@@ -231,8 +232,15 @@ class Surveyor:
             "circular_dependency_clusters": len(cycles),
             "dead_code_candidates": len(dead),
             "top_hubs": hubs[:5],
-            "high_velocity_files": velocity.top_files(10) if velocity.available else [],
-            "pareto_core": velocity.pareto_core() if velocity.available else [],
+            "high_velocity_files": [
+                (path, count)
+                for path, count in velocity.top_files(len(velocity.commit_counts))
+                if path in tracked_rel_paths
+            ][:10] if velocity.available else [],
+            "pareto_core": [
+                path for path in velocity.pareto_core()
+                if path in tracked_rel_paths
+            ] if velocity.available else [],
             "elapsed_seconds": round(elapsed, 2),
         }
 

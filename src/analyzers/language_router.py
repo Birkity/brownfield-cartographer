@@ -56,6 +56,7 @@ EXTENSION_TO_LANGUAGE: dict[str, Language] = {
     ".sh": Language.SHELL,
     ".bash": Language.SHELL,
     ".zsh": Language.SHELL,
+    ".ipynb": Language.NOTEBOOK,
 }
 
 # Extensions we explicitly skip (not an error, just not useful to analyze)
@@ -89,7 +90,6 @@ _SKIP_EXTENSIONS: frozenset[str] = frozenset(
         ".csv",
         ".parquet",
         ".json",  # data files (lineage may reference, but we don't AST-parse)
-        ".ipynb",  # notebooks — TODO Phase 2 (Hydrologist): parse for data refs
     }
 )
 

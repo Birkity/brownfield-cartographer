@@ -204,40 +204,6 @@
       "is_final_model": false,
       "is_intermediate_model": false
     },
-    "model.cents_to_dollars": {
-      "name": "model.cents_to_dollars",
-      "storage_type": "table",
-      "schema_snapshot": null,
-      "freshness_sla": null,
-      "owner": null,
-      "is_source_of_truth": false,
-      "dataset_type": "dbt_model",
-      "source_file": "macros/cents_to_dollars.sql",
-      "description": "",
-      "columns": [],
-      "confidence": 0.44999999999999996,
-      "is_source_dataset": false,
-      "is_sink_dataset": true,
-      "is_final_model": false,
-      "is_intermediate_model": false
-    },
-    "model.generate_schema_name": {
-      "name": "model.generate_schema_name",
-      "storage_type": "table",
-      "schema_snapshot": null,
-      "freshness_sla": null,
-      "owner": null,
-      "is_source_of_truth": false,
-      "dataset_type": "dbt_model",
-      "source_file": "macros/generate_schema_name.sql",
-      "description": "",
-      "columns": [],
-      "confidence": 0.3999999999999999,
-      "is_source_dataset": false,
-      "is_sink_dataset": true,
-      "is_final_model": false,
-      "is_intermediate_model": false
-    },
     "model.customers": {
       "name": "model.customers",
       "storage_type": "table",
@@ -495,45 +461,13 @@
     }
   },
   "transformations": {
-    "sql:macros/cents_to_dollars.sql": {
-      "id": "sql:macros/cents_to_dollars.sql",
-      "transformation_type": "dbt_model",
-      "source_file": "macros/cents_to_dollars.sql",
-      "line_range": [
-        0,
-        0
-      ],
-      "sql_query": "{# A basic example for a project-wide macro to cast a column uniformly #}\n\n{% macro cents_to_dollars(column_name) -%}\n    {{ return(adapter.dispatch('cents_to_dollars')(column_name)) }}\n{%- endmacro %}\n\n{% macro default__cents_to_dollars(column_name) -%}\n    ({{ column_name }} / 100)::numeric(16, 2)\n{%- endmacro %}\n\n{% macro postgres__cents_to_dollars(column_name) -%}\n    ({{ column_name }}::numeric(16, 2) / 100)\n{%- endmacro %}\n\n{% macro bigquery__cents_to_dollars(column_name) %}\n    round(cast",
-      "source_datasets": [],
-      "target_datasets": [
-        "model.cents_to_dollars"
-      ],
-      "confidence": 0.44999999999999996,
-      "is_dynamic": true
-    },
-    "sql:macros/generate_schema_name.sql": {
-      "id": "sql:macros/generate_schema_name.sql",
-      "transformation_type": "dbt_model",
-      "source_file": "macros/generate_schema_name.sql",
-      "line_range": [
-        0,
-        0
-      ],
-      "sql_query": "{% macro generate_schema_name(custom_schema_name, node) %}\n\n    {% set default_schema = target.schema %}\n\n    {# seeds go in a global `raw` schema #}\n    {% if node.resource_type == 'seed' %}\n        {{ custom_schema_name | trim }}\n\n    {# non-specified schemas go to the default target schema #}\n    {% elif custom_schema_name is none %}\n        {{ default_schema }}\n\n\n    {# specified custom schema names go to the schema name prepended with the the default schema name in prod (as this is an examp",
-      "source_datasets": [],
-      "target_datasets": [
-        "model.generate_schema_name"
-      ],
-      "confidence": 0.3999999999999999,
-      "is_dynamic": true
-    },
     "sql:models/marts/customers.sql": {
       "id": "sql:models/marts/customers.sql",
       "transformation_type": "dbt_model",
       "source_file": "models/marts/customers.sql",
       "line_range": [
-        0,
-        0
+        1,
+        58
       ],
       "sql_query": "with\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders as (\n\n    select * from {{ ref('orders') }}\n\n),\n\ncustomer_orders_summary as (\n\n    select\n        orders.customer_id,\n\n        count(distinct orders.order_id) as count_lifetime_orders,\n        count(distinct orders.order_id) > 1 as is_repeat_buyer,\n        min(orders.ordered_at) as first_ordered_at,\n        max(orders.ordered_at) as last_ordered_at,\n        sum(orders.subtotal) as lifetime_spend_pretax,\n        sum(or",
       "source_datasets": [
@@ -551,8 +485,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/marts/locations.sql",
       "line_range": [
-        0,
-        0
+        1,
+        9
       ],
       "sql_query": "with\n\nlocations as (\n\n    select * from {{ ref('stg_locations') }}\n\n)\n\nselect * from locations\n",
       "source_datasets": [
@@ -569,8 +503,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/marts/metricflow_time_spine.sql",
       "line_range": [
-        0,
-        0
+        1,
+        19
       ],
       "sql_query": "-- metricflow_time_spine.sql\nwith\n\ndays as (\n\n    --for BQ adapters use \"DATE('01/01/2000','mm/dd/yyyy')\"\n    {{ dbt_date.get_base_dates(n_dateparts=365*10, datepart=\"day\") }}\n\n),\n\ncast_to_date as (\n\n    select cast(date_day as date) as date_day\n\n    from days\n\n)\n\nselect * from cast_to_date\n",
       "source_datasets": [],
@@ -585,8 +519,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/marts/order_items.sql",
       "line_range": [
-        0,
-        0
+        1,
+        66
       ],
       "sql_query": "with\n\norder_items as (\n\n    select * from {{ ref('stg_order_items') }}\n\n),\n\n\norders as (\n\n    select * from {{ ref('stg_orders') }}\n\n),\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n\n),\n\nsupplies as (\n\n    select * from {{ ref('stg_supplies') }}\n\n),\n\norder_supplies_summary as (\n\n    select\n        product_id,\n\n        sum(supply_cost) as supply_cost\n\n    from supplies\n\n    group by 1\n\n),\n\njoined as (\n\n    select\n        order_items.*,\n\n        orders.ordered_at,\n\n        products.p",
       "source_datasets": [
@@ -606,8 +540,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/marts/orders.sql",
       "line_range": [
-        0,
-        0
+        1,
+        77
       ],
       "sql_query": "with\n\norders as (\n\n    select * from {{ ref('stg_orders') }}\n\n),\n\norder_items as (\n\n    select * from {{ ref('order_items') }}\n\n),\n\norder_items_summary as (\n\n    select\n        order_id,\n\n        sum(supply_cost) as order_cost,\n        sum(product_price) as order_items_subtotal,\n        count(order_item_id) as count_order_items,\n        sum(\n            case\n                when is_food_item then 1\n                else 0\n            end\n        ) as count_food_items,\n        sum(\n            cas",
       "source_datasets": [
@@ -625,8 +559,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/marts/products.sql",
       "line_range": [
-        0,
-        0
+        1,
+        9
       ],
       "sql_query": "with\n\nproducts as (\n\n    select * from {{ ref('stg_products') }}\n\n)\n\nselect * from products\n",
       "source_datasets": [
@@ -643,8 +577,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/marts/supplies.sql",
       "line_range": [
-        0,
-        0
+        1,
+        9
       ],
       "sql_query": "with\n\nsupplies as (\n\n    select * from {{ ref('stg_supplies') }}\n\n)\n\nselect * from supplies\n",
       "source_datasets": [
@@ -661,8 +595,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/staging/stg_customers.sql",
       "line_range": [
-        0,
-        0
+        1,
+        23
       ],
       "sql_query": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_customers') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as customer_id,\n\n        ---------- text\n        name as customer_name\n\n    from source\n\n)\n\nselect * from renamed\n",
       "source_datasets": [
@@ -679,8 +613,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/staging/stg_locations.sql",
       "line_range": [
-        0,
-        0
+        1,
+        29
       ],
       "sql_query": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_stores') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as location_id,\n\n        ---------- text\n        name as location_name,\n\n        ---------- numerics\n        tax_rate,\n\n        ---------- timestamps\n        {{ dbt.date_trunc('day', 'opened_at') }} as opened_date\n\n    from source\n\n)\n\nselect * from renamed\n",
       "source_datasets": [
@@ -697,8 +631,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/staging/stg_order_items.sql",
       "line_range": [
-        0,
-        0
+        1,
+        22
       ],
       "sql_query": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_items') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_item_id,\n        order_id,\n        sku as product_id\n\n    from source\n\n)\n\nselect * from renamed\n",
       "source_datasets": [
@@ -715,8 +649,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/staging/stg_orders.sql",
       "line_range": [
-        0,
-        0
+        1,
+        33
       ],
       "sql_query": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_orders') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        id as order_id,\n        store_id as location_id,\n        customer as customer_id,\n\n        ---------- numerics\n        subtotal as subtotal_cents,\n        tax_paid as tax_paid_cents,\n        order_total as order_total_cents,\n        {{ cents_to_dollars('subtotal') }} as subtotal,\n        {{ cents_to_dollars('tax_paid') }} as tax_paid,\n        {{ cents_to_dollars(",
       "source_datasets": [
@@ -733,8 +667,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/staging/stg_products.sql",
       "line_range": [
-        0,
-        0
+        1,
+        34
       ],
       "sql_query": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_products') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        sku as product_id,\n\n        ---------- text\n        name as product_name,\n        type as product_type,\n        description as product_description,\n\n\n        ---------- numerics\n        {{ cents_to_dollars('price') }} as product_price,\n\n        ---------- booleans\n        coalesce(type = 'jaffle', false) as is_food_item,\n\n        coalesce(type = 'beverage', fal",
       "source_datasets": [
@@ -751,8 +685,8 @@
       "transformation_type": "dbt_model",
       "source_file": "models/staging/stg_supplies.sql",
       "line_range": [
-        0,
-        0
+        1,
+        31
       ],
       "sql_query": "with\n\nsource as (\n\n    select * from {{ source('ecom', 'raw_supplies') }}\n\n),\n\nrenamed as (\n\n    select\n\n        ----------  ids\n        {{ dbt_utils.generate_surrogate_key(['id', 'sku']) }} as supply_uuid,\n        id as supply_id,\n        sku as product_id,\n\n        ---------- text\n        name as supply_name,\n\n        ---------- numerics\n        {{ cents_to_dollars('cost') }} as supply_cost,\n\n        ---------- booleans\n        perishable as is_perishable_supply\n\n    from source\n\n)\n\nselect * f",
       "source_datasets": [
@@ -830,30 +764,6 @@
         "source_file": "models/staging/stg_supplies.sql",
         "extraction_method": "sqlglot",
         "transformation_type": "dbt_model"
-      }
-    },
-    {
-      "source": "sql:macros/cents_to_dollars.sql",
-      "target": "model.cents_to_dollars",
-      "edge_type": "PRODUCES",
-      "confidence": 0.44999999999999996,
-      "evidence": {
-        "source_file": "macros/cents_to_dollars.sql",
-        "extraction_method": "sqlglot_dynamic",
-        "transformation_type": "dbt_model",
-        "sql_preview": "{# A basic example for a project-wide macro to cast a column uniformly #}\n\n{% macro cents_to_dollars(column_name) -%}\n  "
-      }
-    },
-    {
-      "source": "sql:macros/generate_schema_name.sql",
-      "target": "model.generate_schema_name",
-      "edge_type": "PRODUCES",
-      "confidence": 0.3999999999999999,
-      "evidence": {
-        "source_file": "macros/generate_schema_name.sql",
-        "extraction_method": "sqlglot_dynamic",
-        "transformation_type": "dbt_model",
-        "sql_preview": "{% macro generate_schema_name(custom_schema_name, node) %}\n\n    {% set default_schema = target.schema %}\n\n    {# seeds g"
       }
     },
     {

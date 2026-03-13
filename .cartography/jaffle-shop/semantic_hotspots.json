@@ -1,0 +1,1515 @@
+{
+  "semantic_hotspots": [
+    {
+      "file_path": "models/staging/stg_products.sql",
+      "hotspot_fusion_score": 0.694445,
+      "purpose": "This staging model transforms raw product data from the e-commerce system into a standardized format suitable for analytics. It cleans and renames fields, converts price units, and adds boolean flags to categorize products as food or drink items.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.015249,
+          "normalized": 1.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 3.0,
+          "normalized": 1.0
+        },
+        "business_logic_score": {
+          "raw": 0.7,
+          "normalized": 0.777778
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 14,
+          "line_end": 28,
+          "extraction_method": "llm_inference",
+          "description": "Field renaming (sku\u2192product_id, name\u2192product_name) and transformation (cents_to_dollars macro on price field)"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 26,
+          "line_end": 28,
+          "extraction_method": "llm_inference",
+          "description": "Business rule implementation using coalesce to create boolean flags for product types"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 1,
+          "line_end": 34,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_products and writes model.stg_products"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_orders.sql",
+      "hotspot_fusion_score": 0.615375,
+      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollars, and truncating timestamps to daily granularity for downstream analytics use.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.013548,
+          "normalized": 0.794835
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 3.0,
+          "normalized": 1.0
+        },
+        "business_logic_score": {
+          "raw": 0.6,
+          "normalized": 0.666667
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 14,
+          "line_end": 27,
+          "extraction_method": "phase2_lineage",
+          "description": "Field renaming (id\u2192order_id, store_id\u2192location_id, customer\u2192customer_id) and currency conversions using {{cents_to_dollars}} macro"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 27,
+          "line_end": 27,
+          "extraction_method": "phase2_lineage",
+          "description": "Timestamp normalization using {{dbt.date_trunc('day','ordered_at')}}"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 1,
+          "line_end": 33,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_orders and writes model.stg_orders"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_supplies.sql",
+      "hotspot_fusion_score": 0.583333,
+      "purpose": "This staging model transforms raw supply data from the ecom source into a standardized format with cleaned column names, calculated fields, and appropriate data types for downstream analytics use.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.015249,
+          "normalized": 1.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 3.0,
+          "normalized": 1.0
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_supplies.sql",
+          "line_start": 14,
+          "line_end": 16,
+          "extraction_method": "phase2_lineage",
+          "description": "generation of surrogate key and renaming of id/sku columns"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_supplies.sql",
+          "line_start": 22,
+          "line_end": 22,
+          "extraction_method": "phase2_lineage",
+          "description": "cents_to_dollars macro application on cost field"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_supplies.sql",
+          "line_start": 25,
+          "line_end": 25,
+          "extraction_method": "phase2_lineage",
+          "description": "boolean field transformation for perishable supplies"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/orders.sql",
+      "hotspot_fusion_score": 0.491975,
+      "purpose": "This mart model aggregates order data with item-level details to create a comprehensive view of each order, including cost summaries, item counts, and customer ordering sequence. It enhances raw order data with business-relevant computed fields like whether an order contains food or drink items and the customer's order history rank.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.009917,
+          "normalized": 0.356789
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.85,
+          "normalized": 0.944444
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 15,
+          "line_end": 39,
+          "extraction_method": "llm_inference",
+          "description": "CTE 'order_items_summary' computes aggregated metrics such as supply cost, product price subtotal, and categorized item counts (food/drink) per order"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 42,
+          "line_end": 61,
+          "extraction_method": "llm_inference",
+          "description": "CTE 'compute_booleans' joins order data with summary stats and derives boolean flags for food and drink orders"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 63,
+          "line_end": 75,
+          "extraction_method": "llm_inference",
+          "description": "CTE 'customer_order_count' assigns sequential numbering to orders by customer, indicating order history position"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/order_items.sql",
+      "hotspot_fusion_score": 0.488214,
+      "purpose": "This model creates a comprehensive view of order items by joining staging tables for orders, products, and supplies to include product details, order timestamps, and supply costs. It aggregates supply costs per product and provides a unified dataset for downstream reporting and analysis.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.011174,
+          "normalized": 0.508413
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.7,
+          "normalized": 0.777778
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 43,
+          "line_end": 54,
+          "extraction_method": "phase2_lineage",
+          "description": "Selecting core order item fields and joining with orders, products, and aggregated supply cost data"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 30,
+          "line_end": 37,
+          "extraction_method": "phase2_lineage",
+          "description": "Aggregation of supply costs by product ID from the supplies staging table"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 1,
+          "line_end": 66,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads model.stg_order_items, model.stg_orders, model.stg_products and writes model.order_items"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_locations.sql",
+      "hotspot_fusion_score": 0.428395,
+      "purpose": "This staging model transforms raw store data into a standardized format for downstream analytics use. It cleans and renames fields from the source while adding basic transformations like date truncation.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.012875,
+          "normalized": 0.713578
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_locations.sql",
+          "line_start": 14,
+          "line_end": 23,
+          "extraction_method": "phase3-purpose-v2",
+          "description": "Field renaming and transformation: id\u2192location_id, name\u2192location_name, tax_rate, and opened_at\u2192opened_date"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_locations.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase3-purpose-v2",
+          "description": "Source reference to ecom.raw_stores indicates input dataset"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_locations.sql",
+          "line_start": 1,
+          "line_end": 29,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_stores and writes model.stg_locations"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_customers.sql",
+      "hotspot_fusion_score": 0.339197,
+      "purpose": "This staging model transforms raw customer data from the ecom source by renaming fields to standardized column names. It selects only the customer ID and name, preparing the data for downstream usage in the analytics stack.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.009917,
+          "normalized": 0.356789
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_customers.sql",
+          "line_start": 14,
+          "line_end": 17,
+          "extraction_method": "phase2_lineage",
+          "description": "id renamed to customer_id and name renamed to customer_name in SELECT clause"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_customers.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Source reference to ecom.raw_customers"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_customers.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_customers and writes model.stg_customers"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_order_items.sql",
+      "hotspot_fusion_score": 0.321605,
+      "purpose": "This staging model transforms raw e-commerce item data into a standardized format by renaming and selecting key fields. It prepares granular order item records for downstream analytics by mapping raw identifiers to business-friendly column names.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.009334,
+          "normalized": 0.286422
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_order_items.sql",
+          "line_start": 14,
+          "line_end": 16,
+          "extraction_method": "phase2_lineage",
+          "description": "Column renaming logic maps raw fields (id, sku) to business concepts (order_item_id, product_id)"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_order_items.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Source reference {{ source('ecom', 'raw_items') }} indicates input dataset"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_order_items.sql",
+          "line_start": 1,
+          "line_end": 22,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_items and writes model.stg_order_items"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/customers.sql",
+      "hotspot_fusion_score": 0.305555,
+      "purpose": "Creates a comprehensive customer analytics dataset that aggregates lifetime order history and spending patterns to classify customers as new or returning, enabling customer segmentation and retention analysis.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 1.0,
+          "normalized": 0.333333
+        },
+        "business_logic_score": {
+          "raw": 0.8,
+          "normalized": 0.888889
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/customers.sql",
+          "line_start": 20,
+          "line_end": 26,
+          "extraction_method": "phase2_lineage",
+          "description": "Aggregates customer order data including count_lifetime_orders, lifetime_spend_pretax, lifetime_tax_paid, and lifetime_spend"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/customers.sql",
+          "line_start": 46,
+          "line_end": 49,
+          "extraction_method": "phase2_lineage",
+          "description": "Classifies customers as 'returning' or 'new' based on is_repeat_buyer logic"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/customers.sql",
+          "line_start": 1,
+          "line_end": 58,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads model.stg_customers, model.orders and writes model.customers"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/cents_to_dollars.sql",
+      "hotspot_fusion_score": 0.25,
+      "purpose": "Provides a standardized way to convert monetary values from cents to dollars across different database platforms for consistent financial reporting.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.9,
+          "normalized": 1.0
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": 3,
+          "line_end": 21,
+          "extraction_method": "phase1_symbol",
+          "description": "Macro definition with adapter-specific implementations for converting cents to dollars: default__cents_to_dollars, postgres__cents_to_dollars, bigquery__cents_to_dollars, fabric__cents_to_dollars"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/metricflow_time_spine.sql",
+      "hotspot_fusion_score": 0.25,
+      "purpose": "Generates a comprehensive date spine for time-series analysis and reporting across business metrics, though appears to be unused in current implementations.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 1.0,
+          "normalized": 0.333333
+        },
+        "business_logic_score": {
+          "raw": 0.6,
+          "normalized": 0.666667
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/metricflow_time_spine.sql",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_symbol",
+          "description": "File name indicates purpose for metricflow time analysis"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/metricflow_time_spine.sql",
+          "line_start": null,
+          "line_end": null,
+          "extraction_method": "heuristic",
+          "description": "Graph context indicates DEAD CODE with no imports, suggesting unused time dimension support"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/metricflow_time_spine.sql",
+          "line_start": 1,
+          "line_end": 19,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads none and writes model.metricflow_time_spine"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/order_items.yml",
+      "hotspot_fusion_score": 0.25,
+      "purpose": "This file defines the data model and business metrics for order items, enabling analysis of revenue breakdown by food vs drink items, cost calculations, and profit metrics. It serves as a semantic layer for order item analytics.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.9,
+          "normalized": 1.0
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 43,
+          "line_end": 87,
+          "extraction_method": "phase1_symbol",
+          "description": "Semantic model defining order item entities, dimensions, and measures including revenue calculations"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 88,
+          "line_end": 168,
+          "extraction_method": "phase1_symbol",
+          "description": "Metrics definitions for revenue, food/drink breakdowns, ratios, and derived profit calculations"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models"
+        }
+      ]
+    },
+    {
+      "file_path": "Taskfile.yml",
+      "hotspot_fusion_score": 0.25,
+      "purpose": "Defines and orchestrates the complete data workflow for the jaffle shop analytics project, including environment setup, data generation, and database loading processes.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.9,
+          "normalized": 1.0
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "Taskfile.yml",
+          "line_start": 9,
+          "line_end": 40,
+          "extraction_method": "phase1_symbol",
+          "description": "Contains multiple task definitions (venv, install, gen, seed, clean, load) that orchestrate the entire data pipeline workflow"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "Taskfile.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key version"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "Taskfile.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key silent"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/generate_schema_name.sql",
+      "hotspot_fusion_score": 0.236111,
+      "purpose": "Manages database schema organization by defining rules for where different types of data assets (seeds, models) should be deployed based on environment and naming conventions.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.85,
+          "normalized": 0.944444
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/generate_schema_name.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase1_symbol",
+          "description": "Macro with conditional logic for schema naming based on resource type (seed vs model) and target environment (prod vs non-prod)"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/supplies.yml",
+      "hotspot_fusion_score": 0.236111,
+      "purpose": "Defines the supplies semantic model to enable business intelligence reporting on supply and product combinations, including supply characteristics like cost and perishability.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.85,
+          "normalized": 0.944444
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/supplies.yml",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Supplies dimension table. The grain of the table is one row per supply and product combination.'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/supplies.yml",
+          "line_start": 19,
+          "line_end": 24,
+          "extraction_method": "phase1_symbol",
+          "description": "Dimensions include supply_name, supply_cost, and is_perishable_supply which represent core business concepts"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/supplies.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key semantic_models"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_orders.yml",
+      "hotspot_fusion_score": 0.236111,
+      "purpose": "Maintains cleaned and validated order data with financial integrity checks, providing a reliable foundation for order-based business analysis and reporting.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.85,
+          "normalized": 0.944444
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_orders.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "Description mentions 'Order data with basic cleaning and transformation applied'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_orders.yml",
+          "line_start": 4,
+          "line_end": 6,
+          "extraction_method": "phase1_symbol",
+          "description": "Data test validates financial calculation: 'order_total - tax_paid = subtotal'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_orders.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/customers.yml",
+      "hotspot_fusion_score": 0.222222,
+      "purpose": "This file defines a customer data mart that aggregates key customer-level metrics including lifetime spending, order counts, and customer type classification. It serves as a centralized source for customer analytics and supports downstream metrics like average order value and lifetime value calculations.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.8,
+          "normalized": 0.888889
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/customers.yml",
+          "line_start": 1,
+          "line_end": 32,
+          "extraction_method": "phase1_symbol",
+          "description": "models.customers table definition with columns for lifetime_spend, count_lifetime_orders, customer_type"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/customers.yml",
+          "line_start": 33,
+          "line_end": 71,
+          "extraction_method": "phase1_symbol",
+          "description": "semantic_models.customers defining measures for customers, count_lifetime_orders, lifetime_spend"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/customers.yml",
+          "line_start": 72,
+          "line_end": 94,
+          "extraction_method": "phase1_symbol",
+          "description": "metrics definitions for lifetime_spend_pretax, count_lifetime_orders, average_order_value"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/orders.yml",
+      "hotspot_fusion_score": 0.222222,
+      "purpose": "This file defines the 'orders' data mart, which provides a comprehensive view of order data including financial details, item types, and customer information. It serves as a centralized source for order-related analytics and reporting.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.8,
+          "normalized": 0.888889
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Order overview data mart, offering key details for each order'"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.yml",
+          "line_start": 79,
+          "line_end": 84,
+          "extraction_method": "phase1_symbol",
+          "description": "Semantic model description confirms 'Order fact table. This table is at the order grain with one row per order.'"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.yml",
+          "line_start": 124,
+          "line_end": 167,
+          "extraction_method": "phase1_symbol",
+          "description": "Multiple metrics defined like 'order_total', 'new_customer_orders', 'food_orders', 'drink_orders' indicate business logic concentration"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_order_items.yml",
+      "hotspot_fusion_score": 0.222222,
+      "purpose": "Represents individual food and drink items that compose customer orders, enabling detailed order analysis and relationship tracking between order items and their parent orders.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.8,
+          "normalized": 0.888889
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_order_items.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Individual food and drink items that make up our orders, one row per item.'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_order_items.yml",
+          "line_start": 10,
+          "line_end": 16,
+          "extraction_method": "phase1_symbol",
+          "description": "Column definitions show relationship tracking with order_id referencing stg_orders"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_order_items.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/locations.yml",
+      "hotspot_fusion_score": 0.194444,
+      "purpose": "Establishes the location dimension for semantic modeling with standardized location attributes and a measure for average tax rate, enabling location-based business intelligence and financial analysis.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.7,
+          "normalized": 0.777778
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/locations.yml",
+          "line_start": 3,
+          "line_end": 4,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Location dimension table. The grain of the table is one row per location.'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/locations.yml",
+          "line_start": 21,
+          "line_end": 24,
+          "extraction_method": "phase1_symbol",
+          "description": "Defines average_tax_rate measure with description 'Average tax rate' and aggregation function"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/locations.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key semantic_models"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/__sources.yml",
+      "hotspot_fusion_score": 0.194444,
+      "purpose": "Establishes the foundational data source definitions and metadata documentation for the e-commerce analytics system, mapping raw database tables to business entities.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.7,
+          "normalized": 0.777778
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/__sources.yml",
+          "line_start": 3,
+          "line_end": 20,
+          "extraction_method": "phase1_symbol",
+          "description": "Defines source schema with business descriptions for key e-commerce entities including customers, orders, items, stores, products, and supplies"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/__sources.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key version"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/__sources.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key sources"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/products.yml",
+      "hotspot_fusion_score": 0.166667,
+      "purpose": "Defines the product dimension for semantic modeling, providing standardized product attributes and categorizations to support consistent product-based metrics and analysis across the business.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.6,
+          "normalized": 0.666667
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/products.yml",
+          "line_start": 4,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Product dimension table. The grain of the table is one row per product.'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/products.yml",
+          "line_start": 13,
+          "line_end": 26,
+          "extraction_method": "phase1_symbol",
+          "description": "Defines product dimensions including product_name, product_type, product_description, is_food_item, is_drink_item, and product_price"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/products.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key semantic_models"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/products.sql",
+      "hotspot_fusion_score": 0.166666,
+      "purpose": "Provides a cleaned and standardized view of product data for business reporting and analysis. Enables downstream consumers to access consistent product information without needing to understand the underlying raw data structure.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 1.0,
+          "normalized": 0.333333
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/products.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "Selects all fields from stg_products without transformation, indicating purpose is data presentation rather than business logic"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/products.sql",
+          "line_start": 1,
+          "line_end": 9,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads model.stg_products and writes model.products"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/products.sql",
+          "line_start": null,
+          "line_end": null,
+          "extraction_method": "phase1_import",
+          "description": "Import reference to products"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/supplies.sql",
+      "hotspot_fusion_score": 0.166666,
+      "purpose": "Delivers a unified view of supply chain data for operational reporting and inventory management decisions. Supports business users in understanding supply availability and relationships to products.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 1.0,
+          "normalized": 0.333333
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/supplies.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "Direct pass-through query selecting all fields from stg_supplies without business transformations"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/supplies.sql",
+          "line_start": 1,
+          "line_end": 9,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads model.stg_supplies and writes model.supplies"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/supplies.sql",
+          "line_start": null,
+          "line_end": null,
+          "extraction_method": "phase1_import",
+          "description": "Import reference to supplies"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/locations.sql",
+      "hotspot_fusion_score": 0.111111,
+      "purpose": "Provides a simplified view of location data by selecting all records from the staging locations model without additional transformation.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 1.0,
+          "normalized": 0.333333
+        },
+        "business_logic_score": {
+          "raw": 0.1,
+          "normalized": 0.111111
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "SQL shows direct selection from stg_locations with no additional business logic: 'select * from {{ ref('stg_locations') }}'"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 9,
+          "line_end": 9,
+          "extraction_method": "heuristic",
+          "description": "Final select statement performs no aggregation or filtering: 'select * from locations'"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 1,
+          "line_end": 9,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads model.stg_locations and writes model.locations"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_customers.yml",
+      "hotspot_fusion_score": 0.083333,
+      "purpose": "Maintains cleaned and transformed customer data with one record per unique customer for consistent customer identification and management.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_customers.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Customer data with basic cleaning and transformation applied, one row per customer'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_customers.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_locations.yml",
+      "hotspot_fusion_score": 0.083333,
+      "purpose": "Provides a cleaned and standardized list of open locations for business analysis, with each row representing a unique location and including key attributes like location ID, name, tax rate, and opening date.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_locations.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'List of open locations with basic cleaning and transformation applied, one row per location'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_locations.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_locations.yml",
+          "line_start": 11,
+          "line_end": 11,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key unit_tests"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_products.yml",
+      "hotspot_fusion_score": 0.083333,
+      "purpose": "Manages cleaned and transformed product data representing food and drink items available for ordering, with one record per unique product.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_products.yml",
+          "line_start": 3,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product'"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_products.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_supplies.yml",
+      "hotspot_fusion_score": 0.083333,
+      "purpose": "Tracks supply expense data with basic cleaning and transformation, maintaining one row per supply cost (not per supply item). Multiple rows may exist per supply_id due to cost fluctuations over time.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_supplies.yml",
+          "line_start": 4,
+          "line_end": 6,
+          "extraction_method": "phase1_symbol",
+          "description": "Description states 'List of our supply expenses data with basic cleaning and transformation applied' and explains multiple rows per supply_id due to cost fluctuations"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/stg_supplies.yml",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_yaml_key",
+          "description": "YAML key models"
+        }
+      ]
+    },
+    {
+      "file_path": ".pre-commit-config.yaml",
+      "hotspot_fusion_score": 0.027778,
+      "purpose": "This configuration file defines pre-commit hooks that enforce code quality standards and formatting rules before commits are accepted. It automates validation checks for YAML syntax, file formatting, and Python code style.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.1,
+          "normalized": 0.111111
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": ".pre-commit-config.yaml",
+          "line_start": 1,
+          "line_end": 14,
+          "extraction_method": "llm_inference",
+          "description": "YAML configuration defining multiple pre-commit hook repositories and their associated validation checks"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": ".pre-commit-config.yaml",
+          "line_start": 5,
+          "line_end": 8,
+          "extraction_method": "phase1_symbol",
+          "description": "check-yaml, end-of-file-fixer, trailing-whitespace, requirements-txt-fixer hook definitions"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": ".pre-commit-config.yaml",
+          "line_start": 12,
+          "line_end": 14,
+          "extraction_method": "phase1_symbol",
+          "description": "ruff-check and ruff-format hook definitions with fix arguments"
+        }
+      ]
+    },
+    {
+      "file_path": "dbt_project.yml",
+      "hotspot_fusion_score": 0.027778,
+      "purpose": "This dbt project configuration file defines the structure and settings for the 'jaffle_shop' analytics project, including model paths, deployment targets, and data transformation rules.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.1,
+          "normalized": 0.111111
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "dbt_project.yml",
+          "line_start": 12,
+          "line_end": 17,
+          "extraction_method": "phase1_symbol",
+          "description": "model-paths, analysis-paths, test-paths, seed-paths, macro-paths, snapshot-paths define project structure"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "dbt_project.yml",
+          "line_start": 33,
+          "line_end": 38,
+          "extraction_method": "phase1_symbol",
+          "description": "models section defines materialization strategies for staging and marts"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "dbt_project.yml",
+          "line_start": 27,
+          "line_end": 31,
+          "extraction_method": "phase1_symbol",
+          "description": "seeds configuration defines schema and enablement for raw data loading"
+        }
+      ]
+    },
+    {
+      "file_path": "package-lock.yml",
+      "hotspot_fusion_score": 0.0,
+      "purpose": null,
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.0,
+          "normalized": 0.0
+        }
+      },
+      "supporting_evidence": []
+    },
+    {
+      "file_path": "packages.yml",
+      "hotspot_fusion_score": 0.0,
+      "purpose": null,
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006959,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "business_logic_score": {
+          "raw": 0.0,
+          "normalized": 0.0
+        }
+      },
+      "supporting_evidence": []
+    }
+  ]
+}

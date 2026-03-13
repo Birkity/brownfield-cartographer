@@ -26,6 +26,7 @@ from src.analyzers.config_analyzer import (
     ConfigAnalysisResult,
     analyze_yaml_file,
 )
+from src.analyzers.notebook_utils import extract_notebook_source
 from src.analyzers.python_dataflow import analyze_python_file
 from src.analyzers.sql_lineage import SQLLineageResult, analyze_sql_file
 from src.graph.knowledge_graph import KnowledgeGraph
@@ -143,6 +144,15 @@ class Hydrologist:
             "sources_registered": sources_registered,
             "seeds_found": seeds_found,
             "sql_files_analyzed": len(sql_results),
+            "macro_sql_files_skipped": sum(
+                1
+                for m in modules
+                if m.language == Language.SQL
+                and (
+                    m.path.replace("\\", "/").startswith("macros/")
+                    or "/macros/" in m.path.replace("\\", "/")
+                )
+            ),
             "python_files_analyzed": len(py_results),
             "datasets_total": len(graph.all_datasets()),
             "transformations_total": len(graph.all_transformations()),
@@ -277,6 +287,14 @@ class Hydrologist:
         sql_modules = [m for m in modules if m.language == Language.SQL]
 
         for mod in sql_modules:
+            posix_path = mod.path.replace("\\", "/")
+            if posix_path.startswith("macros/") or "/macros/" in posix_path:
+                self._log_trace(
+                    "sql_macro_skipped",
+                    f"Skipped macro file from lineage graph: {mod.path}",
+                )
+                continue
+
             abs_path = Path(mod.abs_path)
             if not abs_path.exists():
                 continue
@@ -323,16 +341,13 @@ class Hydrologist:
         edge_counts = {"produces": 0, "consumes": 0}
 
         for result in sql_results:
-            # Skip macros — they're templates, not transformations
-            if result.transformation_type == "dbt_macro":
-                continue
-
             # Create the transformation node
             xform_id = f"sql:{result.source_file}"
             xform = TransformationNode(
                 id=xform_id,
                 transformation_type=result.transformation_type,
                 source_file=result.source_file,
+                line_range=result.line_range,
                 sql_query=result.sql_preview,
                 source_datasets=result.upstream_tables,
                 target_datasets=result.downstream_tables,
@@ -408,7 +423,7 @@ class Hydrologist:
         from src.analyzers.python_dataflow import PythonDataflowResult
 
         results: list[PythonDataflowResult] = []
-        py_modules = [m for m in modules if m.language == Language.PYTHON]
+        py_modules = [m for m in modules if m.language in (Language.PYTHON, Language.NOTEBOOK)]
 
         for mod in py_modules:
             abs_path = Path(mod.abs_path)
@@ -416,8 +431,14 @@ class Hydrologist:
                 continue
 
             try:
-                source_text = abs_path.read_text(encoding="utf-8", errors="replace")
+                if mod.language == Language.NOTEBOOK:
+                    source_text = extract_notebook_source(abs_path).rendered_code
+                else:
+                    source_text = abs_path.read_text(encoding="utf-8", errors="replace")
             except Exception:
+                continue
+
+            if not source_text.strip():
                 continue
 
             result = analyze_python_file(source_text, mod.path)
@@ -502,10 +523,34 @@ class Hydrologist:
                 graph.add_dataset_node(ds)
 
                 if rec.direction == "read":
-                    graph.add_consumes_edge(xform_id, ds_name)
+                    graph.add_consumes_edge(
+                        xform_id,
+                        ds_name,
+                        confidence=rec.confidence,
+                        evidence={
+                            "source_file": rec.source_file,
+                            "line": rec.line,
+                            "extraction_method": rec.extraction_method,
+                            "transformation_type": xform.transformation_type,
+                            "pattern_matched": rec.pattern_matched,
+                            "is_dynamic": rec.is_dynamic,
+                        },
+                    )
                     edge_counts["consumes"] += 1
                 else:
-                    graph.add_produces_edge(xform_id, ds_name)
+                    graph.add_produces_edge(
+                        xform_id,
+                        ds_name,
+                        confidence=rec.confidence,
+                        evidence={
+                            "source_file": rec.source_file,
+                            "line": rec.line,
+                            "extraction_method": rec.extraction_method,
+                            "transformation_type": xform.transformation_type,
+                            "pattern_matched": rec.pattern_matched,
+                            "is_dynamic": rec.is_dynamic,
+                        },
+                    )
                     edge_counts["produces"] += 1
 
         return edge_counts

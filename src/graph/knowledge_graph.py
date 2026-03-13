@@ -57,6 +57,7 @@ class KnowledgeGraph:
             module.path,
             language=module.language.value,
             lines_of_code=module.lines_of_code,
+            comment_ratio=module.comment_ratio,
             change_velocity_30d=module.change_velocity_30d,
             is_dead_code_candidate=module.is_dead_code_candidate,
             parse_error=module.parse_error,
@@ -71,6 +72,21 @@ class KnowledgeGraph:
             is_hub=module.is_hub,
             in_cycle=module.in_cycle,
             classification_confidence=module.classification_confidence,
+            # Phase 3 (Semanticist) fields
+            purpose_statement=module.purpose_statement,
+            business_logic_score=module.business_logic_score,
+            domain_cluster=module.domain_cluster,
+            doc_drift_detected=module.doc_drift_detected,
+            semantic_confidence=module.semantic_confidence,
+            semantic_evidence=[
+                evidence.model_dump(mode="json")
+                for evidence in module.semantic_evidence
+            ],
+            semantic_model_used=module.semantic_model_used,
+            semantic_prompt_version=module.semantic_prompt_version,
+            semantic_generation_timestamp=module.semantic_generation_timestamp,
+            semantic_fallback_used=module.semantic_fallback_used,
+            hotspot_fusion_score=module.hotspot_fusion_score,
         )
 
     def get_module(self, path: str) -> Optional[ModuleNode]:
@@ -213,6 +229,52 @@ class KnowledgeGraph:
         from src.graph.graph_analytics import compute_lineage_summary
         return compute_lineage_summary(self._g, self._datasets, self._transformations)
 
+    def find_sources(self) -> list[str]:
+        """Return dataset nodes with no incoming PRODUCES edges."""
+        sources: list[str] = []
+        for dataset in self._datasets.values():
+            incoming_produces = any(
+                data.get("edge_type") == "PRODUCES"
+                for _, _, data in self._g.in_edges(dataset.name, data=True)
+            )
+            if not incoming_produces:
+                sources.append(dataset.name)
+        return sorted(sources)
+
+    def find_sinks(self) -> list[str]:
+        """Return dataset nodes with no outgoing CONSUMES edges."""
+        sinks: list[str] = []
+        for dataset in self._datasets.values():
+            outgoing_consumes = any(
+                data.get("edge_type") == "CONSUMES"
+                for _, _, data in self._g.out_edges(dataset.name, data=True)
+            )
+            if not outgoing_consumes:
+                sinks.append(dataset.name)
+        return sorted(sinks)
+
+    def blast_radius(self, node_id: str) -> list[str]:
+        """
+        Return all downstream lineage dependents reachable from *node_id*.
+
+        Traverses the lineage subgraph following edge direction:
+        dataset -> transformation -> dataset.
+        """
+        if not self._g.has_node(node_id):
+            return []
+
+        relevant_edges = [
+            (src, tgt)
+            for src, tgt, data in self._g.edges(data=True)
+            if data.get("edge_type") in ("PRODUCES", "CONSUMES")
+        ]
+        lineage_graph = nx.DiGraph()
+        lineage_graph.add_edges_from(relevant_edges)
+        if node_id not in lineage_graph:
+            return []
+
+        return sorted(nx.descendants(lineage_graph, node_id))
+
     # ------------------------------------------------------------------
     # Visualization (delegated to graph_viz)
     # ------------------------------------------------------------------
@@ -224,6 +286,17 @@ class KnowledgeGraph:
     def export_lineage_viz(self, output_path: Path) -> bool:
         from src.graph.graph_viz import export_lineage_viz
         return export_lineage_viz(self._g, self._datasets, self._transformations, output_path)
+
+    # ------------------------------------------------------------------
+    # Semantic metadata helpers (Phase 3)
+    # ------------------------------------------------------------------
+
+    def save_semantics(self, output_path: Path, semantics_data: dict) -> None:
+        """Persist semantic enrichment data (purpose statements, domains, drift)."""
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("w", encoding="utf-8") as fh:
+            json.dump(semantics_data, fh, indent=2, default=str)
+        logger.info("Saved semantic enrichment → %s", output_path)
 
     # ------------------------------------------------------------------
     # Serialization
@@ -262,6 +335,55 @@ class KnowledgeGraph:
         with output_path.open("w", encoding="utf-8") as fh:
             json.dump(lineage_data, fh, indent=2, default=str)
         logger.info("Saved lineage graph → %s", output_path)
+
+    @classmethod
+    def load_lineage_artifact(cls, input_path: Path) -> "KnowledgeGraph":
+        """Load a saved lineage_graph.json artifact into a KnowledgeGraph."""
+        graph = cls()
+        with input_path.open("r", encoding="utf-8") as fh:
+            raw = json.load(fh)
+
+        for name, dataset_data in raw.get("datasets", {}).items():
+            try:
+                dataset = DatasetNode.model_validate(dataset_data)
+            except Exception as exc:
+                logger.warning("Could not deserialise DatasetNode %s: %s", name, exc)
+                continue
+            graph.add_dataset_node(dataset)
+
+        for transformation_id, transformation_data in raw.get("transformations", {}).items():
+            try:
+                transformation = TransformationNode.model_validate(transformation_data)
+            except Exception as exc:
+                logger.warning(
+                    "Could not deserialise TransformationNode %s: %s",
+                    transformation_id,
+                    exc,
+                )
+                continue
+            graph.add_transformation_node(transformation)
+
+        for edge in raw.get("edges", []):
+            source = edge.get("source")
+            target = edge.get("target")
+            if not source or not target:
+                continue
+            graph._g.add_edge(
+                source,
+                target,
+                edge_type=edge.get("edge_type", ""),
+                confidence=edge.get("confidence", 1.0),
+                evidence=edge.get("evidence", {}),
+            )
+
+        logger.info(
+            "Loaded lineage graph: %d datasets, %d transformations, %d edges from %s",
+            len(graph._datasets),
+            len(graph._transformations),
+            graph._g.number_of_edges(),
+            input_path,
+        )
+        return graph
 
     @classmethod
     def load(cls, input_path: Path) -> "KnowledgeGraph":

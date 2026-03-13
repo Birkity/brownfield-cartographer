@@ -13,11 +13,11 @@ Phase ownership:
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ---------------------------------------------------------------------------
@@ -44,6 +44,7 @@ class Language(str, Enum):
     # Scripting
     RUBY = "ruby"
     SHELL = "shell"
+    NOTEBOOK = "notebook"
     UNKNOWN = "unknown"
 
 
@@ -63,6 +64,29 @@ class AnalysisMethod(str, Enum):
     LLM_INFERENCE = "llm_inference"
     GIT_ANALYSIS = "git_analysis"
     CONFIG_PARSING = "config_parsing"
+
+
+def _coerce_semantic_evidence_list(value: Any) -> list[Any]:
+    """Coerce legacy semantic evidence into the structured list format."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict):
+        return [value]
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        return [{
+            "source_phase": "phase3",
+            "file_path": "",
+            "line_start": None,
+            "line_end": None,
+            "extraction_method": "legacy_string",
+            "description": text,
+        }]
+    return []
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +113,23 @@ class ImportInfo(BaseModel):
     """1-based line number of the import statement."""
 
 
+class SemanticEvidence(BaseModel):
+    """Structured evidence supporting a semantic claim."""
+
+    source_phase: str
+    file_path: str
+    line_start: Optional[int] = None
+    line_end: Optional[int] = None
+    extraction_method: str
+    description: str
+
+
+class DayOneCitation(SemanticEvidence):
+    """Line-aware citation used in Day-One onboarding answers."""
+
+    evidence_type: str = "semantic_evidence"
+
+
 class FunctionNode(BaseModel):
     """A function or method definition found in a module."""
 
@@ -109,9 +150,11 @@ class FunctionNode(BaseModel):
     end_line: int = 0
     docstring: Optional[str] = None
 
-    # TODO Phase 3 (Semanticist): Add purpose_statement: Optional[str] = None
-    # TODO Phase 3 (Semanticist): Add doc_drift_flag: bool = False
-    # TODO Phase 3 (Surveyor/graph): Add call_count_within_repo: int = 0
+    purpose_statement: Optional[str] = None
+    """LLM-generated purpose statement for this function (Phase 3)."""
+
+    doc_drift_flag: bool = False
+    """True if docstring diverges from implementation (Phase 3)."""
 
 
 class ClassNode(BaseModel):
@@ -132,7 +175,8 @@ class ClassNode(BaseModel):
 
     docstring: Optional[str] = None
 
-    # TODO Phase 3 (Semanticist): Add purpose_statement: Optional[str] = None
+    purpose_statement: Optional[str] = None
+    """LLM-generated purpose statement for this class (Phase 3)."""
 
 
 # ---------------------------------------------------------------------------
@@ -164,6 +208,8 @@ class ModuleNode(BaseModel):
     lines_of_code: int = 0
     complexity_score: float = 0.0
     """Approximated cyclomatic complexity (future: tree-sitter-based)."""
+    comment_ratio: float = 0.0
+    """Ratio of comment lines to non-empty lines in the file."""
 
     change_velocity_30d: int = 0
     """Number of git commits touching this file in the last 30 days."""
@@ -201,8 +247,44 @@ class ModuleNode(BaseModel):
     classification_confidence: float = 1.0
     """Confidence in the role classification (1.0 = heuristic match, 0.5 = inferred)."""
 
-    # TODO Phase 3 (Semanticist): domain_cluster: Optional[str] = None
-    # TODO Phase 3 (Semanticist): doc_drift_detected: bool = False
+    # ------------------------------------------------------------------
+    # Phase 3 (Semanticist) — semantic metadata
+    # ------------------------------------------------------------------
+
+    purpose_statement: Optional[str] = None
+    """LLM-generated 2-3 sentence description of the module's business purpose."""
+
+    semantic_summary: Optional[str] = None
+    """Concise semantic summary used for onboarding synthesis."""
+
+    business_logic_score: float = 0.0
+    """0.0-1.0: how much concentrated business logic this module contains."""
+
+    domain_cluster: Optional[str] = None
+    """Domain group name (e.g. 'Data Staging', 'Analytics & Marts')."""
+
+    doc_drift_detected: bool = False
+    """True if documentation diverges from actual implementation."""
+
+    doc_drift_level: Optional[str] = None
+    """One of: 'no_drift', 'possible_drift', 'likely_drift'."""
+
+    semantic_confidence: float = 0.0
+    """Confidence in the LLM-generated semantic fields (0.0 = no LLM analysis)."""
+
+    semantic_evidence: list[SemanticEvidence] = Field(default_factory=list)
+    """Structured evidence supporting the semantic assessment."""
+
+    semantic_model_used: Optional[str] = None
+    semantic_prompt_version: Optional[str] = None
+    semantic_generation_timestamp: Optional[datetime] = None
+    semantic_fallback_used: bool = False
+    hotspot_fusion_score: float = 0.0
+
+    @field_validator("semantic_evidence", mode="before")
+    @classmethod
+    def _validate_semantic_evidence(cls, value: Any) -> list[Any]:
+        return _coerce_semantic_evidence_list(value)
 
 
 class DatasetNode(BaseModel):
@@ -333,7 +415,7 @@ class TraceEntry(BaseModel):
     trust calibration when reading the Onboarding Brief.
     """
 
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     agent: str
     """Which agent produced this entry, e.g. 'Surveyor'."""
 
