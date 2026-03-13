@@ -19,6 +19,19 @@ logger = logging.getLogger(__name__)
 _GIT_TIMEOUT = 30  # seconds
 
 
+def _git_command(repo_root: Path, *args: str) -> list[str]:
+    """
+    Build a repo-scoped git command that tolerates sandbox ownership mismatch.
+
+    The sandbox user may differ from the repo owner for temp clones, which
+    causes Git's "dubious ownership" guard to reject otherwise-safe local reads.
+    Passing a per-command safe.directory override keeps the scope limited to the
+    repository being analyzed instead of requiring a global git config change.
+    """
+    safe_dir = repo_root.resolve().as_posix()
+    return ["git", "-c", f"safe.directory={safe_dir}", *args]
+
+
 class GitVelocityResult:
     """
     Per-file commit counts over the analysed window.
@@ -84,14 +97,14 @@ def extract_git_velocity(repo_root: Path, days: int = 30) -> GitVelocityResult:
 
     try:
         proc = subprocess.run(
-            [
-                "git",
+            _git_command(
+                repo_root,
                 "log",
                 f"--since={since_date}",
                 "--name-only",
                 "--pretty=format:",  # no commit metadata lines
                 "--no-merges",
-            ],
+            ),
             capture_output=True,
             text=True,
             cwd=repo_root,
@@ -139,7 +152,14 @@ def get_last_commit_date(repo_root: Path, rel_path: Path) -> Optional[datetime]:
     """
     try:
         proc = subprocess.run(
-            ["git", "log", "-1", "--format=%aI", "--", rel_path.as_posix()],
+            _git_command(
+                repo_root,
+                "log",
+                "-1",
+                "--format=%aI",
+                "--",
+                rel_path.as_posix(),
+            ),
             capture_output=True,
             text=True,
             cwd=repo_root,
