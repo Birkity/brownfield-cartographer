@@ -1,165 +1,143 @@
 {
   "modules": {
     "models/marts/order_items.yml": {
-      "purpose": "This file defines the data model, tests, semantic definitions, and metrics for order items in a food service business. It enables analysis of revenue, costs, and profitability at the granularity of individual order items.",
+      "purpose": "This file defines the data model, tests, semantic layer, metrics, and saved queries for order items in a business intelligence context, enabling revenue analysis and reporting by item, order, and time.",
       "business_logic_score": 0.9,
       "key_concepts": [
         "order_items",
         "revenue",
-        "costs",
-        "food_vs_drink_analysis",
-        "profitability"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/orders.sql": {
-      "purpose": "This model creates a comprehensive orders mart by enriching staged order data with item-level summaries and customer ordering patterns. It aggregates order items to calculate costs, subtotals, and item counts while determining food/drink order types and customer order sequence.",
-      "business_logic_score": 0.85,
-      "key_concepts": [
-        "order_enrichment",
-        "item_aggregation",
-        "customer_behavior",
-        "order_classification"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/order_items.sql": {
-      "purpose": "This model creates a comprehensive view of order items by joining order, product, and supply cost data to enable detailed analysis of order profitability and item characteristics. It aggregates supply costs per product and enriches order items with product details and ordering timestamps.",
-      "business_logic_score": 0.85,
-      "key_concepts": [
-        "order_items",
-        "supply_cost_analysis",
-        "product_enrichment",
-        "order_profitability"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/orders.yml": {
-      "purpose": "This file defines a data mart for order analytics, containing business logic for calculating order totals, categorizing orders by food/drink items, and defining metrics for order analysis. It serves as the canonical source for order-related business intelligence.",
-      "business_logic_score": 0.85,
-      "key_concepts": [
-        "order analytics",
-        "business metrics",
-        "data validation",
-        "semantic modeling"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/customers.yml": {
-      "purpose": "This file defines a customer data mart that aggregates lifetime order and spending metrics per customer, supporting customer analytics and segmentation. It also exposes these metrics through semantic models and predefined queries for reporting.",
-      "business_logic_score": 0.85,
-      "key_concepts": [
-        "customer lifetime value",
-        "order history aggregation",
-        "customer segmentation",
-        "metric definitions"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/customers.sql": {
-      "purpose": "This model creates a customer-level summary table that enriches customer data with order history metrics including lifetime spend, order frequency, and customer type classification. It serves as a foundational dataset for customer analytics and segmentation.",
-      "business_logic_score": 0.85,
-      "key_concepts": [
-        "customer_analytics",
-        "order_history",
-        "lifetime_value",
-        "customer_segmentation",
-        "repeat_customer_analysis"
-      ],
-      "confidence": 0.95
-    },
-    "Taskfile.yml": {
-      "purpose": "This is a task automation configuration file that orchestrates data generation and loading workflows for analytics projects. It defines commands for setting up virtual environments, installing dependencies, generating synthetic data, and loading it into a database.",
-      "business_logic_score": 0.85,
-      "key_concepts": [
-        "task automation",
-        "data pipeline",
-        "environment setup",
-        "dependency management",
-        "data generation"
-      ],
-      "confidence": 0.95
-    },
-    "models/staging/stg_orders.sql": {
-      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity. It serves as an intermediate layer between raw data and downstream analytics models.",
-      "business_logic_score": 0.8,
-      "key_concepts": [
-        "data transformation",
-        "currency conversion",
-        "field mapping",
-        "timestamp normalization"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/products.yml": {
-      "purpose": "This semantic model defines the product dimension for analytics, providing a structured representation of product data with entities and dimensions that can be used to contextualize metrics. It serves as a dimensional model for product-related business intelligence reporting.",
-      "business_logic_score": 0.8,
-      "key_concepts": [
-        "product dimension",
-        "semantic modeling",
-        "entity relationships",
-        "categorical dimensions"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/supplies.yml": {
-      "purpose": "This semantic model defines the structure and metadata for a supplies dimension table that tracks supply and product combinations. It establishes the business context for supply chain data including supply identifiers, product associations, and supply characteristics like perishability.",
-      "business_logic_score": 0.8,
-      "key_concepts": [
-        "supplies",
-        "products",
-        "supply_chain",
-        "dimension_modeling",
-        "entity_relationships"
-      ],
-      "confidence": 0.9
-    },
-    "models/staging/__sources.yml": {
-      "purpose": "Defines the raw data sources and table schemas for an e-commerce system, specifically configuring metadata for customer, order, item, store, product, and supply data from the Jaffle Shop business.",
-      "business_logic_score": 0.8,
-      "key_concepts": [
-        "data_source_configuration",
-        "ecommerce_domain",
-        "table_schemas",
-        "metadata_definition"
+        "metrics",
+        "semantic_model"
       ],
       "confidence": 0.95
     },
     "macros/cents_to_dollars.sql": {
-      "purpose": "This macro provides a standardized way to convert cent values to dollar amounts across different database platforms, ensuring consistent decimal precision and rounding behavior. It abstracts database-specific syntax for numeric conversion operations.",
-      "business_logic_score": 0.8,
+      "purpose": "Converts monetary values from cents to dollars format for consistent financial reporting across different database platforms.",
+      "business_logic_score": 0.9,
       "key_concepts": [
         "currency_conversion",
-        "database_abstraction",
-        "decimal_precision",
-        "adapter_dispatch"
+        "financial_data_standardization"
+      ],
+      "confidence": 0.95
+    },
+    "models/marts/orders.sql": {
+      "purpose": "This model creates a comprehensive orders mart by enriching staged order data with summarized order item metrics and customer ordering sequence information. It provides key business insights including order cost breakdowns, food/drink item categorization, and customer order history ranking.",
+      "business_logic_score": 0.85,
+      "key_concepts": [
+        "order enrichment",
+        "item summarization",
+        "customer ordering sequence",
+        "food/drink categorization"
+      ],
+      "confidence": 0.95
+    },
+    "models/marts/orders.yml": {
+      "purpose": "This file defines a data mart for order analytics, containing detailed order information including financial totals, item types, and customer associations. It supports business reporting through semantic models and predefined metrics for order volume, revenue, and customer behavior analysis.",
+      "business_logic_score": 0.85,
+      "key_concepts": [
+        "order analytics",
+        "data mart",
+        "business metrics",
+        "semantic modeling",
+        "unit testing"
       ],
       "confidence": 0.95
     },
     "macros/generate_schema_name.sql": {
-      "purpose": "This macro defines the naming convention for database schemas in a dbt project, determining where tables and views are created based on resource type, environment, and custom schema specifications. It ensures data objects are organized consistently across different deployment environments.",
+      "purpose": "Organizes database schemas by routing seed data to raw schemas and managing custom schema naming conventions for production versus development environments.",
+      "business_logic_score": 0.85,
+      "key_concepts": [
+        "data_governance",
+        "schema_organization",
+        "environment_management"
+      ],
+      "confidence": 0.9
+    },
+    "models/marts/order_items.sql": {
+      "purpose": "This model creates a comprehensive view of order items by joining staging tables for orders, products, and supplies to provide detailed information including product details, order timestamps, and aggregated supply costs for analytical reporting.",
       "business_logic_score": 0.8,
       "key_concepts": [
-        "schema naming",
-        "environment-specific deployment",
-        "resource type routing",
-        "dbt macro"
+        "order_items",
+        "product_details",
+        "supply_costs",
+        "order_analytics"
+      ],
+      "confidence": 0.95
+    },
+    "models/marts/customers.yml": {
+      "purpose": "This file defines a customer data mart that aggregates key customer lifecycle metrics including lifetime spending, order counts, and customer type classification. It serves as a centralized source for customer analytics and supports downstream metric calculations like average order value.",
+      "business_logic_score": 0.8,
+      "key_concepts": [
+        "customer_lifecycle",
+        "lifetime_value",
+        "order_metrics",
+        "data_quality"
+      ],
+      "confidence": 0.95
+    },
+    "models/marts/customers.sql": {
+      "purpose": "Creates a comprehensive customer analytics dataset that summarizes lifetime purchasing behavior, enabling customer segmentation and retention analysis.",
+      "business_logic_score": 0.8,
+      "key_concepts": [
+        "customer_analytics",
+        "purchasing_behavior",
+        "customer_segmentation"
+      ],
+      "confidence": 0.95
+    },
+    "models/marts/locations.sql": {
+      "purpose": "Provides location data for business sites, supporting geographic analysis and location-based operations management.",
+      "business_logic_score": 0.8,
+      "key_concepts": [
+        "location_data",
+        "geographic_analysis"
+      ],
+      "confidence": 0.8
+    },
+    "models/staging/stg_orders.sql": {
+      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity for downstream analytics use.",
+      "business_logic_score": 0.7,
+      "key_concepts": [
+        "order_data",
+        "currency_conversion",
+        "timestamp_truncation",
+        "field_renaming"
       ],
       "confidence": 0.95
     },
     "models/staging/stg_products.sql": {
-      "purpose": "This staging model transforms raw product data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns to classify products as food or drink items.",
+      "purpose": "This staging model transforms raw product data from the e-commerce system into a standardized format with cleaned column names and calculated fields. It prepares product information for downstream analytics by renaming columns, converting price units, and adding boolean flags to categorize products.",
       "business_logic_score": 0.7,
       "key_concepts": [
-        "product catalog",
-        "data transformation",
-        "field mapping",
-        "derived attributes"
+        "product_data",
+        "price_conversion",
+        "data_cleaning",
+        "boolean_flags"
       ],
       "confidence": 0.95
     },
+    "models/marts/locations.yml": {
+      "purpose": "Establishes a standardized location dimension model with financial metrics for business intelligence, enabling analysis of location performance and tax implications.",
+      "business_logic_score": 0.6,
+      "key_concepts": [
+        "location_analytics",
+        "financial_metrics",
+        "business_intelligence"
+      ],
+      "confidence": 0.9
+    },
+    "models/marts/products.yml": {
+      "purpose": "Defines the product dimension model for analytics, providing standardized product information to support sales and inventory reporting across different business contexts.",
+      "business_logic_score": 0.4,
+      "key_concepts": [
+        "product_dimension",
+        "sales_reporting",
+        "inventory_management"
+      ],
+      "confidence": 0.85
+    },
     "models/staging/stg_supplies.sql": {
-      "purpose": "This staging model transforms raw supply data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns like supply UUID and converted cost values.",
+      "purpose": "This staging model transforms raw supply data from the ecom source into a standardized format for downstream analytics. It cleans and renames fields, generates a surrogate key, and converts cost from cents to dollars while preserving all original supply information.",
       "business_logic_score": 0.3,
       "key_concepts": [
         "supply_chain",
@@ -167,245 +145,227 @@
         "cost_conversion",
         "surrogate_keys"
       ],
-      "confidence": 0.95
+      "confidence": 0.9
     },
     "models/staging/stg_locations.sql": {
-      "purpose": "This staging model transforms raw store data into a standardized format for downstream analytics use. It cleans and renames store-related fields while extracting date information from timestamps.",
+      "purpose": "This staging model transforms raw store data into a standardized format by renaming fields and extracting date components. It serves as an intermediate layer between raw e-commerce store data and downstream analytics models.",
       "business_logic_score": 0.3,
       "key_concepts": [
         "store locations",
         "data transformation",
-        "field mapping",
-        "date extraction"
+        "staging layer"
       ],
-      "confidence": 0.95
+      "confidence": 0.9
     },
     "models/staging/stg_customers.sql": {
-      "purpose": "This staging model transforms raw customer data by renaming columns to establish consistent naming conventions for downstream consumption. It extracts customer identifiers and names from the e-commerce source system to create a standardized customer dataset.",
+      "purpose": "This staging model transforms raw customer data from the ecom source by renaming columns to standardize field names, specifically mapping 'id' to 'customer_id' and 'name' to 'customer_name'. It serves as a standardized intermediate layer for downstream customer-related analytics and reporting.",
       "business_logic_score": 0.3,
       "key_concepts": [
         "customer_data",
         "column_renaming",
-        "data_standardization"
+        "data_standardization",
+        "staging_layer"
       ],
-      "confidence": 0.9
+      "confidence": 0.95
     },
     "models/staging/stg_order_items.sql": {
-      "purpose": "This staging model transforms raw e-commerce item data by renaming and selecting key fields to create a standardized view of order items. It serves as an intermediate layer between raw data ingestion and downstream analytics or modeling.",
+      "purpose": "This staging model transforms raw e-commerce item data into a standardized format by renaming and selecting key fields such as order item ID, order ID, and product ID.",
       "business_logic_score": 0.3,
       "key_concepts": [
-        "order_items",
-        "data_transformation",
-        "staging_model",
-        "field_mapping"
-      ],
-      "confidence": 0.95
-    },
-    "models/staging/stg_locations.yml": {
-      "purpose": "This staging model defines the structure and validation for cleaned location data, ensuring each location has a unique ID and non-null values, while also including unit tests to verify proper date truncation logic for store opening times.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "location_data",
-        "data_cleaning",
-        "date_truncation",
-        "data_validation"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/locations.yml": {
-      "purpose": "This semantic model defines the analytical structure for location data, establishing how location dimensions and measures should be interpreted and aggregated in business intelligence contexts. It serves as a metadata layer that maps the physical locations table to analytical concepts like tax rates and operational dates.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "location analytics",
-        "tax rate analysis",
-        "operational metrics",
-        "dimensional modeling"
-      ],
-      "confidence": 0.95
-    },
-    "models/staging/stg_order_items.yml": {
-      "purpose": "This staging model defines the structure and validation rules for individual food and drink items that comprise customer orders, ensuring data quality through defined constraints and relationships.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "order_items",
-        "data_quality",
-        "relationships"
-      ],
-      "confidence": 0.9
-    },
-    "models/staging/stg_orders.yml": {
-      "purpose": "This staging model defines the structure and validation rules for cleaned order data, ensuring each order has a unique identifier and valid financial calculations. It serves as a standardized intermediate layer for order information in the data warehouse.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "order_data",
-        "data_quality",
-        "unique_identifiers",
-        "financial_validation"
-      ],
-      "confidence": 0.9
-    },
-    "models/marts/metricflow_time_spine.sql": {
-      "purpose": "This model generates a time spine table containing a continuous sequence of dates, typically used for time-series analysis and metric calculations in downstream reporting. It creates a foundational date dimension spanning approximately 10 years (3650 days) starting from a base date.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "time spine",
-        "date dimension",
-        "metric calculation",
-        "data foundation"
-      ],
-      "confidence": 0.9
-    },
-    "models/staging/stg_supplies.yml": {
-      "purpose": "This staging model defines the structure and validation rules for supply expense data, ensuring data quality through uniqueness and non-null constraints on supply identifiers.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "supply_expenses",
-        "data_quality",
-        "unique_identifiers"
-      ],
-      "confidence": 0.9
-    },
-    "models/staging/stg_customers.yml": {
-      "purpose": "This staging model defines the structure and validation rules for cleaned customer data, ensuring each record represents a unique customer with proper identification. It serves as a standardized intermediate layer between raw customer data and final analytical models.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "customer_data",
-        "data_cleaning",
-        "unique_identifiers",
-        "data_quality"
-      ],
-      "confidence": 0.9
-    },
-    "models/staging/stg_products.yml": {
-      "purpose": "This YAML file defines the structure and validation rules for a staging layer product data model. It specifies the schema for cleaned and transformed product information with uniqueness and non-null constraints on the primary key.",
-      "business_logic_score": 0.3,
-      "key_concepts": [
-        "product_data",
-        "data_validation",
-        "staging_model",
-        "schema_definition"
+        "order items",
+        "data transformation",
+        "staging layer"
       ],
       "confidence": 0.9
     },
     "dbt_project.yml": {
-      "purpose": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It serves as the central configuration hub that controls how dbt builds and deploys data models.",
-      "business_logic_score": 0.1,
+      "purpose": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It specifies how data models should be materialized and sets up foundational project settings like profile, version requirements, and seed configurations.",
+      "business_logic_score": 0.3,
       "key_concepts": [
         "project_configuration",
-        "dbt_settings",
         "model_paths",
-        "environment_variables"
+        "materialization_strategy",
+        "seed_configuration"
       ],
       "confidence": 0.95
     },
-    ".pre-commit-config.yaml": {
-      "purpose": "This configuration file defines pre-commit hooks that automatically validate and format code before commits are made, ensuring code quality standards are maintained. It specifies checks for YAML syntax, file formatting, and Python code style enforcement.",
-      "business_logic_score": 0.1,
-      "key_concepts": [
-        "pre-commit",
-        "code quality",
-        "automated validation",
-        "formatting",
-        "linting"
-      ],
-      "confidence": 0.95
-    },
-    "models/marts/locations.sql": {
-      "purpose": "This model serves as a pass-through layer that exposes all location data from the staging layer for downstream consumption. It provides a clean interface for accessing standardized location information without additional transformation.",
-      "business_logic_score": 0.1,
+    "models/staging/stg_locations.yml": {
+      "purpose": "Provides a cleaned and transformed list of open locations with basic information, serving as a standardized source for location data used in reporting and analysis.",
+      "business_logic_score": 0.3,
       "key_concepts": [
         "location_data",
-        "data_exposure",
-        "staging_layer"
+        "data_cleaning",
+        "transformation"
+      ],
+      "confidence": 0.9
+    },
+    "models/marts/supplies.yml": {
+      "purpose": "Defines the supplies dimension table containing supply and product combinations for analytical reporting.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "supplies",
+        "dimension table",
+        "supply-product relationship"
+      ],
+      "confidence": 0.9
+    },
+    "models/staging/stg_supplies.yml": {
+      "purpose": "Tracks supply expense records with unique identifiers for each cost entry, supporting financial tracking of supply purchases over time.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "supply_expenses",
+        "cost_tracking"
+      ],
+      "confidence": 0.9
+    },
+    "models/staging/stg_customers.yml": {
+      "purpose": "Maintains cleaned customer information with unique identification for each customer record, enabling customer-level analytics and reporting.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "customer_data",
+        "unique_identification"
+      ],
+      "confidence": 0.9
+    },
+    "models/staging/stg_products.yml": {
+      "purpose": "Manages product information for food and drink items with unique identifiers, supporting menu management and product-based analytics.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "product_data",
+        "menu_management"
       ],
       "confidence": 0.9
     },
     "models/marts/products.sql": {
-      "purpose": "This model creates a final products mart by selecting all data from the staging products table. It serves as a clean, ready-to-use dataset for downstream reporting and analysis on product information.",
-      "business_logic_score": 0.1,
+      "purpose": "Provides a cleaned and standardized view of product data for business reporting and analysis.",
+      "business_logic_score": 0.3,
       "key_concepts": [
-        "products",
-        "data mart",
-        "staging layer"
+        "product data",
+        "business reporting"
+      ],
+      "confidence": 0.8
+    },
+    "models/marts/supplies.sql": {
+      "purpose": "Delivers standardized supply chain data to support inventory and supplier management reporting.",
+      "business_logic_score": 0.3,
+      "key_concepts": [
+        "supply chain data",
+        "inventory management"
+      ],
+      "confidence": 0.8
+    },
+    "models/staging/stg_order_items.yml": {
+      "purpose": "Represents individual food and drink items that compose customer orders for transactional analysis.",
+      "business_logic_score": 0.2,
+      "key_concepts": [
+        "order items",
+        "food items",
+        "drink items",
+        "transactional data"
       ],
       "confidence": 0.9
     },
-    "models/marts/supplies.sql": {
-      "purpose": "This model creates a supplies mart by selecting all data from the staging supplies table. It serves as a direct pass-through layer that makes supplies data available for downstream consumption in the analytics environment.",
+    "models/staging/stg_orders.yml": {
+      "purpose": "Stores cleaned and transformed order data representing customer transactions for business analysis.",
+      "business_logic_score": 0.2,
+      "key_concepts": [
+        "orders",
+        "customer transactions",
+        "order processing"
+      ],
+      "confidence": 0.9
+    },
+    "models/staging/__sources.yml": {
+      "purpose": "Configures source data definitions and metadata for raw e-commerce entities including customers, orders, and products.",
+      "business_logic_score": 0.2,
+      "key_concepts": [
+        "data source configuration",
+        "ecommerce metadata"
+      ],
+      "confidence": 0.9
+    },
+    ".pre-commit-config.yaml": {
+      "purpose": "This configuration file defines pre-commit hooks for automated code quality checks and formatting. It specifies repositories and hook IDs that enforce YAML validation, whitespace cleanup, dependency file fixes, and Python code linting/formatting.",
       "business_logic_score": 0.1,
       "key_concepts": [
-        "supplies",
-        "data mart",
-        "staging layer"
+        "pre-commit",
+        "code-quality",
+        "linting",
+        "formatting",
+        "automation"
+      ],
+      "confidence": 0.95
+    },
+    "models/marts/metricflow_time_spine.sql": {
+      "purpose": "Generates a time spine table containing date information for time-series metric calculations and reporting.",
+      "business_logic_score": 0.1,
+      "key_concepts": [
+        "time spine",
+        "date dimension",
+        "metric calculation"
+      ],
+      "confidence": 0.8
+    },
+    "Taskfile.yml": {
+      "purpose": "Defines automated workflows for environment setup, data generation, and database loading operations.",
+      "business_logic_score": 0.1,
+      "key_concepts": [
+        "workflow automation",
+        "environment setup"
       ],
       "confidence": 0.9
     }
   },
   "domains": {
-    "Order Analytics": {
-      "description": "Focused on order-level business intelligence including revenue analysis, profitability calculations, and customer ordering patterns. Contains the core business logic for order processing and financial metrics.",
+    "Order Analytics & Revenue": {
+      "description": "Core business domain focused on order processing, revenue analysis, and customer purchasing behavior across the entire order lifecycle.",
       "members": [
         "models/marts/order_items.yml",
         "models/marts/orders.sql",
+        "models/marts/orders.yml",
         "models/marts/order_items.sql",
-        "models/marts/orders.yml"
-      ]
-    },
-    "Customer Analytics": {
-      "description": "Handles customer data modeling, lifetime value calculations, segmentation, and customer behavior analysis. Supports customer relationship management and marketing analytics.",
-      "members": [
         "models/marts/customers.yml",
-        "models/marts/customers.sql"
+        "models/marts/customers.sql",
+        "models/staging/stg_orders.sql",
+        "models/staging/stg_order_items.sql",
+        "models/staging/stg_customers.sql",
+        "models/staging/stg_orders.yml",
+        "models/staging/stg_order_items.yml",
+        "models/staging/stg_customers.yml"
       ]
     },
-    "Product & Supply Chain": {
-      "description": "Manages product catalog data, supply chain information, and dimensional modeling for product-related analytics and inventory management.",
+    "Product & Supply Chain Management": {
+      "description": "Domain handling product catalog, supply chain data, inventory management, and cost tracking for business operations.",
       "members": [
         "models/marts/products.yml",
         "models/marts/supplies.yml",
         "models/marts/products.sql",
-        "models/marts/supplies.sql"
-      ]
-    },
-    "Data Staging & Ingestion": {
-      "description": "Responsible for raw data transformation, cleaning, and standardization from source systems into the data warehouse staging layer.",
-      "members": [
-        "models/staging/stg_orders.sql",
+        "models/marts/supplies.sql",
         "models/staging/stg_products.sql",
         "models/staging/stg_supplies.sql",
+        "models/staging/stg_products.yml",
+        "models/staging/stg_supplies.yml"
+      ]
+    },
+    "Location & Geographic Operations": {
+      "description": "Domain managing business location data, store operations, and geographic analysis for multi-site business management.",
+      "members": [
+        "models/marts/locations.sql",
+        "models/marts/locations.yml",
         "models/staging/stg_locations.sql",
-        "models/staging/stg_customers.sql",
-        "models/staging/stg_order_items.sql",
-        "models/staging/__sources.yml"
+        "models/staging/stg_locations.yml"
       ]
     },
-    "Data Quality & Validation": {
-      "description": "Defines data validation rules, constraints, and quality checks across all staging models to ensure data integrity.",
+    "Data Infrastructure & Governance": {
+      "description": "Cross-cutting domain providing foundational data engineering utilities, project configuration, and data governance frameworks.",
       "members": [
-        "models/staging/stg_locations.yml",
-        "models/staging/stg_order_items.yml",
-        "models/staging/stg_orders.yml",
-        "models/staging/stg_supplies.yml",
-        "models/staging/stg_customers.yml",
-        "models/staging/stg_products.yml"
-      ]
-    },
-    "Infrastructure & Operations": {
-      "description": "Contains project configuration, automation, and utility functions that support the overall data platform operations.",
-      "members": [
-        "Taskfile.yml",
-        "dbt_project.yml",
-        ".pre-commit-config.yaml",
         "macros/cents_to_dollars.sql",
         "macros/generate_schema_name.sql",
-        "models/marts/metricflow_time_spine.sql"
-      ]
-    },
-    "Location Management": {
-      "description": "Handles store location data, tax rate analysis, and operational metrics for physical store operations.",
-      "members": [
-        "models/marts/locations.yml",
-        "models/marts/locations.sql"
+        "dbt_project.yml",
+        "models/staging/__sources.yml",
+        "models/marts/metricflow_time_spine.sql",
+        ".pre-commit-config.yaml",
+        "Taskfile.yml"
       ]
     }
   },
@@ -413,214 +373,1004 @@
     {
       "file": "models/marts/order_items.yml",
       "score": 0.9,
-      "purpose": "This file defines the data model, tests, semantic definitions, and metrics for order items in a food service business. It enables analysis of revenue, costs, and profitability at the granularity of individual order items."
+      "purpose": "This file defines the data model, tests, semantic layer, metrics, and saved queries for order items in a business intelligence context, enabling revenue analysis and reporting by item, order, and time."
+    },
+    {
+      "file": "macros/cents_to_dollars.sql",
+      "score": 0.9,
+      "purpose": "Converts monetary values from cents to dollars format for consistent financial reporting across different database platforms."
     },
     {
       "file": "models/marts/orders.sql",
       "score": 0.85,
-      "purpose": "This model creates a comprehensive orders mart by enriching staged order data with item-level summaries and customer ordering patterns. It aggregates order items to calculate costs, subtotals, and item counts while determining food/drink order types and customer order sequence."
-    },
-    {
-      "file": "models/marts/order_items.sql",
-      "score": 0.85,
-      "purpose": "This model creates a comprehensive view of order items by joining order, product, and supply cost data to enable detailed analysis of order profitability and item characteristics. It aggregates supply costs per product and enriches order items with product details and ordering timestamps."
+      "purpose": "This model creates a comprehensive orders mart by enriching staged order data with summarized order item metrics and customer ordering sequence information. It provides key business insights including order cost breakdowns, food/drink item categorization, and customer order history ranking."
     },
     {
       "file": "models/marts/orders.yml",
       "score": 0.85,
-      "purpose": "This file defines a data mart for order analytics, containing business logic for calculating order totals, categorizing orders by food/drink items, and defining metrics for order analysis. It serves as the canonical source for order-related business intelligence."
+      "purpose": "This file defines a data mart for order analytics, containing detailed order information including financial totals, item types, and customer associations. It supports business reporting through semantic models and predefined metrics for order volume, revenue, and customer behavior analysis."
+    },
+    {
+      "file": "macros/generate_schema_name.sql",
+      "score": 0.85,
+      "purpose": "Organizes database schemas by routing seed data to raw schemas and managing custom schema naming conventions for production versus development environments."
+    },
+    {
+      "file": "models/marts/order_items.sql",
+      "score": 0.8,
+      "purpose": "This model creates a comprehensive view of order items by joining staging tables for orders, products, and supplies to provide detailed information including product details, order timestamps, and aggregated supply costs for analytical reporting."
     },
     {
       "file": "models/marts/customers.yml",
-      "score": 0.85,
-      "purpose": "This file defines a customer data mart that aggregates lifetime order and spending metrics per customer, supporting customer analytics and segmentation. It also exposes these metrics through semantic models and predefined queries for reporting."
+      "score": 0.8,
+      "purpose": "This file defines a customer data mart that aggregates key customer lifecycle metrics including lifetime spending, order counts, and customer type classification. It serves as a centralized source for customer analytics and supports downstream metric calculations like average order value."
     },
     {
       "file": "models/marts/customers.sql",
-      "score": 0.85,
-      "purpose": "This model creates a customer-level summary table that enriches customer data with order history metrics including lifetime spend, order frequency, and customer type classification. It serves as a foundational dataset for customer analytics and segmentation."
+      "score": 0.8,
+      "purpose": "Creates a comprehensive customer analytics dataset that summarizes lifetime purchasing behavior, enabling customer segmentation and retention analysis."
     },
     {
-      "file": "Taskfile.yml",
-      "score": 0.85,
-      "purpose": "This is a task automation configuration file that orchestrates data generation and loading workflows for analytics projects. It defines commands for setting up virtual environments, installing dependencies, generating synthetic data, and loading it into a database."
+      "file": "models/marts/locations.sql",
+      "score": 0.8,
+      "purpose": "Provides location data for business sites, supporting geographic analysis and location-based operations management."
     },
     {
       "file": "models/staging/stg_orders.sql",
-      "score": 0.8,
-      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity. It serves as an intermediate layer between raw data and downstream analytics models."
+      "score": 0.7,
+      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity for downstream analytics use."
+    }
+  ],
+  "semantic_hotspots": [
+    {
+      "file_path": "models/staging/stg_products.sql",
+      "hotspot_fusion_score": 0.694445,
+      "purpose": "This staging model transforms raw product data from the e-commerce system into a standardized format with cleaned column names and calculated fields. It prepares product information for downstream analytics by renaming columns, converting price units, and adding boolean flags to categorize products.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.014667,
+          "normalized": 1.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 3.0,
+          "normalized": 1.0
+        },
+        "business_logic_score": {
+          "raw": 0.7,
+          "normalized": 0.777778
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 14,
+          "line_end": 28,
+          "extraction_method": "phase2_lineage",
+          "description": "Column renaming (sku\u2192product_id, name\u2192product_name) and transformation (cents_to_dollars('price'))"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 26,
+          "line_end": 28,
+          "extraction_method": "phase2_lineage",
+          "description": "Business rule implementation with coalesce functions to create is_food_item and is_drink_item flags"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 1,
+          "line_end": 34,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_products and writes model.stg_products"
+        }
+      ]
     },
     {
-      "file": "models/marts/products.yml",
-      "score": 0.8,
-      "purpose": "This semantic model defines the product dimension for analytics, providing a structured representation of product data with entities and dimensions that can be used to contextualize metrics. It serves as a dimensional model for product-related business intelligence reporting."
+      "file_path": "models/staging/stg_orders.sql",
+      "hotspot_fusion_score": 0.643154,
+      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity for downstream analytics use.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.013031,
+          "normalized": 0.794836
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 3.0,
+          "normalized": 1.0
+        },
+        "business_logic_score": {
+          "raw": 0.7,
+          "normalized": 0.777778
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 14,
+          "line_end": 16,
+          "extraction_method": "phase2_lineage",
+          "description": "Field renaming: id \u2192 order_id, store_id \u2192 location_id, customer \u2192 customer_id"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 19,
+          "line_end": 24,
+          "extraction_method": "phase2_lineage",
+          "description": "Currency conversion from cents to dollars using cents_to_dollars macro"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 27,
+          "line_end": 27,
+          "extraction_method": "phase2_lineage",
+          "description": "Timestamp truncation using dbt.date_trunc('day','ordered_at')"
+        }
+      ]
     },
     {
-      "file": "models/marts/supplies.yml",
-      "score": 0.8,
-      "purpose": "This semantic model defines the structure and metadata for a supplies dimension table that tracks supply and product combinations. It establishes the business context for supply chain data including supply identifiers, product associations, and supply characteristics like perishability."
+      "file_path": "models/staging/stg_supplies.sql",
+      "hotspot_fusion_score": 0.583333,
+      "purpose": "This staging model transforms raw supply data from the ecom source into a standardized format for downstream analytics. It cleans and renames fields, generates a surrogate key, and converts cost from cents to dollars while preserving all original supply information.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.014667,
+          "normalized": 1.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 3.0,
+          "normalized": 1.0
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_supplies.sql",
+          "line_start": 14,
+          "line_end": 14,
+          "extraction_method": "phase1_symbol",
+          "description": "dbt_utils.generate_surrogate_key(['id', 'sku']) creates supply_uuid"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_supplies.sql",
+          "line_start": 22,
+          "line_end": 22,
+          "extraction_method": "phase1_symbol",
+          "description": "cents_to_dollars('cost') as supply_cost converts pricing units"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_supplies.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "source reference to {{ source('ecom', 'raw_supplies') }}"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/order_items.sql",
+      "hotspot_fusion_score": 0.515992,
+      "purpose": "This model creates a comprehensive view of order items by joining staging tables for orders, products, and supplies to provide detailed information including product details, order timestamps, and aggregated supply costs for analytical reporting.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.010747,
+          "normalized": 0.508413
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.8,
+          "normalized": 0.888889
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 43,
+          "line_end": 54,
+          "extraction_method": "phase2_lineage",
+          "description": "Joined query combining order_items, orders, products, and order_supplies_summary with key business fields"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 30,
+          "line_end": 37,
+          "extraction_method": "phase2_lineage",
+          "description": "Aggregation of supply costs by product_id in order_supplies_summary CTE"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 1,
+          "line_end": 66,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads model.stg_order_items, model.stg_orders, model.stg_products and writes model.order_items"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/orders.sql",
+      "hotspot_fusion_score": 0.491975,
+      "purpose": "This model creates a comprehensive orders mart by enriching staged order data with summarized order item metrics and customer ordering sequence information. It provides key business insights including order cost breakdowns, food/drink item categorization, and customer order history ranking.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.009539,
+          "normalized": 0.356788
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.85,
+          "normalized": 0.944444
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 15,
+          "line_end": 39,
+          "extraction_method": "phase2_lineage",
+          "description": "order_items_summary CTE computes supply costs, item counts and food/drink categorizations"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 42,
+          "line_end": 61,
+          "extraction_method": "phase2_lineage",
+          "description": "compute_booleans CTE joins orders with item summaries and derives business flags like is_food_order"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 63,
+          "line_end": 75,
+          "extraction_method": "phase2_lineage",
+          "description": "customer_order_count CTE uses window function to rank customer orders by sequence"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_locations.sql",
+      "hotspot_fusion_score": 0.428394,
+      "purpose": "This staging model transforms raw store data into a standardized format by renaming fields and extracting date components. It serves as an intermediate layer between raw e-commerce store data and downstream analytics models.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.012383,
+          "normalized": 0.713577
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_locations.sql",
+          "line_start": 14,
+          "line_end": 23,
+          "extraction_method": "phase1_symbol",
+          "description": "Field renaming logic mapping raw store attributes to standardized column names (id\u2192location_id, name\u2192location_name)"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_locations.sql",
+          "line_start": 23,
+          "line_end": 23,
+          "extraction_method": "phase1_symbol",
+          "description": "Date truncation function applied to opened_at field to extract day-level granularity"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_locations.sql",
+          "line_start": 1,
+          "line_end": 29,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_stores and writes model.stg_locations"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_customers.sql",
+      "hotspot_fusion_score": 0.339197,
+      "purpose": "This staging model transforms raw customer data from the ecom source by renaming columns to standardize field names, specifically mapping 'id' to 'customer_id' and 'name' to 'customer_name'. It serves as a standardized intermediate layer for downstream customer-related analytics and reporting.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.009539,
+          "normalized": 0.356788
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_customers.sql",
+          "line_start": 14,
+          "line_end": 17,
+          "extraction_method": "phase3-purpose-v2",
+          "description": "Column renaming logic mapping 'id' to 'customer_id' and 'name' to 'customer_name'"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_customers.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase3-purpose-v2",
+          "description": "Source reference to 'ecom' schema and 'raw_customers' table"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_customers.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_customers and writes model.stg_customers"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/cents_to_dollars.sql",
+      "hotspot_fusion_score": 0.333333,
+      "purpose": "Converts monetary values from cents to dollars format for consistent financial reporting across different database platforms.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006694,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 1.0,
+          "normalized": 0.333333
+        },
+        "business_logic_score": {
+          "raw": 0.9,
+          "normalized": 1.0
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": 3,
+          "line_end": 21,
+          "extraction_method": "phase1_symbol",
+          "description": "Macro definition shows conversion from cents to dollars with database-specific implementations for numeric formatting"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": 1,
+          "line_end": 21,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads none and writes model.cents_to_dollars"
+        }
+      ]
+    },
+    {
+      "file_path": "models/staging/stg_order_items.sql",
+      "hotspot_fusion_score": 0.321606,
+      "purpose": "This staging model transforms raw e-commerce item data into a standardized format by renaming and selecting key fields such as order item ID, order ID, and product ID.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.008977,
+          "normalized": 0.286423
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 2.0,
+          "normalized": 0.666667
+        },
+        "business_logic_score": {
+          "raw": 0.3,
+          "normalized": 0.333333
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_order_items.sql",
+          "line_start": 14,
+          "line_end": 16,
+          "extraction_method": "phase3-purpose-v2",
+          "description": "Field renaming logic mapping raw columns to business-friendly names: id \u2192 order_item_id, sku \u2192 product_id"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_order_items.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "Source reference to ecom.raw_items indicates input dataset for transformation"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/staging/stg_order_items.sql",
+          "line_start": 1,
+          "line_end": 22,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads source.ecom.raw_items and writes model.stg_order_items"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/generate_schema_name.sql",
+      "hotspot_fusion_score": 0.319444,
+      "purpose": "Organizes database schemas by routing seed data to raw schemas and managing custom schema naming conventions for production versus development environments.",
+      "signal_breakdown": {
+        "pagerank": {
+          "raw": 0.006694,
+          "normalized": 0.0
+        },
+        "git_velocity": {
+          "raw": 0.0,
+          "normalized": 0.0
+        },
+        "lineage_fanout": {
+          "raw": 1.0,
+          "normalized": 0.333333
+        },
+        "business_logic_score": {
+          "raw": 0.85,
+          "normalized": 0.944444
+        }
+      },
+      "supporting_evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/generate_schema_name.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase1_symbol",
+          "description": "Conditional logic for schema routing based on node.resource_type and target.name with explicit comments about seed data placement and production naming conventions"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "macros/generate_schema_name.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads none and writes model.generate_schema_name"
+        }
+      ]
+    }
+  ],
+  "semantic_review_queue": [
+    {
+      "file_path": "models/staging/stg_orders.sql",
+      "hotspot_fusion_score": 0.643154,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "likely_drift",
+      "reasons": [
+        "documentation drift (likely_drift)"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 14,
+          "line_end": 16,
+          "extraction_method": "phase2_lineage",
+          "description": "Field renaming: id \u2192 order_id, store_id \u2192 location_id, customer \u2192 customer_id",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_orders.sql",
+          "line_start": 19,
+          "line_end": 24,
+          "extraction_method": "phase2_lineage",
+          "description": "Currency conversion from cents to dollars using cents_to_dollars macro",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/order_items.sql",
+      "hotspot_fusion_score": 0.515992,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 43,
+          "line_end": 54,
+          "extraction_method": "phase2_lineage",
+          "description": "Joined query combining order_items, orders, products, and order_supplies_summary with key business fields",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.sql",
+          "line_start": 30,
+          "line_end": 37,
+          "extraction_method": "phase2_lineage",
+          "description": "Aggregation of supply costs by product_id in order_supplies_summary CTE",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/orders.sql",
+      "hotspot_fusion_score": 0.491975,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 15,
+          "line_end": 39,
+          "extraction_method": "phase2_lineage",
+          "description": "order_items_summary CTE computes supply costs, item counts and food/drink categorizations",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.sql",
+          "line_start": 42,
+          "line_end": 61,
+          "extraction_method": "phase2_lineage",
+          "description": "compute_booleans CTE joins orders with item summaries and derives business flags like is_food_order",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/cents_to_dollars.sql",
+      "hotspot_fusion_score": 0.333333,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation",
+        "unresolved lineage case"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": 3,
+          "line_end": 21,
+          "extraction_method": "phase1_symbol",
+          "description": "Macro definition shows conversion from cents to dollars with database-specific implementations for numeric formatting",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": 1,
+          "line_end": 21,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads none and writes model.cents_to_dollars",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "macros/generate_schema_name.sql",
+      "hotspot_fusion_score": 0.319444,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation",
+        "unresolved lineage case"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/generate_schema_name.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase1_symbol",
+          "description": "Conditional logic for schema routing based on node.resource_type and target.name with explicit comments about seed data placement and production naming conventions",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "macros/generate_schema_name.sql",
+          "line_start": 1,
+          "line_end": 23,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads none and writes model.generate_schema_name",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/customers.sql",
+      "hotspot_fusion_score": 0.305555,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/customers.sql",
+          "line_start": 18,
+          "line_end": 26,
+          "extraction_method": "phase1_symbol",
+          "description": "Selects key customer metrics including lifetime orders, spend, and repeat purchase indicators for business analysis.",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/customers.sql",
+          "line_start": 46,
+          "line_end": 49,
+          "extraction_method": "phase2_lineage",
+          "description": "Calculates customer_type field to classify customers as new or returning for marketing segmentation.",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/locations.sql",
+      "hotspot_fusion_score": 0.305555,
+      "semantic_confidence": 0.8,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "SQL query selects all location data from stg_locations reference, indicating location data management",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 1,
+          "line_end": 9,
+          "extraction_method": "phase2_lineage",
+          "description": "Transformation dbt_model reads model.stg_locations and writes model.locations",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/order_items.yml",
+      "hotspot_fusion_score": 0.25,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 1,
+          "line_end": 174,
+          "extraction_method": "llm_inference",
+          "description": "YAML structure containing models, unit_tests, semantic_models, metrics, and saved_queries sections defining business logic for order items",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 43,
+          "line_end": 87,
+          "extraction_method": "phase2_lineage",
+          "description": "Semantic model definition with entities, dimensions, and measures including revenue calculations",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/orders.yml",
+      "hotspot_fusion_score": 0.236111,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.yml",
+          "line_start": 1,
+          "line_end": 3,
+          "extraction_method": "phase1_symbol",
+          "description": "models section defines the orders mart with description indicating key order details and granularity",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/orders.yml",
+          "line_start": 32,
+          "line_end": 77,
+          "extraction_method": "phase1_symbol",
+          "description": "unit_tests section contains test cases validating order item boolean conversions",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "models/marts/customers.yml",
+      "hotspot_fusion_score": 0.222222,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/customers.yml",
+          "line_start": 1,
+          "line_end": 104,
+          "extraction_method": "phase1_symbol",
+          "description": "YAML configuration defining customer mart with columns for lifetime spend, order counts, and customer type classification",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/customers.yml",
+          "line_start": 33,
+          "line_end": 71,
+          "extraction_method": "phase2_lineage",
+          "description": "Semantic model defining customer entities, dimensions, and measures for analytics",
+          "evidence_type": "semantic"
+        }
+      ]
     }
   ],
   "reading_order": [
     {
       "step": 1,
-      "file_path": "models/marts/order_items.yml",
-      "domain": "Order Analytics",
-      "purpose": "This file defines the data model, tests, semantic definitions, and metrics for order items in a food service business. It enables analysis of revenue, costs, and profitability at the granularity of individual order items.",
-      "business_logic_score": 0.9,
-      "reason": "core business logic; analytical output; entry point"
+      "file_path": "models/staging/stg_orders.sql",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity for downstream analytics use.",
+      "business_logic_score": 0.7,
+      "hotspot_fusion_score": 0.64,
+      "reason": "architectural hub; core business logic; data foundation"
     },
     {
       "step": 2,
       "file_path": "models/marts/order_items.sql",
-      "domain": "Order Analytics",
-      "purpose": "This model creates a comprehensive view of order items by joining order, product, and supply cost data to enable detailed analysis of order profitability and item characteristics. It aggregates supply costs per product and enriches order items with product details and ordering timestamps.",
-      "business_logic_score": 0.85,
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This model creates a comprehensive view of order items by joining staging tables for orders, products, and supplies to provide detailed information including product details, order timestamps, and aggregated supply costs for analytical reporting.",
+      "business_logic_score": 0.8,
+      "hotspot_fusion_score": 0.52,
       "reason": "architectural hub; core business logic; analytical output"
     },
     {
       "step": 3,
       "file_path": "models/marts/orders.sql",
-      "domain": "Order Analytics",
-      "purpose": "This model creates a comprehensive orders mart by enriching staged order data with item-level summaries and customer ordering patterns. It aggregates order items to calculate costs, subtotals, and item counts while determining food/drink order types and customer order sequence.",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This model creates a comprehensive orders mart by enriching staged order data with summarized order item metrics and customer ordering sequence information. It provides key business insights including order cost breakdowns, food/drink item categorization, and customer order history ranking.",
       "business_logic_score": 0.85,
+      "hotspot_fusion_score": 0.49,
       "reason": "architectural hub; core business logic; analytical output"
     },
     {
       "step": 4,
-      "file_path": "models/marts/orders.yml",
-      "domain": "Order Analytics",
-      "purpose": "This file defines a data mart for order analytics, containing business logic for calculating order totals, categorizing orders by food/drink items, and defining metrics for order analysis. It serves as the canonical source for order-related business intelligence.",
-      "business_logic_score": 0.85,
-      "reason": "core business logic; analytical output; entry point"
+      "file_path": "models/staging/stg_customers.sql",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This staging model transforms raw customer data from the ecom source by renaming columns to standardize field names, specifically mapping 'id' to 'customer_id' and 'name' to 'customer_name'. It serves as a standardized intermediate layer for downstream customer-related analytics and reporting.",
+      "business_logic_score": 0.3,
+      "hotspot_fusion_score": 0.34,
+      "reason": "architectural hub; data foundation"
     },
     {
       "step": 5,
-      "file_path": "models/marts/customers.sql",
-      "domain": "Customer Analytics",
-      "purpose": "This model creates a customer-level summary table that enriches customer data with order history metrics including lifetime spend, order frequency, and customer type classification. It serves as a foundational dataset for customer analytics and segmentation.",
-      "business_logic_score": 0.85,
-      "reason": "core business logic; analytical output; entry point"
+      "file_path": "models/staging/stg_order_items.sql",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This staging model transforms raw e-commerce item data into a standardized format by renaming and selecting key fields such as order item ID, order ID, and product ID.",
+      "business_logic_score": 0.3,
+      "hotspot_fusion_score": 0.32,
+      "reason": "architectural hub; data foundation"
     },
     {
       "step": 6,
-      "file_path": "models/marts/customers.yml",
-      "domain": "Customer Analytics",
-      "purpose": "This file defines a customer data mart that aggregates lifetime order and spending metrics per customer, supporting customer analytics and segmentation. It also exposes these metrics through semantic models and predefined queries for reporting.",
-      "business_logic_score": 0.85,
+      "file_path": "models/marts/customers.sql",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "Creates a comprehensive customer analytics dataset that summarizes lifetime purchasing behavior, enabling customer segmentation and retention analysis.",
+      "business_logic_score": 0.8,
+      "hotspot_fusion_score": 0.31,
       "reason": "core business logic; analytical output; entry point"
     },
     {
       "step": 7,
-      "file_path": "models/staging/__sources.yml",
-      "domain": "Data Staging & Ingestion",
-      "purpose": "Defines the raw data sources and table schemas for an e-commerce system, specifically configuring metadata for customer, order, item, store, product, and supply data from the Jaffle Shop business.",
-      "business_logic_score": 0.8,
-      "reason": "core business logic; entry point"
+      "file_path": "models/marts/order_items.yml",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This file defines the data model, tests, semantic layer, metrics, and saved queries for order items in a business intelligence context, enabling revenue analysis and reporting by item, order, and time.",
+      "business_logic_score": 0.9,
+      "hotspot_fusion_score": 0.25,
+      "reason": "core business logic; analytical output; entry point"
     },
     {
       "step": 8,
-      "file_path": "models/staging/stg_orders.sql",
-      "domain": "Data Staging & Ingestion",
-      "purpose": "This staging model transforms raw e-commerce order data by renaming fields, converting cent values to dollar amounts, and truncating timestamps to daily granularity. It serves as an intermediate layer between raw data and downstream analytics models.",
-      "business_logic_score": 0.8,
-      "reason": "architectural hub; core business logic; data foundation"
+      "file_path": "models/marts/orders.yml",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This file defines a data mart for order analytics, containing detailed order information including financial totals, item types, and customer associations. It supports business reporting through semantic models and predefined metrics for order volume, revenue, and customer behavior analysis.",
+      "business_logic_score": 0.85,
+      "hotspot_fusion_score": 0.24,
+      "reason": "core business logic; analytical output; entry point"
     },
     {
       "step": 9,
-      "file_path": "models/staging/stg_products.sql",
-      "domain": "Data Staging & Ingestion",
-      "purpose": "This staging model transforms raw product data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns to classify products as food or drink items.",
-      "business_logic_score": 0.7,
-      "reason": "architectural hub; core business logic; data foundation"
+      "file_path": "models/marts/customers.yml",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "This file defines a customer data mart that aggregates key customer lifecycle metrics including lifetime spending, order counts, and customer type classification. It serves as a centralized source for customer analytics and supports downstream metric calculations like average order value.",
+      "business_logic_score": 0.8,
+      "hotspot_fusion_score": 0.22,
+      "reason": "core business logic; analytical output; entry point"
     },
     {
       "step": 10,
-      "file_path": "models/staging/stg_customers.sql",
-      "domain": "Data Staging & Ingestion",
-      "purpose": "This staging model transforms raw customer data by renaming columns to establish consistent naming conventions for downstream consumption. It extracts customer identifiers and names from the e-commerce source system to create a standardized customer dataset.",
+      "file_path": "models/staging/stg_customers.yml",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "Maintains cleaned customer information with unique identification for each customer record, enabling customer-level analytics and reporting.",
       "business_logic_score": 0.3,
-      "reason": "architectural hub; data foundation"
+      "hotspot_fusion_score": 0.08,
+      "reason": "data foundation; entry point"
     },
     {
       "step": 11,
-      "file_path": "models/staging/stg_locations.sql",
-      "domain": "Data Staging & Ingestion",
-      "purpose": "This staging model transforms raw store data into a standardized format for downstream analytics use. It cleans and renames store-related fields while extracting date information from timestamps.",
-      "business_logic_score": 0.3,
-      "reason": "architectural hub; data foundation"
+      "file_path": "models/staging/stg_order_items.yml",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "Represents individual food and drink items that compose customer orders for transactional analysis.",
+      "business_logic_score": 0.2,
+      "hotspot_fusion_score": 0.06,
+      "reason": "data foundation; entry point"
     },
     {
       "step": 12,
-      "file_path": "models/staging/stg_order_items.sql",
-      "domain": "Data Staging & Ingestion",
-      "purpose": "This staging model transforms raw e-commerce item data by renaming and selecting key fields to create a standardized view of order items. It serves as an intermediate layer between raw data ingestion and downstream analytics or modeling.",
-      "business_logic_score": 0.3,
-      "reason": "architectural hub; data foundation"
+      "file_path": "models/staging/stg_orders.yml",
+      "domain": "Order Analytics & Revenue",
+      "purpose": "Stores cleaned and transformed order data representing customer transactions for business analysis.",
+      "business_logic_score": 0.2,
+      "hotspot_fusion_score": 0.06,
+      "reason": "data foundation; entry point"
     },
     {
       "step": 13,
-      "file_path": "models/staging/stg_supplies.sql",
-      "domain": "Data Staging & Ingestion",
-      "purpose": "This staging model transforms raw supply data from the e-commerce system into a standardized format for downstream analytics. It cleans and renames fields while adding calculated columns like supply UUID and converted cost values.",
+      "file_path": "models/staging/stg_locations.sql",
+      "domain": "Location & Geographic Operations",
+      "purpose": "This staging model transforms raw store data into a standardized format by renaming fields and extracting date components. It serves as an intermediate layer between raw e-commerce store data and downstream analytics models.",
       "business_logic_score": 0.3,
+      "hotspot_fusion_score": 0.43,
       "reason": "architectural hub; data foundation"
     },
     {
       "step": 14,
-      "file_path": "Taskfile.yml",
-      "domain": "Infrastructure & Operations",
-      "purpose": "This is a task automation configuration file that orchestrates data generation and loading workflows for analytics projects. It defines commands for setting up virtual environments, installing dependencies, generating synthetic data, and loading it into a database.",
-      "business_logic_score": 0.85,
-      "reason": "core business logic; entry point"
+      "file_path": "models/marts/locations.sql",
+      "domain": "Location & Geographic Operations",
+      "purpose": "Provides location data for business sites, supporting geographic analysis and location-based operations management.",
+      "business_logic_score": 0.8,
+      "hotspot_fusion_score": 0.31,
+      "reason": "core business logic; analytical output; entry point"
     },
     {
       "step": 15,
-      "file_path": "macros/cents_to_dollars.sql",
-      "domain": "Infrastructure & Operations",
-      "purpose": "This macro provides a standardized way to convert cent values to dollar amounts across different database platforms, ensuring consistent decimal precision and rounding behavior. It abstracts database-specific syntax for numeric conversion operations.",
-      "business_logic_score": 0.8,
-      "reason": "core business logic; shared utility; entry point"
+      "file_path": "models/marts/locations.yml",
+      "domain": "Location & Geographic Operations",
+      "purpose": "Establishes a standardized location dimension model with financial metrics for business intelligence, enabling analysis of location performance and tax implications.",
+      "business_logic_score": 0.6,
+      "hotspot_fusion_score": 0.17,
+      "reason": "significant business logic; analytical output; entry point"
     },
     {
       "step": 16,
-      "file_path": "macros/generate_schema_name.sql",
-      "domain": "Infrastructure & Operations",
-      "purpose": "This macro defines the naming convention for database schemas in a dbt project, determining where tables and views are created based on resource type, environment, and custom schema specifications. It ensures data objects are organized consistently across different deployment environments.",
-      "business_logic_score": 0.8,
-      "reason": "core business logic; shared utility; entry point"
+      "file_path": "models/staging/stg_locations.yml",
+      "domain": "Location & Geographic Operations",
+      "purpose": "Provides a cleaned and transformed list of open locations with basic information, serving as a standardized source for location data used in reporting and analysis.",
+      "business_logic_score": 0.3,
+      "hotspot_fusion_score": 0.08,
+      "reason": "data foundation; entry point"
     },
     {
       "step": 17,
-      "file_path": "models/marts/metricflow_time_spine.sql",
-      "domain": "Infrastructure & Operations",
-      "purpose": "This model generates a time spine table containing a continuous sequence of dates, typically used for time-series analysis and metric calculations in downstream reporting. It creates a foundational date dimension spanning approximately 10 years (3650 days) starting from a base date.",
-      "business_logic_score": 0.3,
-      "reason": "analytical output; entry point"
+      "file_path": "macros/cents_to_dollars.sql",
+      "domain": "Data Infrastructure & Governance",
+      "purpose": "Converts monetary values from cents to dollars format for consistent financial reporting across different database platforms.",
+      "business_logic_score": 0.9,
+      "hotspot_fusion_score": 0.33,
+      "reason": "core business logic; shared utility; entry point"
     },
     {
       "step": 18,
-      "file_path": ".pre-commit-config.yaml",
-      "domain": "Infrastructure & Operations",
-      "purpose": "This configuration file defines pre-commit hooks that automatically validate and format code before commits are made, ensuring code quality standards are maintained. It specifies checks for YAML syntax, file formatting, and Python code style enforcement.",
-      "business_logic_score": 0.1,
-      "reason": "architectural hub; entry point"
+      "file_path": "macros/generate_schema_name.sql",
+      "domain": "Data Infrastructure & Governance",
+      "purpose": "Organizes database schemas by routing seed data to raw schemas and managing custom schema naming conventions for production versus development environments.",
+      "business_logic_score": 0.85,
+      "hotspot_fusion_score": 0.32,
+      "reason": "core business logic; shared utility; entry point"
     },
     {
       "step": 19,
-      "file_path": "dbt_project.yml",
-      "domain": "Infrastructure & Operations",
-      "purpose": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It serves as the central configuration hub that controls how dbt builds and deploys data models.",
+      "file_path": "models/marts/metricflow_time_spine.sql",
+      "domain": "Data Infrastructure & Governance",
+      "purpose": "Generates a time spine table containing date information for time-series metric calculations and reporting.",
       "business_logic_score": 0.1,
-      "reason": "architectural hub; entry point"
+      "hotspot_fusion_score": 0.11,
+      "reason": "analytical output; entry point"
     },
     {
       "step": 20,
-      "file_path": "models/marts/products.yml",
-      "domain": "Product & Supply Chain",
-      "purpose": "This semantic model defines the product dimension for analytics, providing a structured representation of product data with entities and dimensions that can be used to contextualize metrics. It serves as a dimensional model for product-related business intelligence reporting.",
-      "business_logic_score": 0.8,
-      "reason": "core business logic; analytical output; entry point"
+      "file_path": "dbt_project.yml",
+      "domain": "Data Infrastructure & Governance",
+      "purpose": "This is the main configuration file for a dbt project named 'jaffle_shop' that defines project metadata, file paths, and model configurations. It specifies how data models should be materialized and sets up foundational project settings like profile, version requirements, and seed configurations.",
+      "business_logic_score": 0.3,
+      "hotspot_fusion_score": 0.08,
+      "reason": "architectural hub; entry point"
     }
   ]
 }

@@ -41,8 +41,8 @@ class OllamaResponse:
     success: bool = True
     error: Optional[str] = None
 
-    def parse_json(self) -> Optional[dict[str, Any]]:
-        """Attempt to extract a JSON object from the response text.
+    def parse_json(self) -> Optional[Any]:
+        """Attempt to extract JSON data from the response text.
 
         Handles responses where JSON is wrapped in markdown code fences.
         Returns None if parsing fails.
@@ -54,12 +54,26 @@ class OllamaResponse:
             # Remove first line (```json or ```) and last line (```)
             lines = [l for l in lines if not l.strip().startswith("```")]
             text = "\n".join(lines).strip()
-        # Try to find JSON object boundaries
-        start = text.find("{")
-        end = text.rfind("}")
-        if start != -1 and end != -1 and end > start:
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+
+        # Try object boundaries
+        obj_start = text.find("{")
+        obj_end = text.rfind("}")
+        if obj_start != -1 and obj_end != -1 and obj_end > obj_start:
             try:
-                return json.loads(text[start : end + 1])
+                return json.loads(text[obj_start : obj_end + 1])
+            except json.JSONDecodeError:
+                pass
+
+        # Try array boundaries
+        arr_start = text.find("[")
+        arr_end = text.rfind("]")
+        if arr_start != -1 and arr_end != -1 and arr_end > arr_start:
+            try:
+                return json.loads(text[arr_start : arr_end + 1])
             except json.JSONDecodeError:
                 pass
         return None

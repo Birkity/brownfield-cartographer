@@ -333,6 +333,7 @@ class Hydrologist:
                 id=xform_id,
                 transformation_type=result.transformation_type,
                 source_file=result.source_file,
+                line_range=result.line_range,
                 sql_query=result.sql_preview,
                 source_datasets=result.upstream_tables,
                 target_datasets=result.downstream_tables,

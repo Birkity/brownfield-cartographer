@@ -10,18 +10,21 @@ from __future__ import annotations
 
 import json
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from src.llm.model_router import ModelRouter, TaskType
 from src.llm.ollama_client import ContextWindowBudget, OllamaResponse
 from src.llm.prompt_builder import (
     BATCH_PURPOSE_EXTRACTION_PROMPT,
+    PURPOSE_EXTRACTION_PROMPT_VERSION,
     PURPOSE_EXTRACTION_PROMPT,
     SYSTEM_CODE_ANALYST,
 )
+from src.models.nodes import SemanticEvidence
 
 if TYPE_CHECKING:
     from src.graph.knowledge_graph import KnowledgeGraph
@@ -41,63 +44,218 @@ class PurposeResult(BaseModel):
     purpose_statement: str = ""
     business_logic_score: float = 0.0
     key_concepts: list[str] = Field(default_factory=list)
-    evidence: str = ""
+    evidence: list[SemanticEvidence] = Field(default_factory=list)
     confidence: float = 0.0
     model_used: str = ""
+    prompt_version: str = PURPOSE_EXTRACTION_PROMPT_VERSION
+    generation_timestamp: Optional[datetime] = None
     is_fallback: bool = False
     error: Optional[str] = None
 
-
-def _python_skeleton(text: str) -> str:
-    """Extract imports, signatures, and docstrings from Python source."""
-    important: list[str] = []
-    in_docstring = False
-    for line in text.split("\n"):
-        s = line.strip()
-        if '"""' in s or "'''" in s:
-            in_docstring = not in_docstring
-            important.append(line)
-            continue
-        if in_docstring or s.startswith(("#", "import ", "from ", "def ", "class ", "@")):
-            important.append(line)
-    return "\n".join(important)
-
-
-def _smart_truncate_code(text: str, language: str, max_chars: int = _MAX_CODE_CHARS) -> str:
-    """Truncate code keeping the most semantically informative parts.
-
-    - Python: extracts imports + class/def signatures (skeleton) rather than random truncation
-    - SQL/YAML/others: head + tail truncation preserving header context and final output
-    """
-    if len(text) <= max_chars:
-        return text
-
-    truncated = len(text) - max_chars
-    marker = f"\n... [{truncated} chars truncated] ...\n"
-    head_budget = (max_chars * 2) // 3
-    tail_budget = max_chars - head_budget - len(marker)
-
-    if language == "python":
-        skeleton = _python_skeleton(text)
-        if len(skeleton) < max_chars:
-            fill = max_chars - len(skeleton) - len(marker)
-            if fill > 200:
-                return text[:fill] + marker + skeleton
-            return skeleton
-
-    return text[:head_budget] + marker + text[max(0, len(text) - tail_budget):]
+    @field_validator("evidence", mode="before")
+    @classmethod
+    def _validate_evidence(cls, value: Any) -> list[Any]:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return value
+        if isinstance(value, dict):
+            return [value]
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return []
+            return [{
+                "source_phase": "phase3",
+                "file_path": "",
+                "line_start": None,
+                "line_end": None,
+                "extraction_method": "legacy_string",
+                "description": text,
+            }]
+        return []
 
 
-def _read_source_code(abs_path: str, language: str = "unknown", max_chars: int = _MAX_CODE_CHARS) -> str:
-    """Read source code from disk using smart language-aware truncation."""
+def _read_source_lines(abs_path: str) -> list[tuple[int, str]]:
+    """Read source code from disk and preserve original line numbers."""
     try:
         p = Path(abs_path)
         if not p.exists() or not p.is_file():
-            return ""
+            return []
         text = p.read_text(encoding="utf-8", errors="replace")
-        return _smart_truncate_code(text, language, max_chars)
+        return list(enumerate(text.splitlines(), start=1))
     except Exception:
+        return []
+
+
+def _python_skeleton(lines: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """Extract imports, signatures, and docstrings from Python source."""
+    important: list[tuple[int, str]] = []
+    in_docstring = False
+    for line_no, line in lines:
+        stripped = line.strip()
+        if '"""' in stripped or "'''" in stripped:
+            in_docstring = not in_docstring
+            important.append((line_no, line))
+            continue
+        if in_docstring or stripped.startswith(("#", "import ", "from ", "def ", "class ", "@")):
+            important.append((line_no, line))
+    return important
+
+
+def _format_numbered_lines(lines: list[tuple[int, str]]) -> str:
+    return "\n".join(f"{line_no:04d}: {text}" for line_no, text in lines)
+
+
+def _truncate_numbered_lines(
+    lines: list[tuple[int, str]],
+    language: str,
+    max_chars: int = _MAX_CODE_CHARS,
+) -> str:
+    """Truncate numbered lines while preserving the most useful evidence."""
+    if not lines:
         return ""
+
+    full = _format_numbered_lines(lines)
+    if len(full) <= max_chars:
+        return full
+
+    if language == "python":
+        skeleton = _python_skeleton(lines)
+        skeleton_text = _format_numbered_lines(skeleton)
+        if skeleton and len(skeleton_text) <= max_chars:
+            return skeleton_text
+
+    if len(lines) <= 12:
+        return full[:max_chars]
+
+    head_count = max(1, len(lines) // 2)
+    tail_count = max(1, len(lines) // 3)
+    head = lines[:head_count]
+    tail = lines[-tail_count:]
+    skipped = max(0, tail[0][0] - head[-1][0] - 1)
+    marker = (
+        f"... [{skipped} lines omitted between {head[-1][0]} and {tail[0][0]}] ..."
+        if skipped > 0 else "... [excerpt truncated] ..."
+    )
+    candidate = _format_numbered_lines(head) + "\n" + marker + "\n" + _format_numbered_lines(tail)
+
+    while len(candidate) > max_chars and (len(head) > 3 or len(tail) > 3):
+        if len(head) >= len(tail) and len(head) > 3:
+            head = head[:-1]
+        elif len(tail) > 3:
+            tail = tail[1:]
+        skipped = max(0, tail[0][0] - head[-1][0] - 1)
+        marker = (
+            f"... [{skipped} lines omitted between {head[-1][0]} and {tail[0][0]}] ..."
+            if skipped > 0 else "... [excerpt truncated] ..."
+        )
+        candidate = _format_numbered_lines(head) + "\n" + marker + "\n" + _format_numbered_lines(tail)
+
+    return candidate if len(candidate) <= max_chars else candidate[:max_chars]
+
+
+def _read_source_code(abs_path: str, language: str = "unknown", max_chars: int = _MAX_CODE_CHARS) -> str:
+    """Read source code from disk using smart line-aware truncation."""
+    return _truncate_numbered_lines(_read_source_lines(abs_path), language, max_chars=max_chars)
+
+
+def _line_span_for_text(lines: list[tuple[int, str]], needle: str) -> tuple[Optional[int], Optional[int]]:
+    """Locate a text snippet in the source file and return a best-effort line span."""
+    normalized = needle.strip().lower()
+    if not normalized:
+        return None, None
+    for line_no, line in lines:
+        if normalized in line.lower():
+            return line_no, line_no
+    return None, None
+
+
+def _module_static_evidence(
+    module: "ModuleNode",
+    graph: "KnowledgeGraph",
+) -> list[SemanticEvidence]:
+    """Collect best-effort Phase 1 and Phase 2 evidence for a module."""
+    lines = _read_source_lines(module.abs_path)
+    evidence: list[SemanticEvidence] = []
+
+    for xform in graph.all_transformations():
+        if xform.source_file != module.path:
+            continue
+        evidence.append(SemanticEvidence(
+            source_phase="phase2",
+            file_path=module.path,
+            line_start=xform.line_range[0] or None,
+            line_end=xform.line_range[1] or None,
+            extraction_method="phase2_lineage",
+            description=(
+                f"Transformation {xform.transformation_type} reads {', '.join(xform.source_datasets[:3]) or 'none'} "
+                f"and writes {', '.join(xform.target_datasets[:3]) or 'none'}"
+            ),
+        ))
+
+    for imp in module.imports[:3]:
+        evidence.append(SemanticEvidence(
+            source_phase="phase1",
+            file_path=module.path,
+            line_start=imp.line or None,
+            line_end=imp.line or None,
+            extraction_method="phase1_import",
+            description=f"Import reference to {imp.module}",
+        ))
+
+    for fn in module.functions[:2]:
+        evidence.append(SemanticEvidence(
+            source_phase="phase1",
+            file_path=module.path,
+            line_start=fn.line or None,
+            line_end=fn.end_line or fn.line or None,
+            extraction_method="phase1_symbol",
+            description=f"Function definition {fn.name}",
+        ))
+
+    for cls in module.classes[:2]:
+        evidence.append(SemanticEvidence(
+            source_phase="phase1",
+            file_path=module.path,
+            line_start=cls.line or None,
+            line_end=cls.end_line or cls.line or None,
+            extraction_method="phase1_symbol",
+            description=f"Class definition {cls.name}",
+        ))
+
+    for key in module.yaml_keys[:3]:
+        line_start, line_end = _line_span_for_text(lines, f"{key}:")
+        evidence.append(SemanticEvidence(
+            source_phase="phase1",
+            file_path=module.path,
+            line_start=line_start,
+            line_end=line_end,
+            extraction_method="phase1_yaml_key",
+            description=f"YAML key {key}",
+        ))
+
+    for ref in module.dbt_refs[:3]:
+        line_start, line_end = _line_span_for_text(lines, ref)
+        evidence.append(SemanticEvidence(
+            source_phase="phase1",
+            file_path=module.path,
+            line_start=line_start,
+            line_end=line_end,
+            extraction_method="phase1_dbt_ref",
+            description=f"dbt reference {ref}",
+        ))
+
+    # Deduplicate while keeping the most precise entries first.
+    deduped: list[SemanticEvidence] = []
+    seen: set[tuple[str, Optional[int], Optional[int], str]] = set()
+    for item in evidence:
+        key = (item.description, item.line_start, item.line_end, item.extraction_method)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped[:6]
 
 
 def _build_graph_context(module: "ModuleNode", graph: "KnowledgeGraph") -> str:
@@ -142,7 +300,10 @@ def _build_imports_summary(module: "ModuleNode") -> str:
     return "none"
 
 
-def _heuristic_purpose_statement(module: "ModuleNode") -> "PurposeResult":
+def _heuristic_purpose_statement(
+    module: "ModuleNode",
+    graph: Optional["KnowledgeGraph"] = None,
+) -> "PurposeResult":
     """Generate a purpose statement from static metadata alone — no LLM required."""
     role = module.role
     path = module.path
@@ -188,14 +349,108 @@ def _heuristic_purpose_statement(module: "ModuleNode") -> "PurposeResult":
         statement = f"{role.capitalize()} file in {parent}/."
         score = 0.1
 
+    evidence = _module_static_evidence(module, graph) if graph else []
+    if not evidence:
+        evidence = [SemanticEvidence(
+            source_phase="phase3",
+            file_path=path,
+            line_start=None,
+            line_end=None,
+            extraction_method="heuristic",
+            description="Heuristic summary derived from role, dbt refs, function names, and YAML keys.",
+        )]
+
     return PurposeResult(
         file_path=path,
         purpose_statement=statement,
         business_logic_score=score,
         key_concepts=[role, parent] if parent else [role],
-        evidence="heuristic: role, dbt-refs, function names",
+        evidence=evidence,
         confidence=0.3,
         model_used="heuristic",
+        prompt_version=PURPOSE_EXTRACTION_PROMPT_VERSION,
+        generation_timestamp=datetime.now(timezone.utc),
+        is_fallback=True,
+    )
+
+
+def _normalize_llm_evidence(
+    module: "ModuleNode",
+    raw_evidence: Any,
+) -> list[SemanticEvidence]:
+    """Normalize LLM evidence payloads into structured evidence objects."""
+    normalized: list[SemanticEvidence] = []
+    candidates = raw_evidence if isinstance(raw_evidence, list) else [raw_evidence]
+    for item in candidates:
+        if isinstance(item, SemanticEvidence):
+            evidence = item
+        elif isinstance(item, dict):
+            evidence = SemanticEvidence(
+                source_phase=str(item.get("source_phase", "phase3")),
+                file_path=str(item.get("file_path") or module.path),
+                line_start=item.get("line_start"),
+                line_end=item.get("line_end"),
+                extraction_method=str(item.get("extraction_method", "llm_inference")),
+                description=str(item.get("description", "")).strip(),
+            )
+        elif isinstance(item, str) and item.strip():
+            evidence = SemanticEvidence(
+                source_phase="phase3",
+                file_path=module.path,
+                line_start=None,
+                line_end=None,
+                extraction_method="llm_inference",
+                description=item.strip(),
+            )
+        else:
+            continue
+        if evidence.description:
+            normalized.append(evidence)
+    return normalized
+
+
+def _merge_evidence(
+    module: "ModuleNode",
+    graph: "KnowledgeGraph",
+    raw_evidence: Any,
+) -> list[SemanticEvidence]:
+    """Merge static graph evidence with any structured LLM evidence."""
+    merged: list[SemanticEvidence] = []
+    seen: set[tuple[str, str, Optional[int], Optional[int], str]] = set()
+    for item in _normalize_llm_evidence(module, raw_evidence) + _module_static_evidence(module, graph):
+        key = (
+            item.source_phase,
+            item.file_path,
+            item.line_start,
+            item.line_end,
+            item.description,
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(item)
+    return merged[:8]
+
+
+def _purpose_result_from_payload(
+    module: "ModuleNode",
+    graph: "KnowledgeGraph",
+    payload: dict[str, Any],
+    model_used: str,
+    is_fallback: bool,
+) -> PurposeResult:
+    """Build a validated purpose result from an LLM or heuristic payload."""
+    return PurposeResult(
+        file_path=module.path,
+        purpose_statement=str(payload.get("purpose_statement", "")),
+        business_logic_score=float(payload.get("business_logic_score", 0.0)),
+        key_concepts=list(payload.get("key_concepts", [])),
+        evidence=_merge_evidence(module, graph, payload.get("evidence")),
+        confidence=float(payload.get("confidence", 0.5)),
+        model_used=model_used,
+        prompt_version=PURPOSE_EXTRACTION_PROMPT_VERSION,
+        generation_timestamp=datetime.now(timezone.utc),
+        is_fallback=is_fallback,
     )
 
 
@@ -239,7 +494,7 @@ def _batch_extract_purposes(
     budget.record(resp)
 
     if not resp.success:
-        return [_heuristic_purpose_statement(m) for m in modules]
+        return [_heuristic_purpose_statement(m, graph) for m in modules]
 
     parsed = resp.parse_json()
     if not isinstance(parsed, list):
@@ -250,15 +505,12 @@ def _batch_extract_purposes(
     for m in modules:
         item = result_map.get(m.path)
         if not item:
-            results.append(_heuristic_purpose_statement(m))
+            results.append(_heuristic_purpose_statement(m, graph))
             continue
-        results.append(PurposeResult(
-            file_path=m.path,
-            purpose_statement=str(item.get("purpose_statement", "")),
-            business_logic_score=float(item.get("business_logic_score", 0.0)),
-            key_concepts=list(item.get("key_concepts", [])),
-            evidence=str(item.get("evidence", "")),
-            confidence=float(item.get("confidence", 0.5)),
+        results.append(_purpose_result_from_payload(
+            m,
+            graph,
+            item,
             model_used=resp.model,
             is_fallback=selection.is_fallback if selection else False,
         ))
@@ -281,6 +533,8 @@ def extract_purpose(
             file_path=module.path,
             error="Could not read source code",
             confidence=0.0,
+            prompt_version=PURPOSE_EXTRACTION_PROMPT_VERSION,
+            generation_timestamp=datetime.now(timezone.utc),
         )
 
     # Check token budget
@@ -299,6 +553,7 @@ def extract_purpose(
         classes=classes_str,
         imports_summary=_build_imports_summary(module),
         graph_context=_build_graph_context(module, graph),
+        prompt_version=PURPOSE_EXTRACTION_PROMPT_VERSION,
         max_chars=_MAX_CODE_CHARS,
         code_snippet=code,
     )
@@ -314,31 +569,22 @@ def extract_purpose(
     budget.record(resp)
 
     if not resp.success:
-        return PurposeResult(
-            file_path=module.path,
-            model_used=resp.model,
-            error=resp.error,
-            confidence=0.0,
-        )
+        fallback = _heuristic_purpose_statement(module, graph)
+        fallback.model_used = resp.model or fallback.model_used
+        fallback.error = resp.error
+        return fallback
 
     parsed = resp.parse_json()
-    if parsed is None:
-        return PurposeResult(
-            file_path=module.path,
-            purpose_statement=resp.text[:500].strip(),
-            model_used=resp.model,
-            confidence=0.3,
-            evidence="raw text (JSON parse failed)",
-            is_fallback=selection.is_fallback if selection else False,
-        )
+    if not isinstance(parsed, dict):
+        fallback = _heuristic_purpose_statement(module, graph)
+        fallback.model_used = resp.model or fallback.model_used
+        fallback.error = "JSON parse failed"
+        return fallback
 
-    return PurposeResult(
-        file_path=module.path,
-        purpose_statement=parsed.get("purpose_statement", ""),
-        business_logic_score=float(parsed.get("business_logic_score", 0.0)),
-        key_concepts=parsed.get("key_concepts", []),
-        evidence=parsed.get("evidence", ""),
-        confidence=float(parsed.get("confidence", 0.5)),
+    return _purpose_result_from_payload(
+        module,
+        graph,
+        parsed,
         model_used=resp.model,
         is_fallback=selection.is_fallback if selection else False,
     )
@@ -376,7 +622,7 @@ def extract_all_purposes(
     eligible = eligible[:max_modules]
 
     if router is None:
-        results = [_heuristic_purpose_statement(m) for m in eligible]
+        results = [_heuristic_purpose_statement(m, graph) for m in eligible]
         logger.info("Heuristic purposes generated for %d modules (no LLM)", len(results))
         results.sort(key=lambda r: r.business_logic_score, reverse=True)
         return results

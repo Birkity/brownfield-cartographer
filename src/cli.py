@@ -339,7 +339,8 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
                 str(drift_count),
             )
         if semantics_result.day_one_answers:
-            sem_table.add_row("Day-One answers", str(len(semantics_result.day_one_answers)))
+            question_count = len(semantics_result.day_one_answers.get("questions", []))
+            sem_table.add_row("Day-One answers", str(question_count))
         doc_missing = sum(
             1 for d in semantics_result.drift_results
             if getattr(d, "documentation_missing", False)
@@ -352,11 +353,17 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
         reading_order = getattr(semantics_result, "reading_order", [])
         if reading_order:
             sem_table.add_row("Reading order items", str(len(reading_order)))
+        hotspots = getattr(semantics_result, "hotspot_rankings", [])
+        if hotspots:
+            sem_table.add_row("Semantic hotspots", str(len(hotspots)))
+        review_queue = getattr(semantics_result, "review_queue", [])
+        if review_queue:
+            sem_table.add_row("Review queue items", str(len(review_queue)))
         if semantics_result.budget_summary:
             bs = semantics_result.budget_summary
             sem_table.add_row(
                 "LLM calls / tokens",
-                f"{bs.get('calls', 0)} calls, ~{bs.get('total_prompt_tokens', 0)} prompt tokens",
+                f"{bs.get('total_calls', 0)} calls, ~{bs.get('total_prompt_tokens', 0)} prompt tokens",
             )
         console.print(sem_table)
 
@@ -384,6 +391,7 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
             "day_one_answers_json",
             "semanticist_stats_json",
             "reading_order_json",
+            "semantic_hotspots_json",
         ])
     for name in artifact_names:
         p = getattr(artifacts, name)

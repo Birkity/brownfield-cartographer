@@ -55,6 +55,9 @@ class SQLLineageResult:
     sql_preview: str = ""
     """First 500 chars of the SQL for context."""
 
+    line_range: tuple[int, int] = (0, 0)
+    """Best-effort line range covering the SQL transformation in the file."""
+
     confidence: float = 1.0
     is_dynamic: bool = False
     """True if SQL contains Jinja blocks we couldn't fully resolve."""
@@ -319,6 +322,7 @@ def analyze_sql_file(
     result = SQLLineageResult(
         source_file=rel_path,
         sql_preview=sql_text[:500],
+        line_range=(1, max(1, len(sql_text.splitlines()))),
     )
 
     # Detect dynamic SQL / heavy Jinja usage

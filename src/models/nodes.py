@@ -17,7 +17,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ---------------------------------------------------------------------------
@@ -65,6 +65,29 @@ class AnalysisMethod(str, Enum):
     CONFIG_PARSING = "config_parsing"
 
 
+def _coerce_semantic_evidence_list(value: Any) -> list[Any]:
+    """Coerce legacy semantic evidence into the structured list format."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict):
+        return [value]
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        return [{
+            "source_phase": "phase3",
+            "file_path": "",
+            "line_start": None,
+            "line_end": None,
+            "extraction_method": "legacy_string",
+            "description": text,
+        }]
+    return []
+
+
 # ---------------------------------------------------------------------------
 # Sub-models (embedded inside ModuleNode)
 # ---------------------------------------------------------------------------
@@ -87,6 +110,23 @@ class ImportInfo(BaseModel):
 
     line: int = 0
     """1-based line number of the import statement."""
+
+
+class SemanticEvidence(BaseModel):
+    """Structured evidence supporting a semantic claim."""
+
+    source_phase: str
+    file_path: str
+    line_start: Optional[int] = None
+    line_end: Optional[int] = None
+    extraction_method: str
+    description: str
+
+
+class DayOneCitation(SemanticEvidence):
+    """Line-aware citation used in Day-One onboarding answers."""
+
+    evidence_type: str = "semantic_evidence"
 
 
 class FunctionNode(BaseModel):
@@ -229,8 +269,19 @@ class ModuleNode(BaseModel):
     semantic_confidence: float = 0.0
     """Confidence in the LLM-generated semantic fields (0.0 = no LLM analysis)."""
 
-    semantic_evidence: Optional[str] = None
-    """Specific code constructs cited as evidence for the purpose statement."""
+    semantic_evidence: list[SemanticEvidence] = Field(default_factory=list)
+    """Structured evidence supporting the semantic assessment."""
+
+    semantic_model_used: Optional[str] = None
+    semantic_prompt_version: Optional[str] = None
+    semantic_generation_timestamp: Optional[datetime] = None
+    semantic_fallback_used: bool = False
+    hotspot_fusion_score: float = 0.0
+
+    @field_validator("semantic_evidence", mode="before")
+    @classmethod
+    def _validate_semantic_evidence(cls, value: Any) -> list[Any]:
+        return _coerce_semantic_evidence_list(value)
 
 
 class DatasetNode(BaseModel):

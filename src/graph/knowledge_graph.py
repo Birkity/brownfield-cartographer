@@ -77,6 +77,15 @@ class KnowledgeGraph:
             domain_cluster=module.domain_cluster,
             doc_drift_detected=module.doc_drift_detected,
             semantic_confidence=module.semantic_confidence,
+            semantic_evidence=[
+                evidence.model_dump(mode="json")
+                for evidence in module.semantic_evidence
+            ],
+            semantic_model_used=module.semantic_model_used,
+            semantic_prompt_version=module.semantic_prompt_version,
+            semantic_generation_timestamp=module.semantic_generation_timestamp,
+            semantic_fallback_used=module.semantic_fallback_used,
+            hotspot_fusion_score=module.hotspot_fusion_score,
         )
 
     def get_module(self, path: str) -> Optional[ModuleNode]:

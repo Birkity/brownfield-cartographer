@@ -1,255 +1,366 @@
-# Phase 3 — Semanticist: LLM-Powered Semantic Analysis
+# Phase 3 - Semanticist: Production Semantic Analysis
 
 ## Overview
 
-The **Semanticist** is the third agent in the Brownfield Cartographer pipeline. It uses
-local LLM inference via [Ollama](https://ollama.com/) to extract **purpose statements**,
-**business logic scores**, **domain clusters**, and **documentation drift** signals from
-every module in the knowledge graph. It then synthesises a set of **Day-One onboarding
-answers** — the five questions a new FDE would ask on their first day.
+The Semanticist is the third agent in the Brownfield Cartographer pipeline. It enriches
+the Phase 1 module graph and Phase 2 lineage graph with semantic understanding:
 
-The result is a semantically enriched graph where every module carries a human-readable
-purpose statement, a domain classification, and a drift flag — plus a compact index
-designed for the Phase 4 Navigator agent.
+- purpose statements for modules
+- business logic scoring
+- semantic domains
+- documentation drift signals
+- onboarding-oriented Day-One answers
+- hotspot fusion rankings
+- a human review queue for uncertain or weakly grounded results
 
----
-
-## What the Semanticist does
-
-| Step | Action |
-|------|--------|
-| 1 | **Init LLM**: connect to Ollama, discover available models, build a `ModelRouter` with task-specific routing |
-| 2 | **Purpose extraction**: for each eligible module, read source code (smart-truncated) + graph context, prompt the LLM via batched or individual calls; heuristic fallback if no LLM |
-| 3 | **Domain clustering**: group all modules into semantic domains using lineage dataset subjects — heuristic baseline (always works) + optional LLM refinement for semantic grouping |
-| 4 | **Documentation drift / missing-doc scan**: when LLM is available, compare each module's inline docs against its purpose statement and flag stale/misleading docs; when no LLM, perform a documentation-presence scan and mark undocumented files |
-| 5 | **Day-One synthesis**: build a comprehensive prompt with all Phase 1–3 evidence, generate answers to the five FDE Day-One questions |
-| 6 | **Enrich graph**: write purpose, business_logic_score, domain_cluster, doc_drift back to every `ModuleNode` |
-| 7 | **Reading order**: rank all modules by domain importance + business logic score to produce a step-by-step onboarding guide for new engineers |
+Phase 3 keeps the existing pipeline shape intact. `run_phase3()` remains the single
+integration point, and all new outputs are emitted as extensions of the current
+artifact set rather than separate scripts.
 
 ---
 
-## Model Routing
+## What Changed In The Production Upgrade
 
-The Semanticist uses a **task-aware model router** that selects the best LLM for each job:
+This upgrade adds five production-quality capabilities:
 
-| Task type | Preferred model | Fallback | Rationale |
-|-----------|----------------|----------|-----------|
-| Purpose extraction | `qwen3-coder` | `deepseek-v3.1` | Code-focused reasoning |
-| SQL explanation | `qwen3-coder` | `deepseek-v3.1` | Code-focused reasoning |
-| Business logic scoring | `qwen3-coder` | `deepseek-v3.1` | Code-focused reasoning |
-| Domain clustering | `deepseek-v3.1` | `qwen3-coder` | High-level synthesis |
-| Doc drift detection | `deepseek-v3.1` | `qwen3-coder` | Comparative reasoning |
-| Day-One synthesis | `deepseek-v3.1` | `qwen3-coder` | Multi-source synthesis |
+1. Semantic provenance tracking on module nodes
+2. Structured semantic evidence objects instead of plain-text evidence
+3. Day-One answers with line-range citations and evidence types
+4. A hotspot fusion score across architecture, change activity, lineage fan-out, and business logic
+5. A semantic review queue for modules that still need human judgment
 
-The router tries the preferred model first, then falls back to the other if unavailable.
-A `ContextWindowBudget` tracks cumulative token usage (prompt + eval) across all calls.
-
-### Graceful degradation
-
-If Ollama is not running or no models are available:
-- Purpose extraction falls back to **heuristic** mode — every module gets a purpose statement generated from its role, dbt-refs, function names, and imports (no LLM required)
-- Domain clustering falls back to **heuristic-only** mode: lineage dataset-subject extraction first, role-based grouping as secondary fallback
-- Doc drift detection falls back to **documentation-presence scan** — each module is scanned for the presence of inline documentation; undocumented files receive `documentation_missing=True`
-- Day-One synthesis is **skipped**
-
-Phase 1 and Phase 2 artifacts remain fully intact in all cases.
+The system remains honest about uncertainty. When line ranges cannot be proven, the
+pipeline emits `null` ranges and surfaces the module in the review queue instead of
+inventing evidence.
 
 ---
 
-## Output Artifacts
+## Runtime Outputs
+
+Phase 3 writes or enriches these artifacts under `.cartography/<repo-name>/`:
 
 | File | Location | Description |
 |------|----------|-------------|
-| `semantic_enrichment.json` | `.cartography/semantics/` | Full purpose statements, domain clustering result, and doc drift results for every module |
-| `semantic_index.json` | `.cartography/semantics/` | Compact lookup: module→purpose+score, domain→members, top 10 business logic hotspots, top 20 reading-order entries |
-| `day_one_answers.json` | `.cartography/semantics/` | Five FDE Day-One Q&A with cited files and confidence scores |
-| `reading_order.json` | `.cartography/semantics/` | Ranked onboarding guide listing every module ordered by domain importance and business logic score |
-| `semanticist_stats.json` | `.cartography/semantics/` | Run statistics: LLM calls, token usage, elapsed time, drift count, documentation-missing count, reading-order item count |
+| `semantic_enrichment.json` | `semantics/` | Full purpose extraction, domain clustering, drift results, hotspot rankings, and review queue |
+| `semantic_index.json` | `semantics/` | Compact lookup index with purpose summaries, domain membership, top hotspots, and reading order |
+| `day_one_answers.json` | `semantics/` | Five onboarding answers with cited files, structured citations, and confidence |
+| `reading_order.json` | `semantics/` | Ranked onboarding path across all modules |
+| `semanticist_stats.json` | `semantics/` | Run metrics for Phase 3 |
+| `semantic_hotspots.json` | repo root | Ranked hotspot fusion output for onboarding prioritization |
+| `semantic_review_queue.md` | `reports/` in this repo | Human review queue generated from the latest Phase 3 run |
+
+For the default jaffle-shop run, the new artifacts are:
+
+- `.cartography/jaffle-shop/semantic_hotspots.json`
+- `reports/semantic_review_queue.md`
 
 ---
 
-## Purpose Extraction
+## Semantic Provenance
 
-For each module with ≥3 lines of code (excluding trivial YAML), the Semanticist:
+Phase 3 now persists semantic provenance directly on `ModuleNode` records:
 
-1. Reads the source code with **smart language-aware truncation** (6,000 chars default):
-   - *Python*: extracts skeleton — imports, class/def signatures, and docstrings
-   - *SQL/YAML/others*: head (⅔) + tail (⅓) to preserve header context and final SELECT
-2. Builds **graph context** from Phase 1+2: hub status, cycle membership, entry point flag, dbt refs, lineage edges, velocity
-3. Builds an **imports summary** listing key dependencies
-4. Sends to the LLM — large/hub files sent individually; **small files batched** (up to 4 per call) to reduce total call count
-5. If no LLM is available, **heuristic purpose statements** are generated from metadata (role, dbt-refs, function names, YAML keys)
+| Field | Type | Description |
+|------|------|-------------|
+| `semantic_model_used` | `Optional[str]` | Model that generated the semantic result |
+| `semantic_prompt_version` | `Optional[str]` | Prompt template version used for the result |
+| `semantic_generation_timestamp` | `Optional[str]` | UTC timestamp when the semantic result was generated |
+| `semantic_fallback_used` | `bool` | Whether the result came from heuristic fallback rather than an LLM response |
 
-The LLM returns structured JSON per file:
-- `purpose_statement` — one-sentence explanation of what the file does
-- `business_logic_score` — 0.0 (infrastructure) to 1.0 (core business logic)
-- `key_concepts` — list of domain concepts the file implements
-- `evidence` — reasoning for the score
-- `confidence` — LLM self-rated confidence (0.0–1.0)
+These fields make semantic outputs auditable and allow teams to distinguish between:
 
-Modules are processed **hub-first** — architecturally important files get purpose statements before less connected ones.
+- old vs. new prompt generations
+- LLM-backed vs. heuristic outputs
+- mixed runs where some files succeeded and others fell back
 
----
+### Example
 
-## Domain Clustering
+From `.cartography/jaffle-shop/module_graph/module_graph_modules.json`:
 
-### Heuristic baseline (always runs)
-
-Groups modules first by **lineage dataset subjects**: for each SQL transformation, the
-dominant subject noun is extracted from its dataset references (e.g. `model.stg_orders`
-→ `orders`) and the module is assigned to an `"Orders Pipeline"` domain. Modules not
-covered by any transformation fall back to role-based grouping:
-
-| Role pattern | Domain name |
-|-------------|-------------|
-| staging | Data Staging |
-| mart | Analytics & Marts |
-| macro | Utility Macros |
-| config | Configuration |
-| seed | Seed Data |
-| Other | General |
-
-### LLM refinement (when available)
-
-When the LLM is available, the Semanticist sends all module names + purpose statements
-to the LLM and asks it to identify **semantic domains** — groups of modules that work
-together on a specific business function. The LLM returns domain names, descriptions,
-member lists, and reasoning.
+```json
+{
+  "file_path": ".pre-commit-config.yaml",
+  "semantic_model_used": "qwen3-coder:480b-cloud",
+  "semantic_prompt_version": "phase3-purpose-v2",
+  "semantic_generation_timestamp": "2026-03-13T08:30:57.116221Z",
+  "semantic_fallback_used": false
+}
+```
 
 ---
 
-## Documentation Drift Detection
+## Structured Evidence
 
-For each module that has a purpose statement, the Semanticist performs one of two scans
-depending on LLM availability:
+`semantic_evidence` is now stored as structured objects instead of free-form text.
 
-**With LLM**: Extract all inline documentation (docstrings, SQL comments, YAML comments),
-compare documentation against the LLM-generated purpose statement, and report a **drift level**:
-- `no_drift` — docs accurately describe the code
-- `possible_drift` — minor discrepancies or outdated references
-- `likely_drift` — docs are misleading or significantly stale
-- `documentation_missing=True` — no inline documentation found at all
+### Evidence schema
 
-**Without LLM**: Perform a documentation-presence scan only. Every module without
-inline documentation receives `documentation_missing=True`. This lets teams identify
-undocumented files even when no LLM is running.
+```json
+{
+  "source_phase": "phase1|phase2|phase3",
+  "file_path": "models/staging/stg_orders.sql",
+  "line_start": 14,
+  "line_end": 16,
+  "extraction_method": "phase2_lineage",
+  "description": "Field renaming: id -> order_id, store_id -> location_id, customer -> customer_id"
+}
+```
+
+### Why this matters
+
+- Evidence can be traced to a concrete file and line range
+- Day-One answers can cite grounded evidence instead of vague file lists
+- Weak evidence can be detected automatically for review-queue generation
+- Existing graph consumers remain compatible because legacy string evidence is still accepted during deserialization
+
+### Example
+
+From `.cartography/jaffle-shop/semantic_hotspots.json`:
+
+```json
+{
+  "source_phase": "phase3",
+  "file_path": "models/staging/stg_products.sql",
+  "line_start": 14,
+  "line_end": 28,
+  "extraction_method": "phase2_lineage",
+  "description": "Column renaming and price conversion logic for downstream analytics"
+}
+```
+
+---
+
+## Evidence Resolution
+
+Phase 3 now fuses evidence from multiple sources before writing semantic outputs:
+
+- Phase 1 symbol and YAML-key locations
+- Phase 2 transformation line ranges and lineage evidence
+- LLM-returned evidence grounded against line-numbered source excerpts
+
+This produces better citations for SQL, YAML, and config files while staying honest
+about unresolved or dynamic cases.
+
+---
+
+## Day-One Answers With Citations
+
+`day_one_answers.json` now preserves the original `cited_files` list and adds a
+structured `citations` array for each answer.
+
+### Citation schema
+
+```json
+{
+  "source_phase": "phase2",
+  "file_path": "models/marts/orders.sql",
+  "line_start": 15,
+  "line_end": 39,
+  "extraction_method": "phase2_lineage",
+  "description": "order_items_summary CTE computes supply costs, item counts and food/drink categorizations",
+  "evidence_type": "semantic"
+}
+```
+
+### Example
+
+From `.cartography/jaffle-shop/semantics/day_one_answers.json`:
+
+```json
+{
+  "question": "What does this codebase do at a high level?",
+  "cited_files": [
+    "models/marts/orders.yml",
+    "models/staging/stg_orders.sql"
+  ],
+  "citations": [
+    {
+      "source_phase": "phase3",
+      "file_path": "models/marts/orders.yml",
+      "line_start": 1,
+      "line_end": 3,
+      "extraction_method": "phase1_symbol",
+      "description": "Defines data mart for order analytics with financial totals and customer behavior metrics",
+      "evidence_type": "semantic"
+    },
+    {
+      "source_phase": "phase3",
+      "file_path": "models/staging/stg_orders.sql",
+      "line_start": 14,
+      "line_end": 16,
+      "extraction_method": "phase2_lineage",
+      "description": "Transforms raw e-commerce order data for downstream analytics",
+      "evidence_type": "semantic"
+    }
+  ]
+}
+```
+
+Some synthesis-only answers may still contain unresolved summary references such as
+`LINEAGE SUMMARY` or `BLIND SPOTS`. Those citations intentionally keep `line_start`
+and `line_end` as `null` because there is no honest module-level span to attach.
+
+---
+
+## Hotspot Fusion Score
+
+Phase 3 now computes `hotspot_fusion_score` for every module. The score is designed to
+highlight the modules a new engineer should understand early.
+
+### Signals
+
+The score is the equal-weight average of four min-max normalized signals:
+
+- Phase 1 PageRank
+- git velocity
+- Phase 2 lineage fan-out
+- Phase 3 business logic score
+
+### Output artifact
+
+The ranked results are written to:
+
+`<artifact_root>/semantic_hotspots.json`
+
+### Example
+
+From `.cartography/jaffle-shop/semantic_hotspots.json`:
+
+```json
+{
+  "file_path": "models/staging/stg_products.sql",
+  "hotspot_fusion_score": 0.694445,
+  "signal_breakdown": {
+    "pagerank": { "raw": 0.014667, "normalized": 1.0 },
+    "git_velocity": { "raw": 0.0, "normalized": 0.0 },
+    "lineage_fanout": { "raw": 3.0, "normalized": 1.0 },
+    "business_logic_score": { "raw": 0.7, "normalized": 0.777778 }
+  }
+}
+```
+
+### Interpretation
+
+- High PageRank means the module matters architecturally
+- High git velocity means it changes often
+- High lineage fan-out means downstream models depend on it
+- High business logic score means it carries product or analytics meaning
+
+In the jaffle-shop example run on March 13, 2026, git velocity remained `0.0` because
+the temporary clone triggered a Git safe-directory warning. The hotspot artifact was
+still generated successfully; that signal simply normalized to zero for the run.
+
+---
+
+## Semantic Review Queue
+
+Phase 3 now generates a human review queue at:
+
+`reports/semantic_review_queue.md`
+
+Modules are added when one or more of these conditions hold:
+
+- semantic confidence `< 0.60`
+- drift level is `possible_drift` or `likely_drift`
+- `documentation_missing = true`
+- hotspot fusion score `>= 0.70` with weak evidence
+- unresolved lineage cases tied to the module
+
+### Example
+
+Excerpt from `reports/semantic_review_queue.md`:
+
+```md
+## `models/staging/stg_orders.sql`
+
+- Hotspot fusion score: `0.64`
+- Semantic confidence: `0.95`
+- Drift level: `likely_drift`
+- Reasons: documentation drift (likely_drift)
+```
+
+This report gives teams a concrete handoff list instead of forcing them to inspect the
+entire semantic corpus manually.
 
 ---
 
 ## Reading Order
 
-After all semantic analysis is complete, the Semanticist generates a **reading order** —
-a ranked list of every module designed to help a new engineer navigate the codebase
-systematically:
+The reading order still ranks modules for onboarding, but it now benefits from the
+hotspot fusion work and richer evidence grounding. Each item includes:
 
-1. Domains are sorted by combined business-logic score (most impactful domain first)
-2. Within each domain, modules are sorted by business-logic score descending
-3. Each entry includes: `step`, `file_path`, `domain`, `purpose`, `business_logic_score`, `reason`
+- `step`
+- `file_path`
+- `domain`
+- `purpose`
+- `business_logic_score`
+- `hotspot_fusion_score`
+- `reason`
 
-The `reason` field provides a short rationale (e.g. "core business logic; analytical output",
-"architectural hub", "data foundation"). The full list is written to `reading_order.json`
-and the top 20 entries are embedded in `semantic_index.json` for quick access.
-
----
-
-## Day-One Synthesis
-
-The Semanticist builds a comprehensive synthesis prompt containing:
-
-- Project statistics (from Phase 1 surveyor stats)
-- Top-10 modules ranked by business logic score + their purpose statements
-- Lineage summary (from Phase 2 hydrologist stats)
-- Blind spot and high-risk data
-- Domain clustering results
-
-It then asks the LLM to answer the **five Day-One questions** that every new FDE asks:
-
-1. **What does this codebase do at a high level?**
-2. **What are the main data flows and where does data come from?**
-3. **What are the critical modules a new engineer should understand first?**
-4. **Where are the highest-risk areas and technical debt?**
-5. **What are the blind spots — areas where the analysis may be incomplete?**
-
-Each answer includes **cited files** from the codebase and a confidence score.
+This keeps the onboarding path aligned with both semantic importance and graph reality.
 
 ---
 
-## New Node Fields (ModuleNode)
+## New Module Fields
 
-Phase 3 extends `ModuleNode` with these semantic attributes:
+Phase 3 now enriches `ModuleNode` with the following semantic fields:
 
 | Field | Type | Description |
-|-------|------|-------------|
-| `purpose_statement` | `Optional[str]` | LLM-generated purpose sentence |
-| `semantic_summary` | `Optional[str]` | Short domain summary |
-| `business_logic_score` | `float` | 0.0 (infra) to 1.0 (core business) |
-| `domain_cluster` | `Optional[str]` | Assigned semantic domain name |
-| `doc_drift_detected` | `bool` | Whether drift was found |
-| `doc_drift_level` | `Optional[str]` | no_drift / possible_drift / likely_drift |
-| `semantic_confidence` | `float` | LLM confidence in the purpose extraction |
-| `semantic_evidence` | `Optional[str]` | Reasoning behind the score |
+|------|------|-------------|
+| `purpose_statement` | `Optional[str]` | Module purpose summary |
+| `business_logic_score` | `float` | Business-logic intensity from `0.0` to `1.0` |
+| `domain_cluster` | `Optional[str]` | Semantic domain |
+| `doc_drift_detected` | `bool` | Whether documentation drift was detected |
+| `doc_drift_level` | `Optional[str]` | `no_drift`, `possible_drift`, or `likely_drift` |
+| `documentation_missing` | `bool` | Whether inline docs were missing |
+| `semantic_confidence` | `float` | Confidence in the semantic result |
+| `semantic_evidence` | `list[SemanticEvidence]` | Grounded evidence supporting semantic output |
+| `semantic_model_used` | `Optional[str]` | Model used for semantic generation |
+| `semantic_prompt_version` | `Optional[str]` | Prompt version used |
+| `semantic_generation_timestamp` | `Optional[str]` | UTC timestamp of generation |
+| `semantic_fallback_used` | `bool` | Whether heuristic fallback was used |
+| `hotspot_fusion_score` | `float` | Fused onboarding-priority score |
 
 ---
 
-## Sample Results: jaffle-shop
+## How To Run
 
-### Run statistics
+Run the full pipeline against a target repository:
 
-| Metric | Value |
-|--------|-------|
-| Ollama available | Yes |
-| Purpose statements | 31/31 modules |
-| Domain clusters | 7 (LLM-refined) |
-| Doc drift detections | 31 checked, 6 with drift |
-| Files missing documentation | 22 |
-| Reading order items | 33 |
-| Day-One answers | 5 generated |
-| LLM calls | 47 (13 individual + 5 batch + clustering + Day-One) |
-| Prompt tokens | ~30,976 |
-| Eval tokens | ~8,987 |
-| Total elapsed | ~1,271s |
+```bash
+uv run cartographer analyze /path/to/repo
+```
 
-### Domain clusters discovered
+To inspect the new outputs:
 
-| Domain | Members |
-|--------|---------|
-| Order Analytics | 4 |
-| Customer Analytics | 2 |
-| Product & Supply Chain | 4 |
-| Data Ingestion & Staging | 6 |
-| Infrastructure & Configuration | 5 |
-| Data Validation & Quality | 7 |
-| Location Management | 2 |
-| Time Analytics | 1 |
+```bash
+cat .cartography/<repo-name>/semantic_hotspots.json
+cat .cartography/<repo-name>/semantics/day_one_answers.json
+cat reports/semantic_review_queue.md
+```
 
-### Day-One synthesis (sample)
+To inspect provenance fields on module nodes:
 
-**Q: What does this codebase do at a high level?**
-> This is a dbt-based analytics platform for a food service/e-commerce business
-> that transforms raw order, customer, product, and supply chain data into
-> analytical models for business intelligence. It provides order analytics,
-> customer segmentation, product catalog management, and supply chain analytics
-> with a focus on revenue tracking, profitability analysis, and customer lifetime
-> value.
-> *— Confidence: 0.95, cited: order_items.yml, orders.sql, customers.yml, products.yml*
+```bash
+cat .cartography/<repo-name>/module_graph/module_graph_modules.json
+```
 
 ---
 
-## Limitations
+## Validation Notes
 
-- **LLM latency**: individual purpose extraction is sequential; batching reduces call count but does not fully eliminate wait time for large repos
-- **Model dependency**: Day-One synthesis and full LLM drift comparison require Ollama with at least one of `qwen3-coder` or `deepseek-v3.1` available (heuristic fallbacks cover all other steps)
-- **Drift detection depth**: documentation-presence scan runs without LLM, but semantic drift comparison (detecting *misleading* docs) still requires an LLM call per file
+The March 13, 2026 jaffle-shop run produced:
 
----
+- semantic provenance fields on module nodes
+- structured semantic evidence objects
+- Day-One answers with structured citations and line ranges where grounded
+- `.cartography/jaffle-shop/semantic_hotspots.json`
+- `reports/semantic_review_queue.md`
 
-## Improvements Implemented
+Targeted unit coverage was also added for:
 
-| Improvement | Implementation |
-|-------------|----------------|
-| Batch purpose extraction | Small files (≤1,500 bytes) grouped in batches of 4 per LLM call via `BATCH_PURPOSE_EXTRACTION_PROMPT`; reduces call count by ~50–65% on typical dbt projects |
-| Smart code truncation | Language-aware `_smart_truncate_code`: Python skeleton (imports + signatures), SQL/YAML head+tail; preserves structural context within the token budget |
-| Heuristic purpose fallback | `_heuristic_purpose_statement` generates purpose from role, dbt-refs, function names, YAML keys — no LLM required; `documentation_missing` scan also runs without LLM |
-| Lineage-aware domain clustering | `_extract_subject_from_dataset` strips role prefixes to extract subject nouns (`stg_orders` → `orders`); modules grouped as `"Orders Pipeline"` etc. before LLM refinement |
-| Documentation-missing flagging | New `documentation_missing: bool` field on `DriftResult`; set by both LLM drift detection (no docs found) and heuristic doc-presence scan |
-| Reading order for new engineers | `_compute_reading_order` ranks all modules: domain by combined BL score, within domain by individual BL score; written to `reading_order.json` and embedded in `semantic_index.json` |
+- legacy evidence coercion
+- hotspot scoring
+- citation formatting
+- citation backfilling
+- review queue selection
