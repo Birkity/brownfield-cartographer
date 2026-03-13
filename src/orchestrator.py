@@ -89,6 +89,7 @@ class CartographyArtifacts:
         self.day_one_answers_json = self.semantics_dir / "day_one_answers.json"
         self.semanticist_stats_json = self.semantics_dir / "semanticist_stats.json"
         self.reading_order_json = self.semantics_dir / "reading_order.json"
+        self.semantic_review_queue_json = self.semantics_dir / "semantic_review_queue.json"
         self.semantic_hotspots_json = self.output_dir / "semantic_hotspots.json"
 
     def ensure_dirs(self) -> None:
@@ -261,7 +262,6 @@ def run_phase3(
             dr.model_dump(mode="json") for dr in result.drift_results
         ],
         "semantic_hotspots": result.hotspot_rankings,
-        "semantic_review_queue": result.review_queue,
     }
     graph.save_semantics(artifacts.semantic_enrichment_json, enrichment_data)
 
@@ -294,7 +294,6 @@ def run_phase3(
             if pr.business_logic_score > 0.3
         ],
         "semantic_hotspots": result.hotspot_rankings[:10],
-        "semantic_review_queue": result.review_queue[:10],
         "reading_order": result.reading_order[:20],
     }
     graph.save_semantics(artifacts.semantic_index_json, index_data)
@@ -325,7 +324,13 @@ def run_phase3(
             encoding="utf-8",
         )
         logger.info("Wrote semantic hotspots \u2192 %s", artifacts.semantic_hotspots_json)
-    _write_semantic_review_queue(result.review_queue)
+    import json as _json
+    artifacts.semantic_review_queue_json.parent.mkdir(parents=True, exist_ok=True)
+    artifacts.semantic_review_queue_json.write_text(
+        _json.dumps({"semantic_review_queue": result.review_queue}, indent=2, default=str),
+        encoding="utf-8",
+    )
+    logger.info("Wrote semantic review queue \u2192 %s", artifacts.semantic_review_queue_json)
     # ---- Write semanticist stats ----------------------------------------
     _write_semanticist_stats(artifacts.semanticist_stats_json, result.stats)
 
@@ -385,49 +390,3 @@ def _write_semanticist_stats(stats_path: Path, stats: dict) -> None:
     with stats_path.open("w", encoding="utf-8") as fh:
         json.dump(stats, fh, indent=2, default=str)
     logger.info("Wrote semanticist stats → %s", stats_path)
-
-
-def _write_semantic_review_queue(review_queue: list[dict]) -> None:
-    """Write the semantic review queue markdown report to the repo reports folder."""
-    report_path = Path(__file__).resolve().parents[1] / "reports" / "semantic_review_queue.md"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-
-    lines = [
-        "# Semantic Review Queue",
-        "",
-        "Modules that need human review after the latest Phase 3 run.",
-        "",
-    ]
-
-    if not review_queue:
-        lines.extend(["No modules met the targeted review criteria.", ""])
-    else:
-        for item in review_queue:
-            lines.extend([
-                f"## `{item['file_path']}`",
-                "",
-                f"- Hotspot fusion score: `{item['hotspot_fusion_score']:.2f}`",
-                f"- Semantic confidence: `{item['semantic_confidence']:.2f}`",
-                f"- Drift level: `{item.get('doc_drift_level') or 'none'}`",
-                f"- Reasons: {', '.join(item['reasons'])}",
-                "",
-            ])
-            evidence = item.get("evidence", [])
-            if evidence:
-                lines.append("Evidence:")
-                for citation in evidence:
-                    line_start = citation.get("line_start")
-                    line_end = citation.get("line_end")
-                    if line_start is None or line_end is None:
-                        line_display = "lines unknown"
-                    elif line_start == line_end:
-                        line_display = f"line {line_start}"
-                    else:
-                        line_display = f"lines {line_start}-{line_end}"
-                    lines.append(
-                        f"- `{citation.get('file_path', item['file_path'])}` ({line_display}, {citation.get('evidence_type', 'semantic')}): {citation.get('description', '')}"
-                    )
-                lines.append("")
-
-    report_path.write_text("\n".join(lines), encoding="utf-8")
-    logger.info("Wrote semantic review queue → %s", report_path)

@@ -2,21 +2,21 @@
   "ollama_available": true,
   "purpose_statements_generated": 31,
   "purpose_statements_attempted": 31,
-  "domains_found": 4,
+  "domains_found": 6,
   "clustering_method": "llm_refined",
   "drift_checks_performed": 31,
-  "drift_detected": 2,
+  "drift_detected": 5,
   "documentation_missing_count": 22,
   "day_one_answers_generated": true,
   "reading_order_items": 33,
   "semantic_hotspots": 33,
-  "review_queue_items": 24,
+  "review_queue_items": 27,
   "llm_budget": {
     "total_calls": 29,
-    "total_prompt_tokens": 31440,
-    "total_eval_tokens": 12187,
-    "total_elapsed_seconds": 485.13,
+    "total_prompt_tokens": 31478,
+    "total_eval_tokens": 12645,
+    "total_elapsed_seconds": 570.2,
     "failures": 0
   },
-  "elapsed_seconds": 489.29
+  "elapsed_seconds": 574.44
 }

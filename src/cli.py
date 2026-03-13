@@ -391,6 +391,7 @@ def _print_summary(artifacts, hydro_result=None, semantics_result=None) -> None:
             "day_one_answers_json",
             "semanticist_stats_json",
             "reading_order_json",
+            "semantic_review_queue_json",
             "semantic_hotspots_json",
         ])
     for name in artifact_names:

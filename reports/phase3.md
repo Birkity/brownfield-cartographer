@@ -41,18 +41,18 @@ Phase 3 writes or enriches these artifacts under `.cartography/<repo-name>/`:
 
 | File | Location | Description |
 |------|----------|-------------|
-| `semantic_enrichment.json` | `semantics/` | Full purpose extraction, domain clustering, drift results, hotspot rankings, and review queue |
+| `semantic_enrichment.json` | `semantics/` | Full purpose extraction, domain clustering, drift results, and hotspot rankings |
 | `semantic_index.json` | `semantics/` | Compact lookup index with purpose summaries, domain membership, top hotspots, and reading order |
 | `day_one_answers.json` | `semantics/` | Five onboarding answers with cited files, structured citations, and confidence |
 | `reading_order.json` | `semantics/` | Ranked onboarding path across all modules |
 | `semanticist_stats.json` | `semantics/` | Run metrics for Phase 3 |
+| `semantic_review_queue.json` | `semantics/` | Canonical human review queue with reasons, scores, and supporting evidence |
 | `semantic_hotspots.json` | repo root | Ranked hotspot fusion output for onboarding prioritization |
-| `semantic_review_queue.md` | `reports/` in this repo | Human review queue generated from the latest Phase 3 run |
 
 For the default jaffle-shop run, the new artifacts are:
 
 - `.cartography/jaffle-shop/semantic_hotspots.json`
-- `reports/semantic_review_queue.md`
+- `.cartography/jaffle-shop/semantics/semantic_review_queue.json`
 
 ---
 
@@ -256,7 +256,7 @@ still generated successfully; that signal simply normalized to zero for the run.
 
 Phase 3 now generates a human review queue at:
 
-`reports/semantic_review_queue.md`
+`.cartography/<repo-name>/semantics/semantic_review_queue.json`
 
 Modules are added when one or more of these conditions hold:
 
@@ -268,15 +268,16 @@ Modules are added when one or more of these conditions hold:
 
 ### Example
 
-Excerpt from `reports/semantic_review_queue.md`:
+Excerpt from `semantic_review_queue.json`:
 
-```md
-## `models/staging/stg_orders.sql`
-
-- Hotspot fusion score: `0.64`
-- Semantic confidence: `0.95`
-- Drift level: `likely_drift`
-- Reasons: documentation drift (likely_drift)
+```json
+{
+  "file_path": "models/staging/stg_orders.sql",
+  "hotspot_fusion_score": 0.643154,
+  "semantic_confidence": 0.95,
+  "doc_drift_level": "likely_drift",
+  "reasons": ["documentation drift (likely_drift)"]
+}
 ```
 
 This report gives teams a concrete handoff list instead of forcing them to inspect the
@@ -336,7 +337,7 @@ To inspect the new outputs:
 ```bash
 cat .cartography/<repo-name>/semantic_hotspots.json
 cat .cartography/<repo-name>/semantics/day_one_answers.json
-cat reports/semantic_review_queue.md
+cat .cartography/<repo-name>/semantics/semantic_review_queue.json
 ```
 
 To inspect provenance fields on module nodes:
@@ -355,7 +356,7 @@ The March 13, 2026 jaffle-shop run produced:
 - structured semantic evidence objects
 - Day-One answers with structured citations and line ranges where grounded
 - `.cartography/jaffle-shop/semantic_hotspots.json`
-- `reports/semantic_review_queue.md`
+- `.cartography/jaffle-shop/semantics/semantic_review_queue.json`
 
 Targeted unit coverage was also added for:
 

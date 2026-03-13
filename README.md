@@ -151,7 +151,7 @@ The upgraded Semanticist now adds:
   `description`
 - Day-One answers with structured citations, line ranges, and evidence types
 - `semantic_hotspots.json`, which ranks onboarding-critical modules using fused signals
-- `reports/semantic_review_queue.md`, which flags modules that still need human review
+- `semantic_review_queue.json`, which flags modules that still need human review
 
 When exact evidence cannot be grounded honestly, the pipeline leaves line ranges as
 `null` and surfaces the result in the review queue instead of fabricating citations.
@@ -191,18 +191,18 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 
 | File | Description |
 |------|-------------|
-| `semantic_enrichment.json` | Full semantic output for every module, including purpose, drift, structured evidence, hotspot rankings, and review queue data |
+| `semantic_enrichment.json` | Full semantic output for every module, including purpose, drift, structured evidence, and hotspot rankings |
 | `semantic_index.json` | Compact lookup: module-to-purpose summary, domain membership, top hotspots, and top reading-order entries |
 | `day_one_answers.json` | Five FDE Day-One Q&A with legacy `cited_files`, structured `citations`, line ranges, and evidence types |
 | `reading_order.json` | Ranked onboarding guide: every module ordered by domain importance, business logic score, and hotspot context |
 | `semanticist_stats.json` | Run stats: LLM calls, token usage, elapsed time, drift count, documentation-missing count, hotspot count, and review queue count |
+| `semantic_review_queue.json` | Canonical semantic review queue with modules, reasons, scores, and evidence |
 
 ### Additional Phase 3 outputs
 
 | File | Location | Description |
 |------|----------|-------------|
 | `semantic_hotspots.json` | `.cartography/<repo-name>/` | Ranked hotspot fusion output combining PageRank, git velocity, lineage fan-out, and business logic score |
-| `semantic_review_queue.md` | `reports/` | Human review queue for low-confidence outputs, drift, missing docs, weak evidence, and unresolved lineage |
 
 ### Expected output for jaffle-shop
 
@@ -224,7 +224,7 @@ Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 pro
 - **Reading order**: 33-item onboarding guide written to `reading_order.json`
 - **Day-One answers**: 5 FDE Day-One Q&A generated with structured citations and legacy `cited_files`
 - **Hotspot fusion**: `.cartography/jaffle-shop/semantic_hotspots.json` ranks onboarding-critical modules
-- **Semantic review queue**: `reports/semantic_review_queue.md` lists modules that need human follow-up
+- **Semantic review queue**: `.cartography/jaffle-shop/semantics/semantic_review_queue.json` lists modules that need human follow-up
 
 ---
 
@@ -297,6 +297,7 @@ By default artifacts are written to `.cartography/<repo-name>/` so multiple repo
         ├── semantic_enrichment.json
         ├── semantic_index.json
         ├── day_one_answers.json
+        ├── semantic_review_queue.json
         ├── reading_order.json
         └── semanticist_stats.json
 ```
@@ -447,7 +448,7 @@ After a run, these commands are the quickest way to inspect the new Phase 3 outp
 cat .cartography/<repo-name>/semantic_hotspots.json
 cat .cartography/<repo-name>/semantics/day_one_answers.json
 cat .cartography/<repo-name>/module_graph/module_graph_modules.json
-cat reports/semantic_review_queue.md
+cat .cartography/<repo-name>/semantics/semantic_review_queue.json
 ```
 
 What to look for:
@@ -458,7 +459,7 @@ What to look for:
 - structured `semantic_evidence` entries with grounded file and line metadata
 - Day-One `citations` objects with `file_path`, `line_start`, `line_end`, and `evidence_type`
 - hotspot ranking breakdowns in `semantic_hotspots.json`
-- review reasons in `reports/semantic_review_queue.md`
+- review queue entries in `semantic_review_queue.json`
 
 ---
 
