@@ -1,0 +1,1454 @@
+{
+  "semantic_review_queue": [
+    {
+      "file_path": "src/shared/api.ts",
+      "hotspot_fusion_score": 0.473684,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/api.ts",
+          "line_start": 11,
+          "line_end": 26,
+          "extraction_method": "phase1_symbol",
+          "description": "ApiHandlerOptions type defines provider settings with reasoning and Ollama-specific configurations",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/api.ts",
+          "line_start": 44,
+          "line_end": 50,
+          "extraction_method": "phase1_symbol",
+          "description": "shouldUseReasoningBudget function implements business logic for determining reasoning budget usage",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/i18n/index.ts",
+      "hotspot_fusion_score": 0.440042,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/i18n/index.ts",
+          "line_start": 8,
+          "line_end": 10,
+          "extraction_method": "phase1_symbol",
+          "description": "Function 'initializeI18n' sets up the i18next instance with a given language.",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/i18n/index.ts",
+          "line_start": 17,
+          "line_end": 19,
+          "extraction_method": "phase1_symbol",
+          "description": "Function 'getCurrentLanguage' retrieves the active language from i18next.",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/webview/ClineProvider.ts",
+      "hotspot_fusion_score": 0.401831,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/webview/ClineProvider.ts",
+          "line_start": 1,
+          "line_end": 3597,
+          "extraction_method": "llm_inference",
+          "description": "Extensive event handlers for task lifecycle (onTaskStarted, onTaskCompleted, etc.) and integration with Anthropic AI SDK indicate core business logic for AI-assisted task management",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "src/core/webview/ClineProvider.ts",
+          "line_start": 3529,
+          "line_end": 3529,
+          "extraction_method": "phase1_symbol",
+          "description": "Emitting RooCodeEventName.TaskDelegationCompleted shows event-driven architecture for task coordination",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/task/Task.ts",
+      "hotspot_fusion_score": 0.394895,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/task/Task.ts",
+          "line_start": 83,
+          "line_end": 4659,
+          "extraction_method": "llm_inference",
+          "description": "Core Task class implementing business logic for AI conversation management, API handling, and usage tracking",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/task/Task.ts",
+          "line_start": 83,
+          "line_end": 4659,
+          "extraction_method": "llm_inference",
+          "description": "Functions like updateApiReqMsg, abortStream, nextChunkWithAbort demonstrate core streaming and API interaction logic",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/utils/fs.ts",
+      "hotspot_fusion_score": 0.325036,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/utils/fs.ts",
+          "line_start": 11,
+          "line_end": 32,
+          "extraction_method": "llm_inference",
+          "description": "createDirectoriesForFile function implements directory traversal and creation logic with path normalization",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/utils/fs.ts",
+          "line_start": 40,
+          "line_end": 47,
+          "extraction_method": "llm_inference",
+          "description": "fileExistsAtPath function provides async file system access checking",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/i18n/setup.ts",
+      "hotspot_fusion_score": 0.323498,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/i18n/setup.ts",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "phase1_symbol",
+          "description": "import i18next from \"i18next\"",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/i18n/setup.ts",
+          "line_start": 63,
+          "line_end": 71,
+          "extraction_method": "llm_inference",
+          "description": "i18next.init({ lng: \"en\", fallbackLng: \"en\", debug: false, resources: translations, interpolation: { escapeValue: false }})",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/shared/package.ts",
+      "hotspot_fusion_score": 0.305476,
+      "semantic_confidence": 0.85,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/package.ts",
+          "line_start": 9,
+          "line_end": 15,
+          "extraction_method": "llm_inference",
+          "description": "Exported Package object with environment variable overrides for name, version, outputChannel, and sha",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/package.ts",
+          "line_start": 3,
+          "line_end": 8,
+          "extraction_method": "llm_inference",
+          "description": "Comment explaining environment variable override mechanism for ESBuild extension variants",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "webview-ui/src/components/settings/SettingsView.tsx",
+      "hotspot_fusion_score": 0.287739,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/settings/SettingsView.tsx",
+          "line_start": 1,
+          "line_end": 960,
+          "extraction_method": "llm_inference",
+          "description": "Implementation of settings view with multiple tabs for different configuration sections including API, notifications, experimental features, and UI settings",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "webview-ui/src/components/settings/SettingsView.tsx",
+          "line_start": 174,
+          "line_end": 174,
+          "extraction_method": "phase1_symbol",
+          "description": "handleSubmit function for managing form submission and state updates",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/bedrock.ts",
+      "hotspot_fusion_score": 0.265854,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/bedrock.ts",
+          "line_start": 93,
+          "line_end": 1582,
+          "extraction_method": "llm_inference",
+          "description": "AwsBedrockHandler class implementing Bedrock API integration with methods for completion handling, error management, and telemetry",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/bedrock.ts",
+          "line_start": 556,
+          "line_end": 670,
+          "extraction_method": "llm_inference",
+          "description": "completePrompt method implementing core business logic for Bedrock model completions with caching and telemetry",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/services/mcp/McpHub.ts",
+      "hotspot_fusion_score": 0.265369,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/services/mcp/McpHub.ts",
+          "line_start": 43,
+          "line_end": 58,
+          "extraction_method": "phase1_symbol",
+          "description": "ConnectedMcpConnection and DisconnectedMcpConnection type definitions indicate core connection state management",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/services/mcp/McpHub.ts",
+          "line_start": 66,
+          "line_end": 73,
+          "extraction_method": "phase1_symbol",
+          "description": "BaseConfigSchema defines MCP configuration structure with timeout, alwaysAllow, watchPaths, and disabledTools fields",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/webview/webviewMessageHandler.ts",
+      "hotspot_fusion_score": 0.262234,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/webview/webviewMessageHandler.ts",
+          "line_start": 1,
+          "line_end": 3510,
+          "extraction_method": "llm_inference",
+          "description": "Large switch statement handling diverse message types including terminal, git, file operations, and state management",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/webview/webviewMessageHandler.ts",
+          "line_start": 85,
+          "line_end": 85,
+          "extraction_method": "phase1_symbol",
+          "description": "Function webviewMessageHandler with extensive message type handling",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "webview-ui/src/components/chat/ChatView.tsx",
+      "hotspot_fusion_score": 0.258224,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/ChatView.tsx",
+          "line_start": 67,
+          "line_end": 1851,
+          "extraction_method": "llm_inference",
+          "description": "Main ChatViewComponent implementing chat interface with message handling, input processing, and AI provider integration",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/ChatView.tsx",
+          "line_start": 283,
+          "line_end": 299,
+          "extraction_method": "phase1_symbol",
+          "description": "Functions isReadFileAsk, isListFilesAsk, isEditFileAsk indicate file operation capabilities",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "webview-ui/src/components/chat/ChatRow.tsx",
+      "hotspot_fusion_score": 0.256285,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/ChatRow.tsx",
+          "line_start": 1,
+          "line_end": 1696,
+          "extraction_method": "llm_inference",
+          "description": "Component handles multiple message types through switch statement including 'user', 'assistant', 'output', 'tool_use', 'command_output', 'completion_result', 'followup' and various MCP-related types",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/ChatRow.tsx",
+          "line_start": 847,
+          "line_end": 861,
+          "extraction_method": "phase2_lineage",
+          "description": "Imports numerous UI components for rendering different aspects of chat messages including ToolUseBlock, MarkdownBlock, CodeAccordian, and various specialized rows",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/assistant-message/NativeToolCallParser.ts",
+      "hotspot_fusion_score": 0.24903,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/assistant-message/NativeToolCallParser.ts",
+          "line_start": 53,
+          "line_end": 1090,
+          "extraction_method": "phase1_symbol",
+          "description": "NativeToolCallParser class with methods for parsing tool calls and handling streaming state",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/assistant-message/NativeToolCallParser.ts",
+          "line_start": 21,
+          "line_end": 25,
+          "extraction_method": "llm_inference",
+          "description": "Type definition for extracting native tool arguments with proper typing",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/config/CustomModesManager.ts",
+      "hotspot_fusion_score": 0.245201,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/config/CustomModesManager.ts",
+          "line_start": 47,
+          "line_end": 1015,
+          "extraction_method": "llm_inference",
+          "description": "Class CustomModesManager implements core logic for managing custom mode configurations including file watching, caching, import/export operations and persistence",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/config/CustomModesManager.ts",
+          "line_start": 86,
+          "line_end": 93,
+          "extraction_method": "phase3-purpose-v2",
+          "description": "handleSettingsChange function indicates settings management capability",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/config/ProviderSettingsManager.ts",
+      "hotspot_fusion_score": 0.243549,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/config/ProviderSettingsManager.ts",
+          "line_start": 57,
+          "line_end": 881,
+          "extraction_method": "llm_inference",
+          "description": "ProviderSettingsManager class with methods for storing, retrieving, and synchronizing provider configurations and profiles",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/config/ProviderSettingsManager.ts",
+          "line_start": 22,
+          "line_end": 31,
+          "extraction_method": "llm_inference",
+          "description": "MODEL_MIGRATIONS constant defining model version migrations for different providers",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "webview-ui/src/components/settings/ApiOptions.tsx",
+      "hotspot_fusion_score": 0.242874,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/settings/ApiOptions.tsx",
+          "line_start": 1,
+          "line_end": 840,
+          "extraction_method": "llm_inference",
+          "description": "Imports and usage of provider-specific configurations, model validation utilities, and UI components for managing API settings.",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "webview-ui/src/components/settings/ApiOptions.tsx",
+          "line_start": 36,
+          "line_end": 42,
+          "extraction_method": "phase1_symbol",
+          "description": "Functions like getProviderServiceConfig, getDefaultModelIdForProvider indicate core business logic for provider/model management.",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "webview-ui/src/components/chat/ChatTextArea.tsx",
+      "hotspot_fusion_score": 0.242616,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/ChatTextArea.tsx",
+          "line_start": 37,
+          "line_end": 59,
+          "extraction_method": "phase1_symbol",
+          "description": "ChatTextAreaProps interface defines core chat functionality including inputValue, selectedImages, mode selection, and streaming controls",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/ChatTextArea.tsx",
+          "line_start": 61,
+          "line_end": 170,
+          "extraction_method": "phase1_symbol",
+          "description": "Component implements message handling, context menu integration, and command processing through handleMessage, handleKeyDown, and isValidCommand functions",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "webview-ui/src/components/modes/ModesView.tsx",
+      "hotspot_fusion_score": 0.241735,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/modes/ModesView.tsx",
+          "line_start": 66,
+          "line_end": 1700,
+          "extraction_method": "llm_inference",
+          "description": "Main component implementing mode selection, creation, editing, and deletion functionality with state management",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/modes/ModesView.tsx",
+          "line_start": 224,
+          "line_end": 250,
+          "extraction_method": "phase1_symbol",
+          "description": "findMode function for locating modes by slug in global/project collections",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "webview-ui/src/components/chat/CodeIndexPopover.tsx",
+      "hotspot_fusion_score": 0.239687,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/CodeIndexPopover.tsx",
+          "line_start": 54,
+          "line_end": 77,
+          "extraction_method": "phase1_symbol",
+          "description": "Interface CodeIndexPopoverProps and LocalCodeIndexSettings define core domain entities for code indexing configuration",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "webview-ui/src/components/chat/CodeIndexPopover.tsx",
+          "line_start": 159,
+          "line_end": 200,
+          "extraction_method": "phase1_symbol",
+          "description": "createValidationSchema function contains business rules for validating code index settings using Zod schema validation",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/shared/tools.ts",
+      "hotspot_fusion_score": 0.239078,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/tools.ts",
+          "line_start": 26,
+          "line_end": 84,
+          "extraction_method": "phase1_symbol",
+          "description": "export const toolParamNames - comprehensive list of all possible tool parameters across different tool types",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/tools.ts",
+          "line_start": 88,
+          "line_end": 275,
+          "extraction_method": "phase1_symbol",
+          "description": "TOOL_PARAMETERS type map defining structured argument types for each tool",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/openai-native.ts",
+      "hotspot_fusion_score": 0.238845,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/openai-native.ts",
+          "line_start": 35,
+          "line_end": 1472,
+          "extraction_method": "llm_inference",
+          "description": "OpenAiNativeHandler class implementing SingleCompletionHandler interface with methods for API interaction, streaming, and cost management",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/openai-native.ts",
+          "line_start": 1350,
+          "line_end": 1472,
+          "extraction_method": "phase2_lineage",
+          "description": "completePrompt method handling OpenAI Responses API calls with comprehensive parameter management and error handling",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/assistant-message/presentAssistantMessage.ts",
+      "hotspot_fusion_score": 0.238568,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/assistant-message/presentAssistantMessage.ts",
+          "line_start": 44,
+          "line_end": 58,
+          "extraction_method": "llm_inference",
+          "description": "Function comment describes processing assistant message content, displaying text, executing tools with approval, and managing conversation flow",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/assistant-message/presentAssistantMessage.ts",
+          "line_start": 61,
+          "line_end": 987,
+          "extraction_method": "phase1_symbol",
+          "description": "Main presentAssistantMessage function with tool execution, approval handling, and streaming content processing",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/openai-codex.ts",
+      "hotspot_fusion_score": 0.232987,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/openai-codex.ts",
+          "line_start": 48,
+          "line_end": 1110,
+          "extraction_method": "llm_inference",
+          "description": "Class OpenAiCodexHandler implements SingleCompletionHandler with methods for managing Codex API interactions including streaming responses and tool calls",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/openai-codex.ts",
+          "line_start": 36,
+          "line_end": 36,
+          "extraction_method": "phase1_symbol",
+          "description": "Constant CODEX_API_BASE_URL defines the endpoint for Codex backend requests",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "apps/web-evals/src/app/runs/new/new-run.tsx",
+      "hotspot_fusion_score": 0.231126,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/web-evals/src/app/runs/new/new-run.tsx",
+          "line_start": 32,
+          "line_end": 34,
+          "extraction_method": "phase1_symbol",
+          "description": "Import of createRun and getExercises actions indicates core business operations",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/web-evals/src/app/runs/new/new-run.tsx",
+          "line_start": 88,
+          "line_end": 1065,
+          "extraction_method": "llm_inference",
+          "description": "Extensive form implementation with model selection, settings configuration, and execution method choices",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "apps/web-evals/src/app/runs/[id]/run.tsx",
+      "hotspot_fusion_score": 0.231126,
+      "semantic_confidence": 0.92,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/web-evals/src/app/runs/[id]/run.tsx",
+          "line_start": 51,
+          "line_end": 56,
+          "extraction_method": "phase2_lineage",
+          "description": "getToolAbbreviation function generates tool name abbreviations for UI display",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/web-evals/src/app/runs/[id]/run.tsx",
+          "line_start": 139,
+          "line_end": 150,
+          "extraction_method": "phase2_lineage",
+          "description": "renderTaskRow function handles complex task row rendering with status indicators",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/tools/ReadFileTool.ts",
+      "hotspot_fusion_score": 0.225843,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/tools/ReadFileTool.ts",
+          "line_start": 1,
+          "line_end": 10,
+          "extraction_method": "llm_inference",
+          "description": "Documentation describes two reading modes: slice mode and indentation mode for semantic code block extraction",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/tools/ReadFileTool.ts",
+          "line_start": 71,
+          "line_end": 739,
+          "extraction_method": "llm_inference",
+          "description": "Class implementation with complex logic for file validation, binary detection, image processing, and multiple reading strategies",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "packages/cloud/src/WebAuthService.ts",
+      "hotspot_fusion_score": 0.223684,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/cloud/src/WebAuthService.ts",
+          "line_start": 27,
+          "line_end": 33,
+          "extraction_method": "llm_inference",
+          "description": "AuthCredentials schema defines core authentication data structure with clientToken and sessionId",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/cloud/src/WebAuthService.ts",
+          "line_start": 39,
+          "line_end": 47,
+          "extraction_method": "llm_inference",
+          "description": "Clerk API response schemas for sign-in and session token creation indicate integration with external auth service",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/task/__tests__/Task.spec.ts",
+      "hotspot_fusion_score": 0.210526,
+      "semantic_confidence": 0.9,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/task/__tests__/Task.spec.ts",
+          "line_start": 12,
+          "line_end": 12,
+          "extraction_method": "phase1_symbol",
+          "description": "Import of Task class being tested",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/task/__tests__/Task.spec.ts",
+          "line_start": 1,
+          "line_end": 1,
+          "extraction_method": "heuristic",
+          "description": "Test file indicator showing this validates business logic",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "apps/web-evals/src/components/home/runs.tsx",
+      "hotspot_fusion_score": 0.197369,
+      "semantic_confidence": 0.85,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/web-evals/src/components/home/runs.tsx",
+          "line_start": 90,
+          "line_end": 90,
+          "extraction_method": "phase1_symbol",
+          "description": "Import of Run component suggests display of run data",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/web-evals/src/components/home/runs.tsx",
+          "line_start": 52,
+          "line_end": 52,
+          "extraction_method": "phase1_symbol",
+          "description": "Import of delete actions indicates run management functionality",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/shared/__tests__/modes.spec.ts",
+      "hotspot_fusion_score": 0.078947,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/__tests__/modes.spec.ts",
+          "line_start": 16,
+          "line_end": 927,
+          "extraction_method": "phase2_lineage",
+          "description": "Test suite for isToolAllowedForMode function validating tool access per mode",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/shared/__tests__/modes.spec.ts",
+          "line_start": 745,
+          "line_end": 927,
+          "extraction_method": "phase2_lineage",
+          "description": "Test cases for getModeSelection prioritizing custom mode definitions over built-in defaults",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/core/tools/__tests__/useMcpToolTool.spec.ts",
+      "hotspot_fusion_score": 0.052631,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/tools/__tests__/useMcpToolTool.spec.ts",
+          "line_start": 44,
+          "line_end": 880,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite 'useMcpToolTool' with multiple test cases covering parameter validation, approval flow, error scenarios, and image handling",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/core/tools/__tests__/useMcpToolTool.spec.ts",
+          "line_start": 1,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Import statements referencing UseMcpToolTool, Task, and shared tools indicate testing of core tool interaction logic",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "apps/cli/src/agent/__tests__/extension-client.test.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/cli/src/agent/__tests__/extension-client.test.ts",
+          "line_start": 21,
+          "line_end": 850,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite for detectAgentState function covering NO_TASK, STREAMING, WAITING_FOR_INPUT states",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/cli/src/agent/__tests__/extension-client.test.ts",
+          "line_start": 13,
+          "line_end": 19,
+          "extraction_method": "phase1_symbol",
+          "description": "Helper functions createMessage and createStateMessage for test message construction",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "apps/vscode-e2e/src/suite/tools/read-file.test.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/vscode-e2e/src/suite/tools/read-file.test.ts",
+          "line_start": 12,
+          "line_end": 12,
+          "extraction_method": "phase1_symbol",
+          "description": "suite.skip(\"Roo Code read_file Tool\"",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/vscode-e2e/src/suite/tools/read-file.test.ts",
+          "line_start": 26,
+          "line_end": 66,
+          "extraction_method": "phase1_symbol",
+          "description": "suiteSetup creates multiple test files with different content types for read_file testing",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "apps/vscode-e2e/src/suite/tools/search-files.test.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/vscode-e2e/src/suite/tools/search-files.test.ts",
+          "line_start": 11,
+          "line_end": 11,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite specifically for 'Roo Code search_files Tool'",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/vscode-e2e/src/suite/tools/search-files.test.ts",
+          "line_start": 906,
+          "line_end": 906,
+          "extraction_method": "phase2_lineage",
+          "description": "Test instruction mentioning 'search_files tool with the regex pattern'",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "apps/vscode-e2e/src/suite/tools/use-mcp-tool.test.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/vscode-e2e/src/suite/tools/use-mcp-tool.test.ts",
+          "line_start": 12,
+          "line_end": 12,
+          "extraction_method": "phase2_lineage",
+          "description": "suite.skip('Roo Code use_mcp_tool Tool')",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "apps/vscode-e2e/src/suite/tools/use-mcp-tool.test.ts",
+          "line_start": 45,
+          "line_end": 50,
+          "extraction_method": "phase2_lineage",
+          "description": "MCP server configuration with time tool definition",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "packages/cloud/src/__tests__/WebAuthService.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/cloud/src/__tests__/WebAuthService.spec.ts",
+          "line_start": 36,
+          "line_end": 1272,
+          "extraction_method": "phase2_lineage",
+          "description": "describe block testing WebAuthService class functionality including initialize, signIn, signOut, refreshSession methods",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/cloud/src/__tests__/WebAuthService.spec.ts",
+          "line_start": 8,
+          "line_end": 8,
+          "extraction_method": "phase1_symbol",
+          "description": "Import of WebAuthService class being tested",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "packages/types/src/cloud.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/types/src/cloud.ts",
+          "line_start": 17,
+          "line_end": 29,
+          "extraction_method": "phase1_symbol",
+          "description": "JWTPayload interface defines cloud authentication token structure",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/types/src/cloud.ts",
+          "line_start": 35,
+          "line_end": 45,
+          "extraction_method": "phase1_symbol",
+          "description": "CloudUserInfo interface defines user profile attributes for cloud platform",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "packages/types/src/vscode-extension-host.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/types/src/vscode-extension-host.ts",
+          "line_start": 26,
+          "line_end": 90,
+          "extraction_method": "llm_inference",
+          "description": "ExtensionMessage interface with type discriminator listing business operations like 'action', 'taskHistoryUpdated', 'invoke', 'mcpServers', 'marketplaceData'",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "packages/types/src/vscode-extension-host.ts",
+          "line_start": 724,
+          "line_end": 830,
+          "extraction_method": "llm_inference",
+          "description": "WebviewRequest interface defining user commands like 'openImage', 'readFile', 'writeFile', 'searchFiles', 'runSlashCommand' representing core IDE interactions",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/__tests__/history-resume-delegation.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/__tests__/history-resume-delegation.spec.ts",
+          "line_start": 42,
+          "line_end": 786,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite focusing on 'History resume delegation - parent metadata transitions' with multiple test cases covering state changes and persistence",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/__tests__/history-resume-delegation.spec.ts",
+          "line_start": 47,
+          "line_end": 115,
+          "extraction_method": "phase1_symbol",
+          "description": "Test case 'reopenParentFromDelegation persists parent metadata (delegated \u2192 active) before reopen' demonstrating core business logic of state transition",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/__tests__/anthropic-vertex.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/anthropic-vertex.spec.ts",
+          "line_start": 53,
+          "line_end": 1435,
+          "extraction_method": "phase2_lineage",
+          "description": "Test suite covering AnthropicVertexHandler functionality including constructor, createMessage, streaming responses, tool calls, and error scenarios",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/anthropic-vertex.spec.ts",
+          "line_start": 10,
+          "line_end": 10,
+          "extraction_method": "phase1_symbol",
+          "description": "Import of AnthropicVertexHandler from '../anthropic-vertex' indicating testing of that module",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/__tests__/anthropic.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/anthropic.spec.ts",
+          "line_start": 77,
+          "line_end": 790,
+          "extraction_method": "phase2_lineage",
+          "description": "Test suite covering AnthropicHandler constructor, createMessage method, streaming responses, and tool call handling",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/anthropic.spec.ts",
+          "line_start": 15,
+          "line_end": 70,
+          "extraction_method": "phase2_lineage",
+          "description": "Mock implementation of @anthropic-ai/sdk with specific response structures for testing",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/__tests__/bedrock.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/bedrock.spec.ts",
+          "line_start": 52,
+          "line_end": 1277,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite for AwsBedrockHandler covering getModel, createMessage, completePrompt, and error scenarios",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/bedrock.spec.ts",
+          "line_start": 1,
+          "line_end": 35,
+          "extraction_method": "phase1_symbol",
+          "description": "Mocking of telemetry service, AWS credentials, and Bedrock runtime client for isolated testing",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/__tests__/lite-llm.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/lite-llm.spec.ts",
+          "line_start": 54,
+          "line_end": 922,
+          "extraction_method": "phase1_symbol",
+          "description": "describe block 'LiteLLMHandler' containing multiple test cases for API handler functionality",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/lite-llm.spec.ts",
+          "line_start": 68,
+          "line_end": 100,
+          "extraction_method": "phase1_symbol",
+          "description": "Test case: 'should add cache control headers when litellmUsePromptCache is enabled'",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/__tests__/openai-native.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/openai-native.spec.ts",
+          "line_start": 35,
+          "line_end": 1582,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite for OpenAiNativeHandler class covering initialization, API calls, error scenarios, and streaming behavior",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/openai-native.spec.ts",
+          "line_start": 18,
+          "line_end": 18,
+          "extraction_method": "phase1_symbol",
+          "description": "Import of OpenAiNativeHandler implementation being tested",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/__tests__/openai.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/openai.spec.ts",
+          "line_start": 79,
+          "line_end": 1282,
+          "extraction_method": "phase1_symbol",
+          "description": "Comprehensive test suite for OpenAiHandler class and getOpenAiModels function with extensive mocking of OpenAI API calls",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/openai.spec.ts",
+          "line_start": 13,
+          "line_end": 70,
+          "extraction_method": "phase1_symbol",
+          "description": "Mock implementation of OpenAI SDK with detailed response structures for both streaming and non-streaming scenarios",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/__tests__/roo.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/roo.spec.ts",
+          "line_start": 1,
+          "line_end": 950,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite with extensive mocking of external dependencies (Anthropic, OpenAI, CloudService) to validate Roo provider behavior",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/__tests__/roo.spec.ts",
+          "line_start": 89,
+          "line_end": 950,
+          "extraction_method": "phase1_symbol",
+          "description": "Multiple test cases covering streaming message creation, tool call chunk processing, and finish reason handling",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/providers/fetchers/__tests__/roo.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/fetchers/__tests__/roo.spec.ts",
+          "line_start": 22,
+          "line_end": 82,
+          "extraction_method": "phase2_lineage",
+          "description": "Test case validating successful fetching and parsing of Roo models with pricing transformations",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/providers/fetchers/__tests__/roo.spec.ts",
+          "line_start": 84,
+          "line_end": 130,
+          "extraction_method": "phase2_lineage",
+          "description": "Test handling of 'reasoning-required' tag affecting model configuration",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/transform/__tests__/model-params.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/transform/__tests__/model-params.spec.ts",
+          "line_start": 11,
+          "line_end": 997,
+          "extraction_method": "phase1_symbol",
+          "description": "Test suite for getModelParams function covering temperature, maxTokens, reasoning effort/budget, and verbosity configurations",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/transform/__tests__/model-params.spec.ts",
+          "line_start": 35,
+          "line_end": 52,
+          "extraction_method": "phase2_lineage",
+          "description": "Tests default parameter handling referencing ANTHROPIC_DEFAULT_MAX_TOKENS and defaultTemperature",
+          "evidence_type": "semantic"
+        }
+      ]
+    },
+    {
+      "file_path": "src/api/transform/__tests__/openai-format.spec.ts",
+      "hotspot_fusion_score": 0.026316,
+      "semantic_confidence": 0.95,
+      "doc_drift_level": "no_drift",
+      "reasons": [
+        "missing documentation"
+      ],
+      "evidence": [
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/transform/__tests__/openai-format.spec.ts",
+          "line_start": 14,
+          "line_end": 37,
+          "extraction_method": "phase2_lineage",
+          "description": "Test case for convertToOpenAiMessages function validating simple text message conversion",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "src/api/transform/__tests__/openai-format.spec.ts",
+          "line_start": 39,
+          "line_end": 77,
+          "extraction_method": "phase2_lineage",
+          "description": "Test case validating image content handling in message conversion",
+          "evidence_type": "semantic"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,520 @@
+{
+  "datasets": {
+    "runs": {
+      "name": "runs",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "tasks": {
+      "name": "tasks",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": "packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+      "description": "",
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": false,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "tasks_language_exercise_idx": {
+      "name": "tasks_language_exercise_idx",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "tasks_run_id_runs_id_fk": {
+      "name": "tasks_run_id_runs_id_fk",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "tasks_task_metrics_id_taskMetrics_id_fk": {
+      "name": "tasks_task_metrics_id_taskMetrics_id_fk",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "toolErrors": {
+      "name": "toolErrors",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "toolErrors_run_id_runs_id_fk": {
+      "name": "toolErrors_run_id_runs_id_fk",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "toolErrors_task_id_tasks_id_fk": {
+      "name": "toolErrors_task_id_tasks_id_fk",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "public.runs": {
+      "name": "public.runs",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "public.taskMetrics": {
+      "name": "public.taskMetrics",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    },
+    "public.tasks": {
+      "name": "public.tasks",
+      "storage_type": "table",
+      "schema_snapshot": null,
+      "freshness_sla": null,
+      "owner": null,
+      "is_source_of_truth": false,
+      "dataset_type": "table_ref",
+      "source_file": null,
+      "description": null,
+      "columns": [],
+      "confidence": 1.0,
+      "is_source_dataset": true,
+      "is_sink_dataset": false,
+      "is_final_model": false,
+      "is_intermediate_model": false
+    }
+  },
+  "transformations": {
+    "sql:packages/evals/src/db/migrations/0000_young_trauma.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0000_young_trauma.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0000_young_trauma.sql",
+      "line_range": [
+        1,
+        54
+      ],
+      "sql_query": "CREATE TABLE \"runs\" (\n\t\"id\" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name \"runs_id_seq\" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),\n\t\"task_metrics_id\" integer,\n\t\"model\" text NOT NULL,\n\t\"description\" text,\n\t\"settings\" jsonb,\n\t\"pid\" integer,\n\t\"socket_path\" text NOT NULL,\n\t\"concurrency\" integer DEFAULT 2 NOT NULL,\n\t\"passed\" integer DEFAULT 0 NOT NULL,\n\t\"failed\" integer DEFAULT 0 NOT NULL,\n\t\"created_at\" timestamp NOT NULL\n);\n--> statement-breakpoint\nCREATE ",
+      "source_datasets": [],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "sql:packages/evals/src/db/migrations/0001_add_timeout_to_runs.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0001_add_timeout_to_runs.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0001_add_timeout_to_runs.sql",
+      "line_range": [
+        1,
+        1
+      ],
+      "sql_query": "ALTER TABLE \"runs\" ADD COLUMN \"timeout\" integer DEFAULT 5 NOT NULL;",
+      "source_datasets": [
+        "runs"
+      ],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "sql:packages/evals/src/db/migrations/0001_lowly_captain_flint.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0001_lowly_captain_flint.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0001_lowly_captain_flint.sql",
+      "line_range": [
+        1,
+        1
+      ],
+      "sql_query": "ALTER TABLE \"runs\" ADD COLUMN \"timeout\" integer DEFAULT 5 NOT NULL;",
+      "source_datasets": [
+        "runs"
+      ],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "sql:packages/evals/src/db/migrations/0002_bouncy_blazing_skull.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0002_bouncy_blazing_skull.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0002_bouncy_blazing_skull.sql",
+      "line_range": [
+        1,
+        6
+      ],
+      "sql_query": "ALTER TABLE \"runs\" ADD COLUMN \"name\" text;--> statement-breakpoint\nALTER TABLE \"runs\" ADD COLUMN \"contextWindow\" integer;--> statement-breakpoint\nALTER TABLE \"runs\" ADD COLUMN \"inputPrice\" real;--> statement-breakpoint\nALTER TABLE \"runs\" ADD COLUMN \"outputPrice\" real;--> statement-breakpoint\nALTER TABLE \"runs\" ADD COLUMN \"cacheWritesPrice\" real;--> statement-breakpoint\nALTER TABLE \"runs\" ADD COLUMN \"cacheReadsPrice\" real;",
+      "source_datasets": [
+        "runs"
+      ],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "sql:packages/evals/src/db/migrations/0003_simple_retro_girl.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0003_simple_retro_girl.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0003_simple_retro_girl.sql",
+      "line_range": [
+        1,
+        1
+      ],
+      "sql_query": "ALTER TABLE \"runs\" ADD COLUMN \"jobToken\" text;",
+      "source_datasets": [
+        "runs"
+      ],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "sql:packages/evals/src/db/migrations/0004_sloppy_black_knight.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+      "line_range": [
+        1,
+        3
+      ],
+      "sql_query": "DROP INDEX \"tasks_language_exercise_idx\";--> statement-breakpoint\nALTER TABLE \"tasks\" ADD COLUMN \"iteration\" integer DEFAULT 1 NOT NULL;--> statement-breakpoint\nCREATE UNIQUE INDEX \"tasks_language_exercise_iteration_idx\" ON \"tasks\" USING btree (\"run_id\",\"language\",\"exercise\",\"iteration\");",
+      "source_datasets": [
+        "tasks_language_exercise_idx",
+        "tasks"
+      ],
+      "target_datasets": [
+        "tasks"
+      ],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "line_range": [
+        1,
+        12
+      ],
+      "sql_query": "ALTER TABLE \"tasks\" DROP CONSTRAINT \"tasks_run_id_runs_id_fk\";\n--> statement-breakpoint\nALTER TABLE \"tasks\" DROP CONSTRAINT \"tasks_task_metrics_id_taskMetrics_id_fk\";\n--> statement-breakpoint\nALTER TABLE \"toolErrors\" DROP CONSTRAINT \"toolErrors_run_id_runs_id_fk\";\n--> statement-breakpoint\nALTER TABLE \"toolErrors\" DROP CONSTRAINT \"toolErrors_task_id_tasks_id_fk\";\n--> statement-breakpoint\nALTER TABLE \"tasks\" ADD CONSTRAINT \"tasks_run_id_runs_id_fk\" FOREIGN KEY (\"run_id\") REFERENCES \"public\".\"runs\"",
+      "source_datasets": [
+        "tasks",
+        "tasks_run_id_runs_id_fk",
+        "tasks_task_metrics_id_taskMetrics_id_fk",
+        "toolErrors",
+        "toolErrors_run_id_runs_id_fk",
+        "toolErrors_task_id_tasks_id_fk",
+        "public.runs",
+        "public.taskMetrics",
+        "public.tasks"
+      ],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    },
+    "sql:packages/evals/src/db/migrations/0006_worried_spectrum.sql": {
+      "id": "sql:packages/evals/src/db/migrations/0006_worried_spectrum.sql",
+      "transformation_type": "sql_query",
+      "source_file": "packages/evals/src/db/migrations/0006_worried_spectrum.sql",
+      "line_range": [
+        1,
+        1
+      ],
+      "sql_query": "ALTER TABLE \"runs\" ADD COLUMN \"execution_method\" text DEFAULT 'vscode' NOT NULL;",
+      "source_datasets": [
+        "runs"
+      ],
+      "target_datasets": [],
+      "confidence": 1.0,
+      "is_dynamic": false
+    }
+  },
+  "edges": [
+    {
+      "source": "runs",
+      "target": "sql:packages/evals/src/db/migrations/0001_add_timeout_to_runs.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0001_add_timeout_to_runs.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "runs",
+      "target": "sql:packages/evals/src/db/migrations/0001_lowly_captain_flint.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0001_lowly_captain_flint.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "runs",
+      "target": "sql:packages/evals/src/db/migrations/0002_bouncy_blazing_skull.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0002_bouncy_blazing_skull.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "runs",
+      "target": "sql:packages/evals/src/db/migrations/0003_simple_retro_girl.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0003_simple_retro_girl.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "runs",
+      "target": "sql:packages/evals/src/db/migrations/0006_worried_spectrum.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0006_worried_spectrum.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "sql:packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+      "target": "tasks",
+      "edge_type": "PRODUCES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query",
+        "sql_preview": "DROP INDEX \"tasks_language_exercise_idx\";--> statement-breakpoint\nALTER TABLE \"tasks\" ADD COLUMN \"iteration\" integer DEF"
+      }
+    },
+    {
+      "source": "tasks",
+      "target": "sql:packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "tasks",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "tasks_language_exercise_idx",
+      "target": "sql:packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "tasks_run_id_runs_id_fk",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "tasks_task_metrics_id_taskMetrics_id_fk",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "toolErrors",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "toolErrors_run_id_runs_id_fk",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "toolErrors_task_id_tasks_id_fk",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "public.runs",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "public.taskMetrics",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    },
+    {
+      "source": "public.tasks",
+      "target": "sql:packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "edge_type": "CONSUMES",
+      "confidence": 1.0,
+      "evidence": {
+        "source_file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+        "extraction_method": "sqlglot",
+        "transformation_type": "sql_query"
+      }
+    }
+  ]
+}
