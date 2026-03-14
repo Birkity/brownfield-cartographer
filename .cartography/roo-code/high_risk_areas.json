@@ -1,0 +1,238 @@
+{
+  "generated_at": "2026-03-14T20:19:35.279600Z",
+  "velocity_window_days": 30,
+  "summary": {
+    "high_velocity_files": 10,
+    "top_hubs": 5,
+    "circular_dependency_clusters": 11,
+    "files_with_parse_warnings": 0,
+    "high_fanout_transformations": 0,
+    "dynamic_hotspot_transformations": 0
+  },
+  "high_velocity_files": [
+    {
+      "file": "apps/cli/eslint.config.mjs",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/install.sh",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/scripts/build.sh",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/scripts/test-stdin-stream.ts",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/src/__tests__/index.test.ts",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/src/agent/__tests__/extension-client.test.ts",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/src/agent/__tests__/extension-host.test.ts",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/src/agent/agent-state.ts",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/src/agent/ask-dispatcher.ts",
+      "commits_in_window": 1
+    },
+    {
+      "file": "apps/cli/src/agent/events.ts",
+      "commits_in_window": 1
+    }
+  ],
+  "top_hubs": [
+    {
+      "node": "src/shared/api.ts",
+      "pagerank_score": 0.009538,
+      "role": "unknown",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 69,
+      "out_degree": 0
+    },
+    {
+      "node": "src/utils/fs.ts",
+      "pagerank_score": 0.009394,
+      "role": "utility",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 43,
+      "out_degree": 0
+    },
+    {
+      "node": "src/i18n/setup.ts",
+      "pagerank_score": 0.009337,
+      "role": "utility",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    {
+      "node": "src/i18n/index.ts",
+      "pagerank_score": 0.008783,
+      "role": "unknown",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 49,
+      "out_degree": 1
+    },
+    {
+      "node": "src/shared/package.ts",
+      "pagerank_score": 0.008673,
+      "role": "unknown",
+      "is_hub": true,
+      "in_cycle": false,
+      "in_degree": 36,
+      "out_degree": 0
+    }
+  ],
+  "circular_dependencies": [
+    {
+      "cycle_id": 1,
+      "size": 27,
+      "members": [
+        "src/activate/handleTask.ts",
+        "src/activate/registerCommands.ts",
+        "src/core/assistant-message/NativeToolCallParser.ts",
+        "src/core/checkpoints/index.ts",
+        "src/core/context-tracking/FileContextTracker.ts",
+        "src/core/environment/getEnvironmentDetails.ts",
+        "src/core/mentions/index.ts",
+        "src/core/mentions/processUserContentMentions.ts",
+        "src/core/message-manager/index.ts",
+        "src/core/prompts/system.ts",
+        "src/core/prompts/tools/filter-tools-for-mode.ts",
+        "src/core/task/Task.ts",
+        "src/core/task/build-tools.ts",
+        "src/core/tools/BaseTool.ts",
+        "src/core/tools/UpdateTodoListTool.ts",
+        "src/core/webview/ClineProvider.ts",
+        "src/core/webview/checkpointRestoreHandler.ts",
+        "src/core/webview/generateSystemPrompt.ts",
+        "src/core/webview/messageEnhancer.ts",
+        "src/core/webview/skillsMessageHandler.ts",
+        "src/core/webview/webviewMessageHandler.ts",
+        "src/integrations/editor/DiffViewProvider.ts",
+        "src/integrations/workspace/WorkspaceTracker.ts",
+        "src/services/mcp/McpHub.ts",
+        "src/services/mcp/McpServerManager.ts",
+        "src/services/skills/SkillsManager.ts",
+        "src/utils/focusPanel.ts"
+      ]
+    },
+    {
+      "cycle_id": 2,
+      "size": 15,
+      "members": [
+        "webview-ui/src/components/settings/About.tsx",
+        "webview-ui/src/components/settings/AutoApproveSettings.tsx",
+        "webview-ui/src/components/settings/CheckpointSettings.tsx",
+        "webview-ui/src/components/settings/ContextManagementSettings.tsx",
+        "webview-ui/src/components/settings/ExperimentalSettings.tsx",
+        "webview-ui/src/components/settings/LanguageSettings.tsx",
+        "webview-ui/src/components/settings/NotificationSettings.tsx",
+        "webview-ui/src/components/settings/PromptsSettings.tsx",
+        "webview-ui/src/components/settings/SearchableSetting.tsx",
+        "webview-ui/src/components/settings/SettingsSearch.tsx",
+        "webview-ui/src/components/settings/SettingsSearchResults.tsx",
+        "webview-ui/src/components/settings/SettingsView.tsx",
+        "webview-ui/src/components/settings/TerminalSettings.tsx",
+        "webview-ui/src/components/settings/UISettings.tsx",
+        "webview-ui/src/components/settings/useSettingsSearch.ts"
+      ]
+    },
+    {
+      "cycle_id": 3,
+      "size": 5,
+      "members": [
+        "src/integrations/terminal/__tests__/streamUtils/bashStream.ts",
+        "src/integrations/terminal/__tests__/streamUtils/cmdStream.ts",
+        "src/integrations/terminal/__tests__/streamUtils/index.ts",
+        "src/integrations/terminal/__tests__/streamUtils/mockStream.ts",
+        "src/integrations/terminal/__tests__/streamUtils/pwshStream.ts"
+      ]
+    },
+    {
+      "cycle_id": 4,
+      "size": 3,
+      "members": [
+        "src/api/index.ts",
+        "src/api/providers/base-provider.ts",
+        "src/api/providers/native-ollama.ts"
+      ]
+    },
+    {
+      "cycle_id": 5,
+      "size": 3,
+      "members": [
+        "src/hooks/HookEngine.ts",
+        "src/hooks/IntentContextLoader.ts",
+        "src/hooks/PreToolHook.ts"
+      ]
+    },
+    {
+      "cycle_id": 6,
+      "size": 3,
+      "members": [
+        "webview-ui/src/components/chat/ChatRow.tsx",
+        "webview-ui/src/components/chat/ChatTextArea.tsx",
+        "webview-ui/src/components/chat/ChatView.tsx"
+      ]
+    },
+    {
+      "cycle_id": 7,
+      "size": 2,
+      "members": [
+        "packages/evals/src/cli/types.ts",
+        "packages/evals/src/cli/utils.ts"
+      ]
+    },
+    {
+      "cycle_id": 8,
+      "size": 2,
+      "members": [
+        "src/services/command/built-in-commands.ts",
+        "src/services/command/commands.ts"
+      ]
+    },
+    {
+      "cycle_id": 9,
+      "size": 2,
+      "members": [
+        "src/integrations/terminal/Terminal.ts",
+        "src/integrations/terminal/TerminalProcess.ts"
+      ]
+    },
+    {
+      "cycle_id": 10,
+      "size": 2,
+      "members": [
+        "src/api/providers/fetchers/lmstudio.ts",
+        "src/api/providers/fetchers/modelCache.ts"
+      ]
+    },
+    {
+      "cycle_id": 11,
+      "size": 2,
+      "members": [
+        "sql:packages/evals/src/db/migrations/0004_sloppy_black_knight.sql",
+        "tasks"
+      ]
+    }
+  ],
+  "parse_warnings": [],
+  "high_fanout_transformations": [],
+  "dynamic_hotspots": []
+}

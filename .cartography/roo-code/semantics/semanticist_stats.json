@@ -1,0 +1,23 @@
+{
+  "ollama_available": true,
+  "purpose_statements_generated": 78,
+  "purpose_statements_attempted": 100,
+  "domains_found": 9,
+  "clustering_method": "llm_refined",
+  "drift_checks_performed": 50,
+  "drift_detected": 0,
+  "documentation_missing_count": 50,
+  "day_one_answers_generated": true,
+  "fde_day_one_answers_generated": true,
+  "reading_order_items": 1832,
+  "semantic_hotspots": 1832,
+  "review_queue_items": 50,
+  "llm_budget": {
+    "total_calls": 80,
+    "total_prompt_tokens": 201701,
+    "total_eval_tokens": 33153,
+    "total_elapsed_seconds": 2156.42,
+    "failures": 0
+  },
+  "elapsed_seconds": 2242.23
+}

@@ -24,27 +24,27 @@ logger = logging.getLogger(__name__)
 # Module graph — PNG (matplotlib)
 # ---------------------------------------------------------------------------
 
-_BG = "#0D1117"
-_TEXT = "#E6EDF3"
-_EDGE_IMPORT = "#58A6FF"
-_EDGE_DBT = "#3FB950"
+_BG = "#F3F7F6"
+_TEXT = "#10212B"
+_EDGE_IMPORT = "#2563EB"
+_EDGE_DBT = "#15803D"
 
 _LANG_COLOURS: dict[str, str] = {
-    "python":     "#4FC3F7",
-    "sql":        "#FFD54F",
-    "yaml":       "#81C784",
-    "javascript": "#FFB300",
-    "typescript": "#5C9BFF",
-    "java":       "#FF8A65",
-    "kotlin":     "#CE93D8",
-    "scala":      "#EF9A9A",
-    "go":         "#4DD0E1",
-    "rust":       "#FF7043",
-    "csharp":     "#66BB6A",
-    "ruby":       "#F48FB1",
-    "shell":      "#A5D6A7",
-    "notebook":   "#C792EA",
-    "external":   "#546E7A",
+    "python":     "#BAE6FD",
+    "sql":        "#FDE68A",
+    "yaml":       "#BBF7D0",
+    "javascript": "#FED7AA",
+    "typescript": "#BFDBFE",
+    "java":       "#FECACA",
+    "kotlin":     "#E9D5FF",
+    "scala":      "#FECDD3",
+    "go":         "#A5F3FC",
+    "rust":       "#FDBA74",
+    "csharp":     "#DCFCE7",
+    "ruby":       "#FBCFE8",
+    "shell":      "#D9F99D",
+    "notebook":   "#E9D5FF",
+    "external":   "#E2E8F0",
 }
 
 
@@ -239,30 +239,36 @@ _ROLE_BADGE: dict[str, str] = {
 _MODULE_PYVIS_OPTIONS = """
 var options = {
   "nodes": {
-    "borderWidth": 2,
-    "borderWidthSelected": 4,
-    "shadow": {"enabled": true, "color": "#00000088", "size": 10, "x": 2, "y": 2},
-    "font": {"color": "#E6EDF3", "size": 13,
-             "face": "JetBrains Mono, monospace, sans-serif"}
+    "borderWidth": 3,
+    "borderWidthSelected": 5,
+    "shadow": {"enabled": true, "color": "rgba(15,23,42,0.18)", "size": 16, "x": 2, "y": 4},
+    "font": {"color": "#10212B", "size": 18,
+             "face": "Trebuchet MS, Segoe UI, sans-serif",
+             "strokeWidth": 6, "strokeColor": "#F8FBFA",
+             "bold": {"color": "#10212B", "size": 19}}
   },
   "edges": {
-    "smooth": {"type": "curvedCW", "roundness": 0.12},
-    "shadow": {"enabled": true, "color": "#00000066", "size": 5},
-    "arrows": {"to": {"enabled": true, "scaleFactor": 1.1, "type": "arrow"}},
-    "font": {"color": "#8B949E", "size": 10, "align": "middle"}
+    "smooth": {"type": "dynamic", "roundness": 0.18},
+    "shadow": {"enabled": true, "color": "rgba(15,23,42,0.12)", "size": 7},
+    "width": 3,
+    "selectionWidth": 5,
+    "arrows": {"to": {"enabled": true, "scaleFactor": 1.2, "type": "arrow"}},
+    "font": {"color": "#334155", "size": 13, "align": "middle",
+             "strokeWidth": 4, "strokeColor": "#F8FBFA"}
   },
   "physics": {
     "barnesHut": {
-      "gravitationalConstant": -14000, "centralGravity": 0.3,
-      "springLength": 220, "springConstant": 0.04,
-      "damping": 0.14, "avoidOverlap": 0.7
+      "gravitationalConstant": -11000, "centralGravity": 0.18,
+      "springLength": 250, "springConstant": 0.03,
+      "damping": 0.18, "avoidOverlap": 1.0
     },
-    "minVelocity": 0.5,
-    "stabilization": {"iterations": 250}
+    "minVelocity": 0.2,
+    "stabilization": {"iterations": 350}
   },
   "interaction": {
     "hover": true, "tooltipDelay": 80, "navigationButtons": true,
-    "keyboard": {"enabled": true}, "multiselect": true, "zoomView": true
+    "keyboard": {"enabled": true, "bindToWindow": false},
+    "multiselect": true, "zoomView": true, "dragView": true
   }
 }
 """
@@ -279,7 +285,7 @@ def _module_node_tooltip(node: str, attrs: dict) -> str:
     vel = attrs.get("change_velocity_30d", 0)
     cx = attrs.get("complexity_score", 0.0)
     conf = attrs.get("classification_confidence", 1.0)
-    conf_color = "#2ED573" if conf >= 0.9 else "#FFA502"
+    conf_color = "#15803D" if conf >= 0.9 else "#C2410C"
 
     flags = []
     if attrs.get("is_hub"):
@@ -293,22 +299,23 @@ def _module_node_tooltip(node: str, attrs: dict) -> str:
     perr = attrs.get("parse_error")
 
     lines = [
-        "<div style='font-family:monospace;font-size:13px;padding:8px 12px;"
-        "background:#161B22;border:1px solid #30363D;border-radius:8px;max-width:380px'>",
-        f"<b style='color:#58A6FF;font-size:14px'>{node}</b><br>",
-        f"<span style='color:#8B949E'>Language:</span> <b style='color:#E6EDF3'>{lang}</b>"
-        f" &nbsp; <span style='color:#8B949E'>Role:</span> <b style='color:#E6EDF3'>{role}</b><br>",
-        f"<span style='color:#8B949E'>LoC:</span> {loc}"
-        f" &nbsp; <span style='color:#8B949E'>Fn:</span> {fn}"
-        f" &nbsp; <span style='color:#8B949E'>Class:</span> {cl}"
-        f" &nbsp; <span style='color:#8B949E'>Imports:</span> {imp}<br>",
+        "<div style='font-family:Trebuchet MS, Segoe UI, sans-serif;font-size:13px;padding:10px 13px;"
+        "background:#FFFFFF;border:1px solid #D7E3E0;border-radius:12px;max-width:400px;"
+        "box-shadow:0 18px 36px rgba(15,23,42,0.14);color:#10212B'>",
+        f"<b style='color:#1D4ED8;font-size:15px'>{node}</b><br>",
+        f"<span style='color:#64748B'>Language:</span> <b style='color:#10212B'>{lang}</b>"
+        f" &nbsp; <span style='color:#64748B'>Role:</span> <b style='color:#10212B'>{role}</b><br>",
+        f"<span style='color:#64748B'>LoC:</span> {loc}"
+        f" &nbsp; <span style='color:#64748B'>Fn:</span> {fn}"
+        f" &nbsp; <span style='color:#64748B'>Class:</span> {cl}"
+        f" &nbsp; <span style='color:#64748B'>Imports:</span> {imp}<br>",
     ]
     if dbt:
-        lines.append(f"<span style='color:#8B949E'>dbt refs:</span> {dbt}<br>")
+        lines.append(f"<span style='color:#64748B'>dbt refs:</span> {dbt}<br>")
     lines += [
-        f"<span style='color:#8B949E'>Velocity 30d:</span> {vel:.1f}"
-        f" &nbsp; <span style='color:#8B949E'>Complexity:</span> {cx:.2f}<br>",
-        f"<span style='color:#8B949E'>Confidence:</span> "
+        f"<span style='color:#64748B'>Velocity 30d:</span> {vel:.1f}"
+        f" &nbsp; <span style='color:#64748B'>Complexity:</span> {cx:.2f}<br>",
+        f"<span style='color:#64748B'>Confidence:</span> "
         f"<b style='color:{conf_color}'>{conf:.0%}</b>",
     ]
     if flags:
@@ -329,7 +336,7 @@ def _build_module_legend(g: nx.DiGraph) -> str:
         f"<div style='display:flex;align-items:center;gap:8px;margin:3px 0'>"
         f"<span style='width:13px;height:13px;background:{_LANG_COLOURS.get(lang, '#546E7A')};"
         f"border-radius:50%;display:inline-block'></span>"
-        f"<span>{lang} <span style='color:#8B949E'>({cnt})</span></span></div>"
+        f"<span>{lang} <span style='color:#64748B'>({cnt})</span></span></div>"
         for lang, cnt in sorted(lang_counts.items(), key=lambda x: -x[1])
     )
     border_rows = "".join(
@@ -352,17 +359,17 @@ def _build_module_legend(g: nx.DiGraph) -> str:
     return (
         "<div style='"
         "position:fixed;bottom:20px;left:20px;"
-        "background:#161B22;border:1px solid #30363D;border-radius:10px;"
-        "padding:14px 18px;color:#E6EDF3;font-family:monospace;font-size:13px;"
-        "z-index:9999;min-width:180px'>"
-        "<div style='font-weight:bold;margin-bottom:10px;color:#58A6FF;font-size:14px'>Legend</div>"
-        "<div style='font-size:11px;color:#8B949E;margin-bottom:6px;text-transform:uppercase;"
+        "background:rgba(255,255,255,0.96);border:1px solid #D7E3E0;border-radius:14px;"
+        "padding:14px 18px;color:#10212B;font-family:Trebuchet MS, Segoe UI, sans-serif;font-size:13px;"
+        "box-shadow:0 18px 36px rgba(15,23,42,0.12);z-index:9999;min-width:200px'>"
+        "<div style='font-weight:bold;margin-bottom:10px;color:#1D4ED8;font-size:14px'>Legend</div>"
+        "<div style='font-size:11px;color:#64748B;margin-bottom:6px;text-transform:uppercase;"
         "letter-spacing:1px'>Language</div>"
         + lang_rows
-        + "<div style='font-size:11px;color:#8B949E;margin:10px 0 6px;text-transform:uppercase;"
+        + "<div style='font-size:11px;color:#64748B;margin:10px 0 6px;text-transform:uppercase;"
         "letter-spacing:1px'>Node border</div>"
         + border_rows
-        + "<div style='font-size:11px;color:#8B949E;margin:10px 0 6px;text-transform:uppercase;"
+        + "<div style='font-size:11px;color:#64748B;margin:10px 0 6px;text-transform:uppercase;"
         "letter-spacing:1px'>Edge type</div>"
         + edge_rows
         + "</div>"
@@ -393,7 +400,7 @@ def export_module_viz_html(g: nx.DiGraph, output_path: Path) -> bool:
 
     net = Network(
         height="100vh", width="100%", directed=True,
-        bgcolor="#0D1117", font_color="#E6EDF3", notebook=False,
+        bgcolor="#F3F7F6", font_color="#10212B", notebook=False,
     )
     net.set_options(_MODULE_PYVIS_OPTIONS)
 
@@ -420,7 +427,7 @@ def export_module_viz_html(g: nx.DiGraph, output_path: Path) -> bool:
         display_label = f"{short}\n{badge}" if badge else short
 
         deg = degrees.get(node, 0)
-        size = 18 + int(20 * (deg / max_deg))
+        size = 28 + int(28 * (deg / max_deg))
 
         net.add_node(
             node,
@@ -431,6 +438,14 @@ def export_module_viz_html(g: nx.DiGraph, output_path: Path) -> bool:
                 "border": border_color,
                 "highlight": {"background": bg_color, "border": "#FFFFFF"},
             },
+            font={
+                "color": "#10212B",
+                "size": 18,
+                "face": "Trebuchet MS, Segoe UI, sans-serif",
+                "strokeWidth": 6,
+                "strokeColor": "#F8FBFA",
+                "bold": {"color": "#10212B", "size": 19},
+            },
             shape="ellipse",
             size=size,
         )
@@ -440,11 +455,11 @@ def export_module_viz_html(g: nx.DiGraph, output_path: Path) -> bool:
         conf = data.get("confidence", 1.0)
         width = max(1.0, conf * 3.0)
         if edge_type == "DBT_REF":
-            color = {"color": "#3FB950", "highlight": "#7BED9F", "opacity": 0.8}
-            edge_title = "<b style='color:#3FB950'>DBT_REF</b>"
+            color = {"color": "#15803D", "highlight": "#22C55E", "opacity": 0.82}
+            edge_title = "<b style='color:#15803D'>DBT_REF</b>"
         else:
-            color = {"color": "#58A6FF", "highlight": "#90C6FF", "opacity": 0.7}
-            edge_title = "<b style='color:#58A6FF'>IMPORTS</b>"
+            color = {"color": "#2563EB", "highlight": "#60A5FA", "opacity": 0.76}
+            edge_title = "<b style='color:#2563EB'>IMPORTS</b>"
         net.add_edge(u, v, color=color, title=edge_title, width=width)
 
     try:
@@ -464,26 +479,26 @@ def export_module_viz_html(g: nx.DiGraph, output_path: Path) -> bool:
 # ---------------------------------------------------------------------------
 
 _DS_COLORS: dict[str, dict] = {
-    "dbt_source": {"background": "#FF4757", "border": "#FF6B81",
-                   "highlight": {"background": "#FF6B81", "border": "#FFFFFF"}},
-    "dbt_model":  {"background": "#00D2FF", "border": "#48E5FF",
-                   "highlight": {"background": "#48E5FF", "border": "#FFFFFF"}},
-    "dbt_seed":   {"background": "#2ED573", "border": "#7BED9F",
-                   "highlight": {"background": "#7BED9F", "border": "#FFFFFF"}},
-    "table_ref":  {"background": "#FFA502", "border": "#FFD166",
-                   "highlight": {"background": "#FFD166", "border": "#FFFFFF"}},
-    "file_read":  {"background": "#A29BFE", "border": "#C8C0FF",
-                   "highlight": {"background": "#C8C0FF", "border": "#FFFFFF"}},
-    "file_write": {"background": "#FD79A8", "border": "#FEABC8",
-                   "highlight": {"background": "#FEABC8", "border": "#FFFFFF"}},
-    "api_call":   {"background": "#FDCB6E", "border": "#FDE3A7",
-                   "highlight": {"background": "#FDE3A7", "border": "#FFFFFF"}},
-    "unknown":    {"background": "#636E72", "border": "#888888",
-                   "highlight": {"background": "#888888", "border": "#FFFFFF"}},
+    "dbt_source": {"background": "#FECACA", "border": "#DC2626",
+                   "highlight": {"background": "#FCA5A5", "border": "#991B1B"}},
+    "dbt_model":  {"background": "#BFDBFE", "border": "#2563EB",
+                   "highlight": {"background": "#93C5FD", "border": "#1D4ED8"}},
+    "dbt_seed":   {"background": "#DCFCE7", "border": "#16A34A",
+                   "highlight": {"background": "#BBF7D0", "border": "#15803D"}},
+    "table_ref":  {"background": "#FDE68A", "border": "#D97706",
+                   "highlight": {"background": "#FCD34D", "border": "#B45309"}},
+    "file_read":  {"background": "#DDD6FE", "border": "#7C3AED",
+                   "highlight": {"background": "#C4B5FD", "border": "#6D28D9"}},
+    "file_write": {"background": "#FBCFE8", "border": "#DB2777",
+                   "highlight": {"background": "#F9A8D4", "border": "#BE185D"}},
+    "api_call":   {"background": "#FED7AA", "border": "#EA580C",
+                   "highlight": {"background": "#FDBA74", "border": "#C2410C"}},
+    "unknown":    {"background": "#E2E8F0", "border": "#64748B",
+                   "highlight": {"background": "#CBD5E1", "border": "#475569"}},
 }
 _XFORM_COLOR = {
-    "background": "#FDCB6E", "border": "#F9CA24",
-    "highlight": {"background": "#F9CA24", "border": "#FFFFFF"},
+    "background": "#FEF3C7", "border": "#D97706",
+    "highlight": {"background": "#FDE68A", "border": "#B45309"},
 }
 _DS_ICONS = {
     "dbt_source": "⬡", "dbt_model": "◆", "dbt_seed": "⊞",
@@ -498,32 +513,35 @@ _XFORM_ICONS = {
 _PYVIS_OPTIONS = """
 var options = {
   "nodes": {
-    "borderWidth": 2,
-    "borderWidthSelected": 4,
-    "shadow": {"enabled": true, "color": "#00000088", "size": 12, "x": 3, "y": 3},
-    "font": {"color": "#E6EDF3", "size": 15,
-             "face": "JetBrains Mono, monospace, sans-serif",
-             "bold": {"color": "#FFFFFF", "size": 15}}
+    "borderWidth": 3,
+    "borderWidthSelected": 5,
+    "shadow": {"enabled": true, "color": "rgba(15,23,42,0.16)", "size": 16, "x": 2, "y": 4},
+    "font": {"color": "#10212B", "size": 18,
+             "face": "Trebuchet MS, Segoe UI, sans-serif",
+             "strokeWidth": 6, "strokeColor": "#F8FBFA",
+             "bold": {"color": "#10212B", "size": 19}}
   },
   "edges": {
-    "smooth": {"type": "curvedCW", "roundness": 0.15},
-    "shadow": {"enabled": true, "color": "#00000066", "size": 6},
-    "width": 2, "selectionWidth": 3,
-    "arrows": {"to": {"enabled": true, "scaleFactor": 1.3, "type": "arrow"}},
-    "font": {"color": "#8B949E", "size": 11, "align": "middle"}
+    "smooth": {"type": "dynamic", "roundness": 0.18},
+    "shadow": {"enabled": true, "color": "rgba(15,23,42,0.12)", "size": 8},
+    "width": 3, "selectionWidth": 5,
+    "arrows": {"to": {"enabled": true, "scaleFactor": 1.35, "type": "arrow"}},
+    "font": {"color": "#334155", "size": 14, "align": "middle",
+             "strokeWidth": 4, "strokeColor": "#F8FBFA"}
   },
   "physics": {
     "barnesHut": {
-      "gravitationalConstant": -12000, "centralGravity": 0.25,
-      "springLength": 260, "springConstant": 0.03,
-      "damping": 0.12, "avoidOverlap": 0.6
+      "gravitationalConstant": -10000, "centralGravity": 0.18,
+      "springLength": 310, "springConstant": 0.025,
+      "damping": 0.18, "avoidOverlap": 1.0
     },
-    "minVelocity": 0.5,
-    "stabilization": {"iterations": 200}
+    "minVelocity": 0.2,
+    "stabilization": {"iterations": 350}
   },
   "interaction": {
     "hover": true, "tooltipDelay": 100, "navigationButtons": true,
-    "keyboard": {"enabled": true}, "multiselect": true, "zoomView": true
+    "keyboard": {"enabled": true, "bindToWindow": false},
+    "multiselect": true, "zoomView": true, "dragView": true
   }
 }
 """
@@ -531,30 +549,31 @@ var options = {
 
 def _ds_tooltip(ds) -> str:
     parts = [
-        f"<div style='font-family:monospace;font-size:13px;padding:8px 12px;"
-        f"background:#161B22;border:1px solid #30363D;border-radius:8px;max-width:320px'>",
-        f"<b style='color:#58A6FF;font-size:15px'>{ds.name}</b><br>",
-        f"<span style='color:#8B949E'>Type:</span> "
-        f"<b style='color:#E6EDF3'>{ds.dataset_type}</b><br>",
+        f"<div style='font-family:Trebuchet MS, Segoe UI, sans-serif;font-size:13px;padding:10px 13px;"
+        f"background:#FFFFFF;border:1px solid #D7E3E0;border-radius:12px;max-width:340px;"
+        f"box-shadow:0 18px 36px rgba(15,23,42,0.14);color:#10212B'>",
+        f"<b style='color:#1D4ED8;font-size:15px'>{ds.name}</b><br>",
+        f"<span style='color:#64748B'>Type:</span> "
+        f"<b style='color:#10212B'>{ds.dataset_type}</b><br>",
     ]
     if ds.source_file:
         parts.append(
-            f"<span style='color:#8B949E'>Defined in:</span> "
-            f"<code style='color:#79C0FF'>{ds.source_file}</code><br>"
+            f"<span style='color:#64748B'>Defined in:</span> "
+            f"<code style='color:#2563EB'>{ds.source_file}</code><br>"
         )
     if ds.description:
-        parts.append(f"<span style='color:#8B949E'>Description:</span> {ds.description}<br>")
+        parts.append(f"<span style='color:#64748B'>Description:</span> {ds.description}<br>")
     if ds.columns:
         col_str = ", ".join(ds.columns[:8])
         if len(ds.columns) > 8:
             col_str += f" +{len(ds.columns) - 8} more"
         parts.append(
-            f"<span style='color:#8B949E'>Columns:</span> "
-            f"<code style='color:#A5D6A7'>{col_str}</code><br>"
+            f"<span style='color:#64748B'>Columns:</span> "
+            f"<code style='color:#15803D'>{col_str}</code><br>"
         )
-    conf_color = "#2ED573" if ds.confidence >= 0.9 else "#FFA502"
+    conf_color = "#15803D" if ds.confidence >= 0.9 else "#C2410C"
     parts.append(
-        f"<span style='color:#8B949E'>Confidence:</span> "
+        f"<span style='color:#64748B'>Confidence:</span> "
         f"<b style='color:{conf_color}'>{ds.confidence:.0%}</b></div>"
     )
     return "".join(parts)
@@ -564,31 +583,32 @@ def _xform_tooltip(xform) -> str:
     fname = xform.source_file.split("/")[-1]
     label = fname.replace(".sql", "").replace(".py", "")
     parts = [
-        f"<div style='font-family:monospace;font-size:13px;padding:8px 12px;"
-        f"background:#161B22;border:1px solid #30363D;border-radius:8px;max-width:360px'>",
-        f"<b style='color:#FDCB6E;font-size:15px'>{label}</b><br>",
-        f"<span style='color:#8B949E'>Type:</span> "
-        f"<b style='color:#E6EDF3'>{xform.transformation_type}</b><br>",
-        f"<span style='color:#8B949E'>File:</span> "
-        f"<code style='color:#79C0FF'>{xform.source_file}</code><br>",
+        f"<div style='font-family:Trebuchet MS, Segoe UI, sans-serif;font-size:13px;padding:10px 13px;"
+        f"background:#FFFFFF;border:1px solid #D7E3E0;border-radius:12px;max-width:380px;"
+        f"box-shadow:0 18px 36px rgba(15,23,42,0.14);color:#10212B'>",
+        f"<b style='color:#C2410C;font-size:15px'>{label}</b><br>",
+        f"<span style='color:#64748B'>Type:</span> "
+        f"<b style='color:#10212B'>{xform.transformation_type}</b><br>",
+        f"<span style='color:#64748B'>File:</span> "
+        f"<code style='color:#2563EB'>{xform.source_file}</code><br>",
     ]
     if xform.source_datasets:
         parts.append(
-            f"<span style='color:#8B949E'>Reads:</span> "
-            f"<code style='color:#FF7B93'>{', '.join(xform.source_datasets)}</code><br>"
+            f"<span style='color:#64748B'>Reads:</span> "
+            f"<code style='color:#BE185D'>{', '.join(xform.source_datasets)}</code><br>"
         )
     if xform.target_datasets:
         parts.append(
-            f"<span style='color:#8B949E'>Writes:</span> "
-            f"<code style='color:#2ED573'>{', '.join(xform.target_datasets)}</code><br>"
+            f"<span style='color:#64748B'>Writes:</span> "
+            f"<code style='color:#15803D'>{', '.join(xform.target_datasets)}</code><br>"
         )
     if xform.is_dynamic:
         parts.append(
             "<br><span style='color:#FFA502'>⚠ Dynamic SQL — lineage may be incomplete</span>"
         )
-    conf_color = "#2ED573" if xform.confidence >= 0.9 else "#FFA502"
+    conf_color = "#15803D" if xform.confidence >= 0.9 else "#C2410C"
     parts.append(
-        f"<br><span style='color:#8B949E'>Confidence:</span> "
+        f"<br><span style='color:#64748B'>Confidence:</span> "
         f"<b style='color:{conf_color}'>{xform.confidence:.0%}</b></div>"
     )
     return "".join(parts)
@@ -619,7 +639,7 @@ def export_lineage_viz(
 
     net = Network(
         height="100vh", width="100%", directed=True,
-        bgcolor="#0D1117", font_color="#E6EDF3", notebook=False,
+        bgcolor="#F3F7F6", font_color="#10212B", notebook=False,
     )
     net.set_options(_PYVIS_OPTIONS)
 
@@ -630,7 +650,15 @@ def export_lineage_viz(
         net.add_node(
             ds.name, label=f"{icon} {label}", title=_ds_tooltip(ds),
             color=_DS_COLORS.get(ds.dataset_type, _DS_COLORS["unknown"]),
-            shape="ellipse", size=32, mass=2,
+            shape="ellipse", size=42, mass=2,
+            font={
+                "color": "#10212B",
+                "size": 18,
+                "face": "Trebuchet MS, Segoe UI, sans-serif",
+                "strokeWidth": 6,
+                "strokeColor": "#F8FBFA",
+                "bold": {"color": "#10212B", "size": 19},
+            },
         )
 
     for xform in transformations.values():
@@ -639,8 +667,15 @@ def export_lineage_viz(
         icon = _XFORM_ICONS.get(xform.transformation_type, "⚙")
         net.add_node(
             xform.id, label=f"{icon} {label}", title=_xform_tooltip(xform),
-            color=_XFORM_COLOR, shape="box", size=22, mass=1,
-            font={"color": "#0D1117", "size": 14, "bold": {"color": "#0D1117"}},
+            color=_XFORM_COLOR, shape="box", size=30, mass=1,
+            font={
+                "color": "#10212B",
+                "size": 17,
+                "face": "Trebuchet MS, Segoe UI, sans-serif",
+                "strokeWidth": 5,
+                "strokeColor": "#F8FBFA",
+                "bold": {"color": "#10212B", "size": 18},
+            },
         )
 
     for u, v, data in g.edges(data=True):

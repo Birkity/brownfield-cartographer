@@ -1,0 +1,634 @@
+{
+  "generated_at": "2026-03-14T20:19:35.266100Z",
+  "summary": {
+    "parse_failures": 0,
+    "grammar_missing": 0,
+    "structurally_empty_files": 123,
+    "dynamic_transformations": 0,
+    "low_confidence_datasets": 0,
+    "low_confidence_edges": 0,
+    "total_blind_spots": 123
+  },
+  "parse_failures": [],
+  "grammar_missing": [],
+  "structurally_empty_files": [
+    {
+      "file": "apps/cli/src/lib/sdk/types.ts",
+      "language": "typescript",
+      "lines": 30
+    },
+    {
+      "file": "apps/cli/src/ui/components/autocomplete/index.ts",
+      "language": "typescript",
+      "lines": 37
+    },
+    {
+      "file": "apps/cli/src/ui/components/autocomplete/triggers/index.ts",
+      "language": "typescript",
+      "lines": 15
+    },
+    {
+      "file": "apps/cli/src/ui/hooks/index.ts",
+      "language": "typescript",
+      "lines": 20
+    },
+    {
+      "file": "apps/cli/src/ui/theme.ts",
+      "language": "typescript",
+      "lines": 66
+    },
+    {
+      "file": "apps/web-evals/src/components/ui/index.ts",
+      "language": "typescript",
+      "lines": 22
+    },
+    {
+      "file": "apps/web-evals/src/lib/server/sse-stream.ts",
+      "language": "typescript",
+      "lines": 51
+    },
+    {
+      "file": "apps/web-roo-code/postcss.config.cjs",
+      "language": "javascript",
+      "lines": 6
+    },
+    {
+      "file": "apps/web-roo-code/src/app/shared/agent-page-content.ts",
+      "language": "typescript",
+      "lines": 74
+    },
+    {
+      "file": "apps/web-roo-code/src/components/homepage/index.ts",
+      "language": "typescript",
+      "lines": 14
+    },
+    {
+      "file": "apps/web-roo-code/src/components/ui/index.ts",
+      "language": "typescript",
+      "lines": 6
+    },
+    {
+      "file": "apps/web-roo-code/src/images.d.ts",
+      "language": "typescript",
+      "lines": 25
+    },
+    {
+      "file": "apps/web-roo-code/src/lib/blog/index.ts",
+      "language": "typescript",
+      "lines": 31
+    },
+    {
+      "file": "apps/web-roo-code/src/lib/blog/types.ts",
+      "language": "typescript",
+      "lines": 28
+    },
+    {
+      "file": "apps/web-roo-code/src/lib/constants.ts",
+      "language": "typescript",
+      "lines": 38
+    },
+    {
+      "file": "apps/web-roo-code/src/lib/seo.ts",
+      "language": "typescript",
+      "lines": 28
+    },
+    {
+      "file": "apps/web-roo-code/src/lib/types/models.ts",
+      "language": "typescript",
+      "lines": 27
+    },
+    {
+      "file": "packages/cloud/src/__mocks__/vscode.ts",
+      "language": "typescript",
+      "lines": 57
+    },
+    {
+      "file": "packages/cloud/src/errors.ts",
+      "language": "typescript",
+      "lines": 38
+    },
+    {
+      "file": "packages/cloud/src/RefreshTimer.ts",
+      "language": "typescript",
+      "lines": 133
+    },
+    {
+      "file": "packages/cloud/src/retry-queue/types.ts",
+      "language": "typescript",
+      "lines": 33
+    },
+    {
+      "file": "packages/core/src/message-utils/index.ts",
+      "language": "typescript",
+      "lines": 9
+    },
+    {
+      "file": "packages/core/src/worktree/index.ts",
+      "language": "typescript",
+      "lines": 11
+    },
+    {
+      "file": "packages/core/src/worktree/types.ts",
+      "language": "typescript",
+      "lines": 14
+    },
+    {
+      "file": "packages/evals/src/cli/messageLogDeduper.ts",
+      "language": "typescript",
+      "lines": 42
+    },
+    {
+      "file": "packages/evals/src/db/index.ts",
+      "language": "typescript",
+      "lines": 7
+    },
+    {
+      "file": "packages/evals/src/db/migrations/0000_young_trauma.sql",
+      "language": "sql",
+      "lines": 54
+    },
+    {
+      "file": "packages/evals/src/db/migrations/0002_bouncy_blazing_skull.sql",
+      "language": "sql",
+      "lines": 6
+    },
+    {
+      "file": "packages/evals/src/db/migrations/0005_strong_skrulls.sql",
+      "language": "sql",
+      "lines": 12
+    },
+    {
+      "file": "packages/types/src/cookie-consent.ts",
+      "language": "typescript",
+      "lines": 19
+    },
+    {
+      "file": "packages/types/src/embedding.ts",
+      "language": "typescript",
+      "lines": 20
+    },
+    {
+      "file": "packages/types/src/git.ts",
+      "language": "typescript",
+      "lines": 12
+    },
+    {
+      "file": "packages/types/src/index.ts",
+      "language": "typescript",
+      "lines": 33
+    },
+    {
+      "file": "packages/types/src/providers/openai-codex-rate-limits.ts",
+      "language": "typescript",
+      "lines": 29
+    },
+    {
+      "file": "packages/types/src/type-fu.ts",
+      "language": "typescript",
+      "lines": 7
+    },
+    {
+      "file": "packages/types/src/worktree.ts",
+      "language": "typescript",
+      "lines": 92
+    },
+    {
+      "file": "packages/vscode-shim/src/index.ts",
+      "language": "typescript",
+      "lines": 106
+    },
+    {
+      "file": "packages/vscode-shim/src/types.ts",
+      "language": "typescript",
+      "lines": 311
+    },
+    {
+      "file": "src/api/providers/index.ts",
+      "language": "typescript",
+      "lines": 28
+    },
+    {
+      "file": "src/api/transform/stream.ts",
+      "language": "typescript",
+      "lines": 101
+    },
+    {
+      "file": "src/core/ignore/__mocks__/RooIgnoreController.ts",
+      "language": "typescript",
+      "lines": 30
+    },
+    {
+      "file": "src/core/prompts/sections/index.ts",
+      "language": "typescript",
+      "lines": 11
+    },
+    {
+      "file": "src/core/prompts/types.ts",
+      "language": "typescript",
+      "lines": 12
+    },
+    {
+      "file": "src/core/task/AskIgnoredError.ts",
+      "language": "typescript",
+      "lines": 15
+    },
+    {
+      "file": "src/core/tools/apply-patch/index.ts",
+      "language": "typescript",
+      "lines": 11
+    },
+    {
+      "file": "src/core/webview/worktree/index.ts",
+      "language": "typescript",
+      "lines": 20
+    },
+    {
+      "file": "src/hooks/AstPatchValidator.ts",
+      "language": "typescript",
+      "lines": 360
+    },
+    {
+      "file": "src/hooks/CommandClassifier.ts",
+      "language": "typescript",
+      "lines": 120
+    },
+    {
+      "file": "src/hooks/index.ts",
+      "language": "typescript",
+      "lines": 46
+    },
+    {
+      "file": "src/hooks/SemanticClassifier.ts",
+      "language": "typescript",
+      "lines": 196
+    },
+    {
+      "file": "src/hooks/types.ts",
+      "language": "typescript",
+      "lines": 66
+    },
+    {
+      "file": "src/integrations/terminal/__tests__/TerminalProcessExec.common.ts",
+      "language": "typescript",
+      "lines": 38
+    },
+    {
+      "file": "src/services/code-index/interfaces/cache.ts",
+      "language": "typescript",
+      "lines": 6
+    },
+    {
+      "file": "src/services/code-index/interfaces/embedder.ts",
+      "language": "typescript",
+      "lines": 38
+    },
+    {
+      "file": "src/services/code-index/interfaces/vector-store.ts",
+      "language": "typescript",
+      "lines": 84
+    },
+    {
+      "file": "src/services/glob/constants.ts",
+      "language": "typescript",
+      "lines": 25
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-c-sharp.ts",
+      "language": "typescript",
+      "lines": 332
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-c.ts",
+      "language": "typescript",
+      "lines": 398
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-cpp.ts",
+      "language": "typescript",
+      "lines": 163
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-css.ts",
+      "language": "typescript",
+      "lines": 86
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-elisp.ts",
+      "language": "typescript",
+      "lines": 49
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-elixir.ts",
+      "language": "typescript",
+      "lines": 103
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-embedded_template.ts",
+      "language": "typescript",
+      "lines": 77
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-go.ts",
+      "language": "typescript",
+      "lines": 113
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-html.ts",
+      "language": "typescript",
+      "lines": 76
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-java.ts",
+      "language": "typescript",
+      "lines": 169
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-javascript.ts",
+      "language": "typescript",
+      "lines": 147
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-json.ts",
+      "language": "typescript",
+      "lines": 102
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-kotlin.ts",
+      "language": "typescript",
+      "lines": 350
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-lua.ts",
+      "language": "typescript",
+      "lines": 120
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-ocaml.ts",
+      "language": "typescript",
+      "lines": 59
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-php.ts",
+      "language": "typescript",
+      "lines": 303
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-python.ts",
+      "language": "typescript",
+      "lines": 136
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-ruby.ts",
+      "language": "typescript",
+      "lines": 519
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-rust.ts",
+      "language": "typescript",
+      "lines": 277
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-scala.ts",
+      "language": "typescript",
+      "lines": 80
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-solidity.ts",
+      "language": "typescript",
+      "lines": 85
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-swift.ts",
+      "language": "typescript",
+      "lines": 246
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-systemrdl.ts",
+      "language": "typescript",
+      "lines": 74
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-tlaplus.ts",
+      "language": "typescript",
+      "lines": 40
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-toml.ts",
+      "language": "typescript",
+      "lines": 64
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-tsx.ts",
+      "language": "typescript",
+      "lines": 294
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-typescript.ts",
+      "language": "typescript",
+      "lines": 181
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-vue.ts",
+      "language": "typescript",
+      "lines": 84
+    },
+    {
+      "file": "src/services/tree-sitter/__tests__/fixtures/sample-zig.ts",
+      "language": "typescript",
+      "lines": 35
+    },
+    {
+      "file": "src/services/tree-sitter/queries/c-sharp.ts",
+      "language": "typescript",
+      "lines": 52
+    },
+    {
+      "file": "src/services/tree-sitter/queries/c.ts",
+      "language": "typescript",
+      "lines": 69
+    },
+    {
+      "file": "src/services/tree-sitter/queries/cpp.ts",
+      "language": "typescript",
+      "lines": 79
+    },
+    {
+      "file": "src/services/tree-sitter/queries/css.ts",
+      "language": "typescript",
+      "lines": 61
+    },
+    {
+      "file": "src/services/tree-sitter/queries/elisp.ts",
+      "language": "typescript",
+      "lines": 35
+    },
+    {
+      "file": "src/services/tree-sitter/queries/elixir.ts",
+      "language": "typescript",
+      "lines": 60
+    },
+    {
+      "file": "src/services/tree-sitter/queries/embedded_template.ts",
+      "language": "typescript",
+      "lines": 17
+    },
+    {
+      "file": "src/services/tree-sitter/queries/go.ts",
+      "language": "typescript",
+      "lines": 20
+    },
+    {
+      "file": "src/services/tree-sitter/queries/html.ts",
+      "language": "typescript",
+      "lines": 40
+    },
+    {
+      "file": "src/services/tree-sitter/queries/index.ts",
+      "language": "typescript",
+      "lines": 28
+    },
+    {
+      "file": "src/services/tree-sitter/queries/java.ts",
+      "language": "typescript",
+      "lines": 58
+    },
+    {
+      "file": "src/services/tree-sitter/queries/javascript.ts",
+      "language": "typescript",
+      "lines": 114
+    },
+    {
+      "file": "src/services/tree-sitter/queries/kotlin.ts",
+      "language": "typescript",
+      "lines": 91
+    },
+    {
+      "file": "src/services/tree-sitter/queries/lua.ts",
+      "language": "typescript",
+      "lines": 32
+    },
+    {
+      "file": "src/services/tree-sitter/queries/ocaml.ts",
+      "language": "typescript",
+      "lines": 26
+    },
+    {
+      "file": "src/services/tree-sitter/queries/php.ts",
+      "language": "typescript",
+      "lines": 142
+    },
+    {
+      "file": "src/services/tree-sitter/queries/python.ts",
+      "language": "typescript",
+      "lines": 60
+    },
+    {
+      "file": "src/services/tree-sitter/queries/ruby.ts",
+      "language": "typescript",
+      "lines": 168
+    },
+    {
+      "file": "src/services/tree-sitter/queries/rust.ts",
+      "language": "typescript",
+      "lines": 63
+    },
+    {
+      "file": "src/services/tree-sitter/queries/scala.ts",
+      "language": "typescript",
+      "lines": 34
+    },
+    {
+      "file": "src/services/tree-sitter/queries/solidity.ts",
+      "language": "typescript",
+      "lines": 32
+    },
+    {
+      "file": "src/services/tree-sitter/queries/swift.ts",
+      "language": "typescript",
+      "lines": 60
+    },
+    {
+      "file": "src/services/tree-sitter/queries/systemrdl.ts",
+      "language": "typescript",
+      "lines": 29
+    },
+    {
+      "file": "src/services/tree-sitter/queries/tlaplus.ts",
+      "language": "typescript",
+      "lines": 28
+    },
+    {
+      "file": "src/services/tree-sitter/queries/toml.ts",
+      "language": "typescript",
+      "lines": 20
+    },
+    {
+      "file": "src/services/tree-sitter/queries/typescript.ts",
+      "language": "typescript",
+      "lines": 99
+    },
+    {
+      "file": "src/services/tree-sitter/queries/vue.ts",
+      "language": "typescript",
+      "lines": 26
+    },
+    {
+      "file": "src/services/tree-sitter/queries/zig.ts",
+      "language": "typescript",
+      "lines": 18
+    },
+    {
+      "file": "src/shared/globalFileNames.ts",
+      "language": "typescript",
+      "lines": 7
+    },
+    {
+      "file": "src/shared/skills.ts",
+      "language": "typescript",
+      "lines": 27
+    },
+    {
+      "file": "src/shared/string-extensions.d.ts",
+      "language": "typescript",
+      "lines": 24
+    },
+    {
+      "file": "src/types/global-agent.d.ts",
+      "language": "typescript",
+      "lines": 43
+    },
+    {
+      "file": "src/utils/logging/types.ts",
+      "language": "typescript",
+      "lines": 104
+    },
+    {
+      "file": "src/utils/tag-matcher.ts",
+      "language": "typescript",
+      "lines": 108
+    },
+    {
+      "file": "webview-ui/src/components/chat/__tests__/CodeIndexPopover.auto-populate.spec.tsx",
+      "language": "typescript",
+      "lines": 291
+    },
+    {
+      "file": "webview-ui/src/components/chat/context-management/index.ts",
+      "language": "typescript",
+      "lines": 12
+    },
+    {
+      "file": "webview-ui/src/components/settings/providers/index.ts",
+      "language": "typescript",
+      "lines": 25
+    },
+    {
+      "file": "webview-ui/src/components/ui/index.ts",
+      "language": "typescript",
+      "lines": 24
+    }
+  ],
+  "dynamic_transformations": [],
+  "low_confidence_datasets": [],
+  "low_confidence_edges": []
+}
