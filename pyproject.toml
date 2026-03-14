@@ -30,6 +30,8 @@ dependencies = [
     "sqlglot>=23.0",
     # Visualization
     "matplotlib>=3.8",
+    "plotly>=5.24",
+    "streamlit>=1.39",
     # Interactive lineage visualization (Phase 2)
     "pyvis>=0.3.2",
     # YAML parsing (Phase 2 config analyzer)

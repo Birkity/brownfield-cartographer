@@ -14,6 +14,7 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 | 2 | Hydrologist (Data Lineage) | Complete |
 | 3 | Semanticist (LLM Purpose Analysis) | Complete |
 | 4 | Archivist + Navigator | Complete |
+| 5 | Dashboard (Streamlit Experience) | Complete |
 
 ---
 
@@ -63,6 +64,8 @@ This installs all required dependencies including:
 - `click` + `rich` for the CLI
 - `sqlglot` for SQL lineage parsing (Phase 2)
 - `pyyaml` for YAML config analysis (Phase 2)
+- `plotly` for dashboard charts and scorecards (Phase 5)
+- `streamlit` for the interactive dashboard shell (Phase 5)
 - `pyvis` for interactive lineage visualization (Phase 2)
 - `requests` for Ollama REST API communication (Phase 3)
 
@@ -140,6 +143,16 @@ Use `--json-output` to print the structured answer object directly. Query logs a
 `.cartography/<repo-name>/queries/` and Phase 4 answers are served from saved artifacts rather
 than rescanning the repository.
 
+### Dashboard
+
+```bash
+streamlit run streamlit_app.py
+```
+
+The dashboard auto-discovers available `.cartography/<repo-name>/` artifact roots and lets you
+explore all five phases without rescanning the repository. If your environment predates Phase 5,
+rerun `uv pip install -e .` first so Streamlit and Plotly are installed.
+
 ---
 
 ## Ollama Setup (Phase 3 / Phase 4)
@@ -193,6 +206,22 @@ Phase 4 adds the interactive repository question-answering layer:
 
 Navigator answers keep the citations grounded in retrieved evidence. The LLM can improve wording
 and synthesis, but it does not invent file paths or line ranges.
+
+---
+
+## Phase 5 Highlights
+
+Phase 5 adds a modern Streamlit dashboard on top of the saved artifacts:
+
+- `Repository Overview` for executive metrics, drift summary, and hotspot charts
+- `Phase 1 - Structure` for the module graph, dependency focus diagrams, hubs, and git velocity
+- `Phase 2 - Data Flow` for the lineage map, dataset explorer, upstream/downstream traces, and SQL snippets
+- `Phase 3 - Semantic Insights` for purpose statements, domains, hotspot ranking, review queue, and reading order
+- `Phase 4 - Query Navigator` for interactive grounded questions using the existing Navigator
+- `Reports` for `phase1.md` through `phase5.md`, plus `CODEBASE.md` and `onboarding_brief.md`
+
+The dashboard is artifact-driven: it loads `.cartography/` outputs, highlights provenance, and
+shows evidence snippets with file paths and line ranges instead of rescanning the repository.
 
 ---
 
@@ -329,6 +358,22 @@ reports/
 
 ---
 
+Phase 5 additions to the structure:
+
+```text
+streamlit_app.py                # Phase 5 dashboard entrypoint
+
+src/dashboard/
+|-- __init__.py                 # Dashboard package marker
+`-- data_layer.py               # Artifact loading, evidence lookup, graph prep, query handoff
+
+src/agents/archivist.py         # Phase 4 artifact retrieval
+src/agents/navigator.py         # Phase 4 grounded query answering
+
+reports/phase4.md               # Phase 4 feature reference
+reports/phase5.md               # Phase 5 dashboard reference
+```
+
 ## Output Directory Structure
 
 By default artifacts are written to `.cartography/<repo-name>/` so multiple repos can coexist:
@@ -449,7 +494,8 @@ Aggregated risk signals for onboarding engineers:
 - **Dynamic hotspots** — incomplete lineage, needs manual tracing
 
 > See [reports/phase1.md](reports/phase1.md), [reports/phase2.md](reports/phase2.md),
-> [reports/phase3.md](reports/phase3.md), and [reports/phase4.md](reports/phase4.md)
+> [reports/phase3.md](reports/phase3.md), [reports/phase4.md](reports/phase4.md), and
+> [reports/phase5.md](reports/phase5.md)
 > for full field references, interpretation guides, and query examples from the jaffle-shop run.
 
 ---

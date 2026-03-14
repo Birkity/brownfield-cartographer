@@ -33,6 +33,7 @@ class SemanticsResult:
     clustering: Optional[ClusteringResult] = None
     drift_results: list[DriftResult] = field(default_factory=list)
     day_one_answers: Optional[dict[str, Any]] = None
+    fde_day_one_answers: Optional[dict[str, Any]] = None
     reading_order: list[dict[str, Any]] = field(default_factory=list)
     hotspot_rankings: list[dict[str, Any]] = field(default_factory=list)
     review_queue: list[dict[str, Any]] = field(default_factory=list)
@@ -122,6 +123,7 @@ class Semanticist:
             router if result.ollama_available else None,
             budget,
         )
+        result.fde_day_one_answers = self._build_fde_day_one_answers(graph, result)
         self._enrich_graph(graph, result)
         result.reading_order = self._compute_reading_order(graph, result)
 
@@ -183,6 +185,7 @@ class Semanticist:
             "drift_detected": drift_count,
             "documentation_missing_count": doc_missing,
             "day_one_answers_generated": bool(result.day_one_answers),
+            "fde_day_one_answers_generated": bool(result.fde_day_one_answers),
             "reading_order_items": len(result.reading_order),
             "semantic_hotspots": len(result.hotspot_rankings),
             "review_queue_items": len(result.review_queue),
@@ -280,7 +283,10 @@ class Semanticist:
                 "citations": [citation.model_dump(mode="json") for citation in citations],
                 "confidence": float(item.get("confidence", 0.5)),
             })
-        return {"prompt_version": DAY_ONE_SYNTHESIS_PROMPT_VERSION, "questions": normalized_questions}
+        return {
+            "prompt_version": payload.get("prompt_version", DAY_ONE_SYNTHESIS_PROMPT_VERSION),
+            "questions": normalized_questions,
+        }
 
     def _heuristic_day_one(self, graph: KnowledgeGraph, semantics: SemanticsResult) -> dict[str, Any]:
         hotspots = semantics.hotspot_rankings[:3]
@@ -360,6 +366,240 @@ class Semanticist:
         if isinstance(parsed, dict) and "questions" in parsed:
             return self._normalize_day_one_answers(parsed, graph, semantics)
         return self._heuristic_day_one(graph, semantics)
+
+    def _build_fde_day_one_answers(self, graph: KnowledgeGraph, semantics: SemanticsResult) -> dict[str, Any]:
+        purpose_lookup = self._purpose_lookup(semantics)
+        hotspot_modules = [
+            graph.get_module(item["file_path"])
+            for item in semantics.hotspot_rankings[:5]
+            if item.get("file_path")
+        ]
+        hotspot_modules = [module for module in hotspot_modules if module is not None]
+
+        source_names = set(graph.find_sources())
+        source_transformations = [
+            xform for xform in graph.all_transformations()
+            if any(dataset_name in source_names for dataset_name in xform.source_datasets)
+        ]
+        source_transformations.sort(
+            key=lambda xform: (
+                len(xform.target_datasets),
+                len(graph.blast_radius(xform.id)),
+                xform.confidence,
+            ),
+            reverse=True,
+        )
+        primary_xform = source_transformations[0] if source_transformations else None
+        primary_module = graph.get_module(primary_xform.source_file) if primary_xform and primary_xform.source_file else None
+        primary_sources = [
+            graph.get_dataset(name)
+            for name in (primary_xform.source_datasets if primary_xform else [])
+        ]
+        primary_sources = [dataset for dataset in primary_sources if dataset is not None]
+        ingestion_citations: list[DayOneCitation] = []
+        for dataset in primary_sources[:2]:
+            ingestion_citations.extend(self._dataset_citations(dataset))
+        if primary_module is not None:
+            ingestion_citations.extend(
+                self._module_citations(primary_module, semantics, evidence_type="lineage", limit=2)
+            )
+        if primary_xform is not None:
+            source_label = ", ".join(dataset.name for dataset in primary_sources) or ", ".join(primary_xform.source_datasets) or "unknown sources"
+            target_label = ", ".join(primary_xform.target_datasets) or "unknown downstream outputs"
+            ingestion_answer = (
+                f"The primary ingestion path starts from {source_label}, then moves through "
+                f"`{primary_xform.source_file or primary_xform.id}` into {target_label}."
+            )
+        else:
+            ingestion_answer = "No primary ingestion path could be grounded from the saved lineage artifacts."
+
+        sink_datasets = [graph.get_dataset(name) for name in graph.find_sinks()]
+        sink_datasets = [dataset for dataset in sink_datasets if dataset is not None]
+        ranked_sinks: list[tuple[float, Any, Optional[ModuleNode]]] = []
+        for dataset in sink_datasets:
+            producers = [
+                xform for xform in graph.all_transformations()
+                if dataset.name in xform.target_datasets
+            ]
+            producer = producers[0] if producers else None
+            module = graph.get_module(producer.source_file) if producer and producer.source_file else None
+            score = module.hotspot_fusion_score if module is not None else 0.0
+            ranked_sinks.append((score, dataset, module))
+        ranked_sinks.sort(key=lambda item: item[0], reverse=True)
+        critical_outputs = ranked_sinks[:5]
+        output_citations: list[DayOneCitation] = []
+        output_parts: list[str] = []
+        for _, dataset, module in critical_outputs:
+            if module is not None:
+                output_parts.append(f"`{dataset.name}` via `{module.path}`")
+                output_citations.extend(self._module_citations(module, semantics, evidence_type="hotspot", limit=1))
+            else:
+                output_parts.append(f"`{dataset.name}`")
+                output_citations.extend(self._dataset_citations(dataset))
+        if output_parts:
+            outputs_answer = (
+                "The most critical output datasets are "
+                + ", ".join(output_parts)
+                + ". They are prioritized because they are final sinks produced by the highest-ranked modules."
+            )
+        else:
+            outputs_answer = "No critical output datasets could be grounded from the saved lineage artifacts."
+
+        top_module = hotspot_modules[0] if hotspot_modules else None
+        blast_citations: list[DayOneCitation] = []
+        if top_module is not None:
+            produced = sorted({
+                dataset_name
+                for xform in graph.all_transformations()
+                if xform.source_file == top_module.path
+                for dataset_name in xform.target_datasets
+            })
+            downstream_nodes: set[str] = set()
+            for dataset_name in produced:
+                downstream_nodes.update(graph.blast_radius(dataset_name))
+            downstream_datasets = sorted(
+                node for node in downstream_nodes
+                if graph.get_dataset(node) is not None
+            )
+            blast_answer = (
+                f"If `{top_module.path}` fails, its direct outputs {', '.join(produced) or 'none'} stop updating, "
+                f"and the downstream blast radius includes {', '.join(downstream_datasets[:5]) or 'no additional downstream datasets detected'}."
+            )
+            blast_citations.extend(self._module_citations(top_module, semantics, evidence_type="hotspot", limit=2))
+            for dataset_name in produced[:2]:
+                dataset = graph.get_dataset(dataset_name)
+                if dataset is not None:
+                    blast_citations.extend(self._dataset_citations(dataset))
+        else:
+            blast_answer = "No hotspot module was available to compute a grounded blast radius."
+
+        role_scores: dict[str, float] = {}
+        highest_logic_modules = sorted(
+            graph.all_modules(),
+            key=lambda module: (
+                purpose_lookup[module.path].business_logic_score
+                if module.path in purpose_lookup
+                else module.business_logic_score
+            ),
+            reverse=True,
+        )[:3]
+        for module in graph.all_modules():
+            role_score = (
+                purpose_lookup[module.path].business_logic_score
+                if module.path in purpose_lookup
+                else module.business_logic_score
+            )
+            role_scores[module.role] = role_scores.get(module.role, 0.0) + role_score
+        concentrated_role = max(role_scores.items(), key=lambda item: item[1])[0] if role_scores else "unknown"
+        distributed_roles = [
+            role for role, score in sorted(role_scores.items(), key=lambda item: item[1], reverse=True)
+            if score > 0 and role != concentrated_role
+        ][:3]
+        logic_citations = [
+            citation
+            for module in highest_logic_modules
+            for citation in self._module_citations(module, semantics, evidence_type="semantic", limit=1)
+        ]
+        logic_answer = (
+            f"Business logic is most concentrated in `{concentrated_role}` modules and then spreads across "
+            f"{', '.join(f'`{role}`' for role in distributed_roles) or 'no other major roles'}."
+        )
+
+        velocity_modules = sorted(
+            [module for module in graph.all_modules() if module.change_velocity_30d > 0],
+            key=lambda module: module.change_velocity_30d,
+            reverse=True,
+        )[:5]
+        velocity_citations = [
+            citation
+            for module in velocity_modules[:3]
+            for citation in self._module_citations(module, semantics, evidence_type="hotspot", limit=1)
+        ]
+        if velocity_modules:
+            velocity_answer = (
+                "The fastest-changing files in the configured git-velocity window are "
+                + ", ".join(
+                    f"`{module.path}` ({module.change_velocity_30d} changes)"
+                    for module in velocity_modules
+                )
+                + ". This run uses the Surveyor velocity window, so treat this as the current velocity map rather than an exact 90-day count when the run used a shorter window."
+            )
+        else:
+            velocity_answer = (
+                "No high-velocity files were detected in the configured git-velocity window. "
+                "This run uses the Surveyor velocity window, so the answer is limited to the saved run configuration."
+            )
+
+        return self._normalize_day_one_answers(
+            {
+                "prompt_version": "fde-day-one-v1",
+                "questions": [
+                    {
+                        "question": "What is the primary data ingestion path?",
+                        "answer": ingestion_answer,
+                        "cited_files": [
+                            citation.file_path for citation in ingestion_citations if citation.file_path
+                        ],
+                        "citations": [citation.model_dump(mode="json") for citation in ingestion_citations],
+                        "confidence": 0.82 if primary_xform is not None else 0.35,
+                    },
+                    {
+                        "question": "What are the 3-5 most critical output datasets/endpoints?",
+                        "answer": outputs_answer,
+                        "cited_files": [
+                            citation.file_path for citation in output_citations if citation.file_path
+                        ],
+                        "citations": [citation.model_dump(mode="json") for citation in output_citations],
+                        "confidence": 0.84 if output_parts else 0.4,
+                    },
+                    {
+                        "question": "What is the blast radius if the most critical module fails?",
+                        "answer": blast_answer,
+                        "cited_files": [
+                            citation.file_path for citation in blast_citations if citation.file_path
+                        ],
+                        "citations": [citation.model_dump(mode="json") for citation in blast_citations],
+                        "confidence": 0.8 if top_module is not None else 0.35,
+                    },
+                    {
+                        "question": "Where is the business logic concentrated vs. distributed?",
+                        "answer": logic_answer,
+                        "cited_files": [
+                            citation.file_path for citation in logic_citations if citation.file_path
+                        ],
+                        "citations": [citation.model_dump(mode="json") for citation in logic_citations],
+                        "confidence": 0.78 if role_scores else 0.35,
+                    },
+                    {
+                        "question": "What has changed most frequently in the last 90 days (git velocity map)?",
+                        "answer": velocity_answer,
+                        "cited_files": [
+                            citation.file_path for citation in velocity_citations if citation.file_path
+                        ],
+                        "citations": [citation.model_dump(mode="json") for citation in velocity_citations],
+                        "confidence": 0.72 if velocity_modules else 0.45,
+                    },
+                ],
+            },
+            graph,
+            semantics,
+        )
+
+    def _dataset_citations(self, dataset: Any, limit: int = 2) -> list[DayOneCitation]:
+        citations: list[DayOneCitation] = []
+        if dataset.source_file:
+            citations.append(
+                DayOneCitation(
+                    source_phase="phase2",
+                    file_path=dataset.source_file,
+                    line_start=None,
+                    line_end=None,
+                    extraction_method="phase2_dataset",
+                    description=f"Dataset `{dataset.name}` is defined or produced from this file.",
+                    evidence_type="lineage",
+                )
+            )
+        return citations[:limit]
 
     def _compute_lineage_fanout(self, graph: KnowledgeGraph) -> dict[str, float]:
         fanout: dict[str, float] = {module.path: 0.0 for module in graph.all_modules()}

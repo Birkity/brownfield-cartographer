@@ -90,6 +90,7 @@ class CartographyArtifacts:
         self.semantic_enrichment_json = self.semantics_dir / "semantic_enrichment.json"
         self.semantic_index_json = self.semantics_dir / "semantic_index.json"
         self.day_one_answers_json = self.semantics_dir / "day_one_answers.json"
+        self.fde_day_one_answers_json = self.semantics_dir / "fde_day_one_answers.json"
         self.semanticist_stats_json = self.semantics_dir / "semanticist_stats.json"
         self.reading_order_json = self.semantics_dir / "reading_order.json"
         self.semantic_review_queue_json = self.semantics_dir / "semantic_review_queue.json"
@@ -311,6 +312,14 @@ def run_phase3(
             encoding="utf-8",
         )
         logger.info("Wrote day-one answers → %s", artifacts.day_one_answers_json)
+    if result.fde_day_one_answers:
+        import json as _json
+        artifacts.fde_day_one_answers_json.parent.mkdir(parents=True, exist_ok=True)
+        artifacts.fde_day_one_answers_json.write_text(
+            _json.dumps(result.fde_day_one_answers, indent=2, default=str),
+            encoding="utf-8",
+        )
+        logger.info("Wrote FDE day-one answers -> %s", artifacts.fde_day_one_answers_json)
     # ---- Write reading order for new-engineer onboarding ---------------
     if result.reading_order:
         import json as _json

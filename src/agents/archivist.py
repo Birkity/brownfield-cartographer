@@ -69,6 +69,7 @@ class ArchivistContext:
     semantic_enrichment: dict[str, Any] = field(default_factory=dict)
     semantic_index: dict[str, Any] = field(default_factory=dict)
     day_one_answers: dict[str, Any] = field(default_factory=dict)
+    fde_day_one_answers: dict[str, Any] = field(default_factory=dict)
     reading_order: list[dict[str, Any]] = field(default_factory=list)
     semantic_review_queue: list[dict[str, Any]] = field(default_factory=list)
     semantic_hotspots: list[dict[str, Any]] = field(default_factory=list)
@@ -123,6 +124,7 @@ class Archivist:
                 semantic_enrichment=_load_json(semantics_dir / "semantic_enrichment.json", {}),
                 semantic_index=_load_json(semantics_dir / "semantic_index.json", {}),
                 day_one_answers=_load_json(semantics_dir / "day_one_answers.json", {}),
+                fde_day_one_answers=_load_json(semantics_dir / "fde_day_one_answers.json", {}),
                 reading_order=_load_json(semantics_dir / "reading_order.json", {}).get("reading_order", []),
                 semantic_review_queue=_load_json(
                     semantics_dir / "semantic_review_queue.json", {}
