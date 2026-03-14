@@ -6,10 +6,13 @@ import shutil
 import unittest
 import uuid
 
+from pydantic import BaseModel
+
 from src.dashboard.data_layer import (
     build_lineage_focus_dot,
     build_module_focus_dot,
     build_overview_metrics,
+    coerce_day_one_citation,
     load_code_snippet,
     load_dashboard_bundle,
     module_detail,
@@ -289,6 +292,33 @@ class TestPhase5Dashboard(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+        (self.artifact_root / "semantics" / "fde_day_one_answers.json").write_text(
+            json.dumps(
+                {
+                    "prompt_version": "fde-day-one-v1",
+                    "questions": [
+                        {
+                            "question": "What is the primary data ingestion path?",
+                            "answer": "It starts at source.ecom.raw_orders and flows through stg_orders.",
+                            "confidence": 0.86,
+                            "citations": [
+                                {
+                                    "source_phase": "phase2",
+                                    "file_path": "models/staging/stg_orders.sql",
+                                    "line_start": 4,
+                                    "line_end": 6,
+                                    "extraction_method": "phase2_lineage",
+                                    "description": "Transforms raw orders into the staged model.",
+                                    "evidence_type": "lineage",
+                                }
+                            ],
+                        }
+                    ],
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
         (self.artifact_root / "semantics" / "reading_order.json").write_text(
             json.dumps(
                 {
@@ -411,6 +441,10 @@ class TestPhase5Dashboard(unittest.TestCase):
         self.assertEqual(metrics["hotspots"], 1)
         self.assertEqual(metrics["documentation_drift"], 1)
         self.assertEqual(len(bundle.query_logs), 1)
+        self.assertEqual(
+            bundle.fde_day_one_answers["questions"][0]["question"],
+            "What is the primary data ingestion path?",
+        )
 
     def test_focus_graphs_include_selected_nodes(self) -> None:
         bundle = load_dashboard_bundle(self.artifact_root)
@@ -476,6 +510,33 @@ class TestPhase5Dashboard(unittest.TestCase):
         self.assertEqual(payload["query_type"], "repository_overview")
         self.assertEqual(payload["models_used"]["synthesis"], "deepseek-v3.1")
         self.assertEqual(payload["citations"][0]["file_path"], "models/staging/stg_orders.sql")
+
+    def test_coerce_day_one_citation_accepts_foreign_pydantic_model(self) -> None:
+        class ForeignCitation(BaseModel):
+            source_phase: str
+            file_path: str
+            line_start: int | None = None
+            line_end: int | None = None
+            extraction_method: str
+            description: str
+            evidence_type: str = "semantic"
+
+        foreign = ForeignCitation(
+            source_phase="phase3",
+            file_path="models/staging/stg_orders.sql",
+            line_start=4,
+            line_end=6,
+            extraction_method="phase2_lineage",
+            description="Renames columns and converts cents to dollars.",
+            evidence_type="semantic",
+        )
+
+        citation = coerce_day_one_citation(foreign)
+
+        self.assertIsInstance(citation, DayOneCitation)
+        self.assertEqual(citation.file_path, "models/staging/stg_orders.sql")
+        self.assertEqual(citation.line_start, 4)
+        self.assertEqual(citation.evidence_type, "semantic")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ Run with:
 
 from __future__ import annotations
 
+from html import escape
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
@@ -19,6 +20,7 @@ from src.dashboard.data_layer import (
     build_lineage_focus_dot,
     build_module_focus_dot,
     build_overview_metrics,
+    coerce_day_one_citation,
     dataset_detail,
     dataset_records,
     discover_artifact_roots,
@@ -34,7 +36,6 @@ from src.dashboard.data_layer import (
     run_navigator_query,
     velocity_records,
 )
-from src.models.nodes import DayOneCitation
 
 
 st.set_page_config(
@@ -58,16 +59,48 @@ def _apply_theme() -> None:
             --slate: #dbe4ee;
             --rose: #f7d9d3;
         }
-        .stApp {
+        html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
             background:
-                radial-gradient(circle at top left, #fff8ef 0%, #f3efe6 38%, #e6eef3 100%);
-            color: var(--ink);
+                radial-gradient(circle at top left, #fff8ef 0%, #f3efe6 38%, #e6eef3 100%) !important;
+            color: var(--ink) !important;
+        }
+        [data-testid="stHeader"] {
+            background: rgba(248, 243, 234, 0.55) !important;
+            backdrop-filter: blur(10px);
+        }
+        [data-testid="stAppViewBlockContainer"] {
+            padding-top: 2rem;
+        }
+        [data-testid="stAppViewContainer"] *,
+        [data-testid="stAppViewBlockContainer"] *,
+        [data-testid="stMarkdownContainer"] *,
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricLabel"],
+        [data-testid="stMetricDelta"],
+        [data-testid="stExpander"] summary,
+        [data-testid="stCaptionContainer"],
+        [data-testid="stTable"] *,
+        [data-testid="stDataFrame"] *,
+        .stTabs [role="tab"],
+        .stSelectbox label,
+        .stTextArea label,
+        .stTextInput label,
+        .stRadio label,
+        .stButton button,
+        h1, h2, h3, h4, h5, h6, p, span, label, code {
+            color: var(--ink) !important;
+        }
+        [data-testid="stSidebar"] * {
+            color: #f7fbfc !important;
         }
         [data-testid="stSidebar"] {
             background: linear-gradient(180deg, #173042 0%, #244b5e 100%);
         }
-        [data-testid="stSidebar"] * {
-            color: #f7fbfc;
+        [data-testid="stSidebar"] [data-baseweb="select"] > div,
+        [data-testid="stSidebar"] .stRadio > div,
+        [data-testid="stSidebar"] .stMarkdown {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border-radius: 14px;
         }
         .hero-card {
             background: linear-gradient(135deg, rgba(15, 118, 110, 0.95), rgba(30, 64, 175, 0.86));
@@ -92,8 +125,10 @@ def _apply_theme() -> None:
         }
         .section-copy {
             color: var(--muted);
-            margin-top: -0.4rem;
+            margin-top: -0.25rem;
             margin-bottom: 1rem;
+            font-size: 1rem;
+            line-height: 1.55;
         }
         [data-testid="stMetric"] {
             background: rgba(255, 255, 255, 0.72);
@@ -102,12 +137,329 @@ def _apply_theme() -> None:
             padding: 0.8rem 1rem;
             box-shadow: 0 8px 24px rgba(18, 32, 43, 0.08);
         }
+        [data-testid="stMetric"] label,
+        [data-testid="stMetric"] div {
+            color: var(--ink) !important;
+        }
+        .stTextArea textarea,
+        .stTextInput input,
+        [data-baseweb="select"] > div,
+        [data-testid="stExpander"],
+        [data-testid="stDataFrame"],
+        [data-testid="stTable"] {
+            background: rgba(255, 255, 255, 0.82) !important;
+            border: 1px solid rgba(22, 32, 42, 0.10) !important;
+            border-radius: 16px !important;
+        }
+        .stTabs [role="tab"] {
+            background: transparent !important;
+            border: 1px solid transparent !important;
+            border-radius: 16px !important;
+            box-shadow: none !important;
+        }
+        .stTabs [role="tab"][aria-selected="true"] {
+            background: rgba(15, 118, 110, 0.14) !important;
+            color: #0f766e !important;
+            border-color: rgba(15, 118, 110, 0.28) !important;
+        }
+        .stButton button {
+            border-radius: 999px !important;
+            border: 1px solid rgba(22, 32, 42, 0.10) !important;
+            background: rgba(255, 255, 255, 0.88) !important;
+        }
+        .stButton button[kind="primary"] {
+            background: linear-gradient(135deg, #0f766e, #1d4ed8) !important;
+            color: #f7fbfc !important;
+            border: none !important;
+        }
+        .stCodeBlock, [data-testid="stCodeBlock"] {
+            border-radius: 18px !important;
+            overflow: hidden;
+        }
+        .story-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(22, 32, 42, 0.08);
+            border-radius: 22px;
+            padding: 1.2rem 1.25rem;
+            box-shadow: 0 12px 32px rgba(18, 32, 43, 0.08);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .story-title {
+            font-size: 1.02rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .story-copy {
+            color: var(--muted);
+            line-height: 1.55;
+            margin: 0;
+        }
+        .review-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(192, 125, 31, 0.18);
+            border-radius: 22px;
+            padding: 1.1rem 1.15rem;
+            box-shadow: 0 12px 32px rgba(18, 32, 43, 0.08);
+            min-height: 180px;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .review-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 0.45rem 0;
+        }
+        .review-copy {
+            color: var(--muted);
+            line-height: 1.55;
+            margin: 0 0 0.8rem 0;
+        }
+        .review-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+        .review-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.3rem 0.62rem;
+            border-radius: 999px;
+            font-size: 0.83rem;
+            line-height: 1.1;
+            background: rgba(192, 125, 31, 0.12);
+            border: 1px solid rgba(192, 125, 31, 0.18);
+            color: var(--ink) !important;
+        }
+        .plain-note {
+            background: rgba(255, 255, 255, 0.76);
+            border-left: 4px solid #0f766e;
+            border-radius: 18px;
+            padding: 0.95rem 1rem;
+            margin: 0.4rem 0 1.1rem 0;
+            color: var(--ink) !important;
+            line-height: 1.55;
+        }
+        .term-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .term-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.42rem 0.78rem;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.10);
+            border: 1px solid rgba(15, 118, 110, 0.20);
+            color: var(--ink) !important;
+            font-size: 0.92rem;
+            line-height: 1;
+            text-decoration: none;
+            cursor: help;
+        }
+        .term-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.05rem;
+            height: 1.05rem;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.14);
+            color: #0f766e !important;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+        .graph-note {
+            color: var(--muted);
+            margin-top: -0.2rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
         .evidence-card {
             background: rgba(255, 255, 255, 0.82);
             border: 1px solid rgba(22, 32, 42, 0.08);
             border-radius: 18px;
             padding: 1rem 1.1rem;
             margin-bottom: 0.8rem;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .detail-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(22, 32, 42, 0.08);
+            border-radius: 20px;
+            padding: 1rem 1.1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 10px 26px rgba(18, 32, 43, 0.07);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            height: 100%;
+        }
+        .qa-card {
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid rgba(22, 32, 42, 0.08);
+            border-radius: 22px;
+            padding: 1.1rem 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 30px rgba(18, 32, 43, 0.08);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .qa-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: flex-start;
+            margin-bottom: 0.55rem;
+        }
+        .qa-question {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin: 0;
+        }
+        .qa-confidence {
+            white-space: nowrap;
+            padding: 0.34rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.10);
+            border: 1px solid rgba(15, 118, 110, 0.18);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+        .qa-answer {
+            color: var(--muted);
+            line-height: 1.6;
+            margin: 0.15rem 0 0.9rem 0;
+        }
+        .qa-evidence-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+        .qa-evidence-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+        .qa-evidence-item {
+            padding: 0.6rem 0.75rem;
+            border-radius: 14px;
+            background: rgba(15, 118, 110, 0.06);
+            border: 1px solid rgba(15, 118, 110, 0.12);
+            font-size: 0.9rem;
+            color: var(--ink) !important;
+        }
+        .qa-evidence-meta {
+            color: var(--muted) !important;
+            font-size: 0.82rem;
+            margin-top: 0.15rem;
+        }
+        .qa-muted {
+            color: var(--muted);
+            font-size: 0.92rem;
+            margin: 0;
+        }
+        .pill-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(22, 32, 42, 0.08);
+            border-radius: 20px;
+            padding: 1rem 1.1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 10px 26px rgba(18, 32, 43, 0.07);
+        }
+        .pill-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            margin: 0 0 0.65rem 0;
+        }
+        .pill-copy {
+            color: var(--muted);
+            line-height: 1.55;
+            margin: 0;
+        }
+        .pill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+        .pill-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.34rem 0.62rem;
+            border-radius: 999px;
+            background: rgba(29, 78, 216, 0.08);
+            border: 1px solid rgba(29, 78, 216, 0.14);
+            font-size: 0.86rem;
+            line-height: 1.2;
+            color: var(--ink) !important;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .transform-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(22, 32, 42, 0.08);
+            border-radius: 20px;
+            padding: 1rem 1.1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 10px 26px rgba(18, 32, 43, 0.07);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .transform-path {
+            font-size: 0.96rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        .transform-meta {
+            color: var(--muted);
+            font-size: 0.84rem;
+            margin-bottom: 0.7rem;
+        }
+        .detail-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            margin: 0 0 0.55rem 0;
+        }
+        .detail-list {
+            margin: 0;
+            padding-left: 1rem;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+        .detail-list li {
+            margin-bottom: 0.35rem;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .summary-path {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .summary-copy {
+            color: var(--muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+        .kv-grid {
+            display: grid;
+            grid-template-columns: minmax(130px, 180px) 1fr;
+            gap: 0.5rem 0.8rem;
+            align-items: start;
+        }
+        .kv-key {
+            font-weight: 700;
+        }
+        .kv-value {
+            color: var(--muted);
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
         .evidence-meta {
             color: var(--muted);
@@ -132,7 +484,285 @@ def _apply_theme() -> None:
 
 @st.cache_resource(show_spinner=False)
 def _load_bundle(path_text: str):
-    return load_dashboard_bundle(Path(path_text))
+    bundle = load_dashboard_bundle(Path(path_text))
+    if not hasattr(bundle, "fde_day_one_answers"):
+        setattr(bundle, "fde_day_one_answers", {})
+    return bundle
+
+
+TERM_GLOSSARY = {
+    "module": "A single file in the repository, such as a SQL model, Python script, YAML file, or macro.",
+    "dataset": "A named piece of data the system reads from or writes to, such as a source table, seed, or analytics model.",
+    "lineage": "The path data takes as it moves through the system from raw inputs to downstream outputs.",
+    "transformation": "A step that changes data, such as a SQL model or Python process that reads one dataset and writes another.",
+    "hotspot": "A file that looks especially important because it combines architectural importance, business logic, and downstream impact.",
+    "business logic": "The rules that turn raw technical data into meaningful business outcomes, metrics, or decisions.",
+    "documentation drift": "A sign that the written docs no longer match what the code or SQL is actually doing.",
+    "hub": "A highly connected file that many other parts of the repository depend on.",
+    "git velocity": "How frequently a file has changed recently in version control.",
+    "query navigator": "The question-answering layer that responds from saved artifacts instead of rescanning the repository.",
+}
+
+
+def _term_chip(term: str | tuple[str, str]) -> str:
+    if isinstance(term, tuple):
+        label, key = term
+    else:
+        label, key = term, term.lower()
+    explanation = escape(TERM_GLOSSARY.get(key, "Plain-English explanation unavailable."))
+    return (
+        f"<span class='term-chip' title='{explanation}'>"
+        f"{escape(label)} <span class='term-icon'>ℹ️</span></span>"
+    )
+
+
+def _render_term_row(terms: Iterable[str | tuple[str, str]]) -> None:
+    chips = "".join(_term_chip(term) for term in terms)
+    st.markdown(f"<div class='term-row'>{chips}</div>", unsafe_allow_html=True)
+
+
+def _render_story_card(title: str, body: str) -> None:
+    st.markdown(
+        (
+            f"<div class='story-card'><div class='story-title'>{escape(title)}</div>"
+            f"<p class='story-copy'>{escape(body)}</p></div>"
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+def _render_plain_note(text: str) -> None:
+    st.markdown(f"<div class='plain-note'>{text}</div>", unsafe_allow_html=True)
+
+
+def _render_detail_list_card(title: str, items: list[str], empty_text: str) -> None:
+    if items:
+        entries = "".join(f"<li>{escape(item)}</li>" for item in items)
+        body = f"<ul class='detail-list'>{entries}</ul>"
+    else:
+        body = f"<p class='story-copy'>{escape(empty_text)}</p>"
+    st.markdown(
+        f"<div class='detail-card'><div class='detail-title'>{escape(title)}</div>{body}</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_kv_card(title: str, rows: list[tuple[str, str]]) -> None:
+    body = "".join(
+        (
+            f"<div class='kv-key'>{escape(label)}</div>"
+            f"<div class='kv-value'>{escape(value)}</div>"
+        )
+        for label, value in rows
+    )
+    st.markdown(
+        (
+            f"<div class='detail-card'><div class='detail-title'>{escape(title)}</div>"
+            f"<div class='kv-grid'>{body}</div></div>"
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+def _render_pill_card(title: str, items: list[str], empty_text: str, limit: int = 12) -> None:
+    shown_items = items[:limit]
+    if shown_items:
+        pills = "".join(f"<span class='pill-item'>{escape(item)}</span>" for item in shown_items)
+        more = (
+            f"<p class='pill-copy' style='margin-top:0.7rem;'>+{len(items) - limit} more related nodes</p>"
+            if len(items) > limit
+            else ""
+        )
+        body = f"<div class='pill-list'>{pills}</div>{more}"
+    else:
+        body = f"<p class='pill-copy'>{escape(empty_text)}</p>"
+    st.markdown(
+        f"<div class='pill-card'><div class='pill-title'>{escape(title)}</div>{body}</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_transformation_cards(title: str, transformations: list[Any], empty_text: str) -> None:
+    st.markdown(f"### {title}")
+    if not transformations:
+        st.markdown(
+            f"<div class='pill-card'><p class='pill-copy'>{escape(empty_text)}</p></div>",
+            unsafe_allow_html=True,
+        )
+        return
+    for transformation in transformations:
+        reads = ", ".join(transformation.source_datasets) or "None"
+        writes = ", ".join(transformation.target_datasets) or "None"
+        meta = f"Confidence {transformation.confidence:.2f}"
+        if transformation.line_range:
+            meta += f" • {_line_range_text(transformation.line_range)}"
+        st.markdown(
+            (
+                "<div class='transform-card'>"
+                f"<div class='transform-path'>{escape(transformation.source_file or transformation.id)}</div>"
+                f"<div class='transform-meta'>{escape(meta)}</div>"
+                f"<div class='kv-grid'>"
+                f"<div class='kv-key'>Reads</div><div class='kv-value'>{escape(reads)}</div>"
+                f"<div class='kv-key'>Writes</div><div class='kv-value'>{escape(writes)}</div>"
+                "</div></div>"
+            ),
+            unsafe_allow_html=True,
+        )
+
+
+def _line_range_text(line_range: Any) -> str:
+    if not line_range or len(line_range) != 2:
+        return "Unknown"
+    start, end = line_range
+    if start is None and end is None:
+        return "Unknown"
+    if start == end:
+        return f"Line {start}"
+    if start is None:
+        return f"Ends at line {end}"
+    if end is None:
+        return f"Starts at line {start}"
+    return f"Lines {start}-{end}"
+
+
+def _friendly_review_reason(reason: str) -> str:
+    normalized = reason.strip().lower()
+    if normalized == "missing documentation":
+        return "Documentation needs to be added."
+    if normalized.startswith("documentation drift"):
+        return "Existing documentation likely no longer matches the file."
+    if normalized == "low-confidence semantic output":
+        return "The file meaning still needs a quick human check."
+    if normalized == "high hotspot score but weak evidence":
+        return "This file looks important, but the current evidence is still thin."
+    if normalized == "unresolved lineage case":
+        return "Part of the data flow around this file is still unresolved."
+    return reason[:1].upper() + reason[1:] if reason else "Needs review."
+
+
+def _render_review_preview(items: list[dict[str, Any]]) -> None:
+    preview = items[:3]
+    columns = st.columns(len(preview)) if preview else []
+    for column, item in zip(columns, preview, strict=False):
+        reasons = item.get("reasons", [])
+        summary = _friendly_review_reason(reasons[0]) if reasons else "Needs review."
+        badges = "".join(
+            f"<span class='review-badge'>{escape(_friendly_review_reason(reason).rstrip('.'))}</span>"
+            for reason in reasons[:3]
+        )
+        with column:
+            st.markdown(
+                (
+                    "<div class='review-card'>"
+                    f"<div class='review-title'>{escape(item.get('file_path', 'unknown'))}</div>"
+                    f"<p class='review-copy'>{escape(summary)}</p>"
+                    f"<div class='review-badges'>{badges}</div>"
+                    "</div>"
+                ),
+                unsafe_allow_html=True,
+            )
+
+
+def _render_lineage_health(bundle) -> None:
+    blind_spots = bundle.blind_spots or {}
+    blind_summary = blind_spots.get("summary", {})
+    risk_areas = bundle.high_risk_areas or {}
+    risk_summary = risk_areas.get("summary", {})
+
+    st.markdown("### Lineage health")
+    summary_cols = st.columns(3)
+    summary_cols[0].metric("Total blind spots", blind_summary.get("total_blind_spots", 0))
+    summary_cols[1].metric("Top hubs", risk_summary.get("top_hubs", 0))
+    summary_cols[2].metric("High-velocity files", risk_summary.get("high_velocity_files", 0))
+
+    blind_cols = st.columns(2)
+    with blind_cols[0]:
+        _render_kv_card(
+            "Blind spot summary",
+            [
+                ("Parse failures", str(blind_summary.get("parse_failures", 0))),
+                ("Missing grammars", str(blind_summary.get("grammar_missing", 0))),
+                ("Structurally empty files", str(blind_summary.get("structurally_empty_files", 0))),
+                ("Dynamic transformations", str(blind_summary.get("dynamic_transformations", 0))),
+            ],
+        )
+    with blind_cols[1]:
+        _render_kv_card(
+            "Confidence summary",
+            [
+                ("Low-confidence datasets", str(blind_summary.get("low_confidence_datasets", 0))),
+                ("Low-confidence edges", str(blind_summary.get("low_confidence_edges", 0))),
+                ("Velocity window", f"{risk_areas.get('velocity_window_days', 0)} days"),
+                ("Parse warnings", str(risk_summary.get("files_with_parse_warnings", 0))),
+            ],
+        )
+
+    if blind_summary.get("total_blind_spots", 0) == 0:
+        st.markdown(
+            "<div class='pill-card'><p class='pill-copy'>No blind spots were detected in this saved lineage run.</p></div>",
+            unsafe_allow_html=True,
+        )
+    else:
+        issue_sections = [
+            ("Parse failures", blind_spots.get("parse_failures", [])),
+            ("Missing grammars", blind_spots.get("grammar_missing", [])),
+            ("Structurally empty files", blind_spots.get("structurally_empty_files", [])),
+            ("Dynamic transformations", blind_spots.get("dynamic_transformations", [])),
+            ("Low-confidence datasets", blind_spots.get("low_confidence_datasets", [])),
+            ("Low-confidence edges", blind_spots.get("low_confidence_edges", [])),
+        ]
+        for title, items in issue_sections:
+            if items:
+                st.markdown(f"### {title}")
+                st.dataframe(items, use_container_width=True, hide_index=True)
+
+    st.markdown("### Structural risk signals")
+    top_hubs = risk_areas.get("top_hubs", [])
+    if top_hubs:
+        st.dataframe(
+            [
+                {
+                    "Module": item.get("node", ""),
+                    "Role": item.get("role", "unknown"),
+                    "PageRank": item.get("pagerank_score", 0.0),
+                    "In degree": item.get("in_degree", 0),
+                    "Out degree": item.get("out_degree", 0),
+                    "In cycle": item.get("in_cycle", False),
+                }
+                for item in top_hubs
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
+    else:
+        st.markdown(
+            "<div class='pill-card'><p class='pill-copy'>No structural risk hotspots were detected in this saved run.</p></div>",
+            unsafe_allow_html=True,
+        )
+
+    secondary_sections = [
+        ("High-velocity files", risk_areas.get("high_velocity_files", [])),
+        ("Circular dependencies", risk_areas.get("circular_dependencies", [])),
+        ("High-fanout transformations", risk_areas.get("high_fanout_transformations", [])),
+        ("Dynamic hotspots", risk_areas.get("dynamic_hotspots", [])),
+    ]
+    for title, items in secondary_sections:
+        if items:
+            st.markdown(f"### {title}")
+            st.dataframe(items, use_container_width=True, hide_index=True)
+
+
+def _render_page_intro(
+    title: str,
+    description: str,
+    terms: Iterable[str | tuple[str, str]],
+    plain_english: Optional[str] = None,
+) -> None:
+    st.title(title)
+    st.markdown(f"<p class='section-copy'>{description}</p>", unsafe_allow_html=True)
+    _render_term_row(terms)
+    if plain_english:
+        _render_plain_note(plain_english)
 
 
 def _artifact_options() -> list[Path]:
@@ -236,14 +866,8 @@ def _gauge_figure(value: float, title: str) -> go.Figure:
     return fig
 
 
-def _normalize_citation(item: Any) -> DayOneCitation:
-    if isinstance(item, DayOneCitation):
-        return item
-    return DayOneCitation.model_validate(item)
-
-
 def _render_citations(bundle, citations: list[Any], key_prefix: str) -> None:
-    normalized = [_normalize_citation(item) for item in citations]
+    normalized = [coerce_day_one_citation(item) for item in citations]
     if not normalized:
         st.info("No grounded citations were available for this view.")
         return
@@ -279,6 +903,50 @@ def _render_citations(bundle, citations: list[Any], key_prefix: str) -> None:
                 st.caption(str(snippet.resolved_path))
 
 
+def _render_day_one_question_set(bundle, payload: dict[str, Any], key_prefix: str) -> None:
+    questions = payload.get("questions", []) if isinstance(payload, dict) else []
+    if not questions:
+        st.info("No saved answers were available for this view yet.")
+        return
+    for index, item in enumerate(questions):
+        confidence = float(item.get("confidence", 0.0) or 0.0)
+        normalized_citations = [coerce_day_one_citation(citation) for citation in item.get("citations", [])]
+        evidence_preview = normalized_citations[:3]
+        preview_html = "".join(
+            (
+                "<div class='qa-evidence-item'>"
+                f"{escape(citation.file_path)}"
+                f"<div class='qa-evidence-meta'>"
+                f"{escape(f'lines {citation.line_start}-{citation.line_end}' if citation.line_start is not None and citation.line_end is not None and citation.line_start != citation.line_end else f'line {citation.line_start}' if citation.line_start is not None else 'line range unavailable')} • "
+                f"{escape(citation.source_phase)}/{escape(citation.evidence_type)}"
+                "</div></div>"
+            )
+            for citation in evidence_preview
+        )
+        evidence_block = (
+            "<div class='qa-evidence-title'>Key evidence</div>"
+            f"<div class='qa-evidence-list'>{preview_html}</div>"
+            if evidence_preview
+            else "<p class='qa-muted'>No grounded citations were available for this answer.</p>"
+        )
+        st.markdown(
+            (
+                "<div class='qa-card'>"
+                "<div class='qa-header'>"
+                f"<div class='qa-question'>{escape(item.get('question', 'Question'))}</div>"
+                f"<div class='qa-confidence'>Confidence {confidence:.2f}</div>"
+                "</div>"
+                f"<p class='qa-answer'>{escape(str(item.get('answer', '')))}</p>"
+                f"{evidence_block}"
+                "</div>"
+            ),
+            unsafe_allow_html=True,
+        )
+        if normalized_citations:
+            with st.expander("View full grounded evidence", expanded=False):
+                _render_citations(bundle, normalized_citations, f"{key_prefix}-{index}")
+
+
 def _render_module_viewer(bundle, module_path: str, title: str = "Evidence Viewer") -> None:
     detail = module_detail(bundle, module_path)
     if detail is None:
@@ -289,8 +957,10 @@ def _render_module_viewer(bundle, module_path: str, title: str = "Evidence Viewe
     st.subheader(title)
     st.markdown(
         (
-            f"<div class='evidence-card'><strong>{module.path}</strong><br>"
-            f"{module.purpose_statement or 'No semantic purpose statement was available.'}</div>"
+            "<div class='evidence-card'>"
+            f"<div class='summary-path'>{escape(module.path)}</div>"
+            f"<p class='summary-copy'>{escape(module.purpose_statement or 'No semantic purpose statement was available.')}</p>"
+            "</div>"
         ),
         unsafe_allow_html=True,
     )
@@ -302,64 +972,130 @@ def _render_module_viewer(bundle, module_path: str, title: str = "Evidence Viewe
     metric_cols[3].metric("Drift", module.doc_drift_level or "no_drift")
     metric_cols[4].metric("Confidence", f"{module.semantic_confidence:.2f}")
 
-    left, right = st.columns([1.1, 0.9])
-    with left:
-        st.markdown("**Imports and Dependents**")
-        st.write(
-            {
-                "imports": [item["file_path"] for item in detail["imports_out"][:10]],
-                "dependents": [item["file_path"] for item in detail["imports_in"][:10]],
-            }
+    st.markdown("### How this file fits into the repository")
+    connection_cols = st.columns(2)
+    with connection_cols[0]:
+        _render_detail_list_card(
+            "Depends on these files",
+            [item["file_path"] for item in detail["imports_out"][:10]],
+            "No import dependencies were recorded for this file.",
         )
-        st.markdown("**Lineage Touchpoints**")
-        st.write(detail["lineage"])
-    with right:
-        st.markdown("**Semantic Provenance**")
-        st.write(
-            {
-                "semantic_model_used": module.semantic_model_used,
-                "semantic_prompt_version": module.semantic_prompt_version,
-                "semantic_generation_timestamp": str(module.semantic_generation_timestamp)
-                if module.semantic_generation_timestamp
-                else "",
-                "semantic_fallback_used": module.semantic_fallback_used,
-            }
+        _render_detail_list_card(
+            "Used by these files",
+            [item["file_path"] for item in detail["imports_in"][:10]],
+            "No downstream file dependencies were recorded for this file.",
         )
+    with connection_cols[1]:
+        _render_detail_list_card(
+            "Reads these datasets",
+            detail["lineage"]["consumed_datasets"][:10],
+            "No upstream datasets were recorded for this file.",
+        )
+        _render_detail_list_card(
+            "Produces these datasets",
+            detail["lineage"]["produced_datasets"][:10],
+            "No output datasets were recorded for this file.",
+        )
+
+    transformations = detail["lineage"]["transformations"]
+    if transformations:
+        st.markdown("### Data flow steps")
+        st.dataframe(
+            [
+                {
+                    "Transformation": item.get("type", "unknown"),
+                    "Reads": ", ".join(item.get("source_datasets", [])) or "None",
+                    "Writes": ", ".join(item.get("target_datasets", [])) or "None",
+                    "Confidence": f"{float(item.get('confidence', 0.0) or 0.0):.2f}",
+                }
+                for item in transformations
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    detail_cols = st.columns([1.05, 0.95])
+    with detail_cols[1]:
         if detail["review_queue_item"]:
-            st.markdown("**Review Queue Status**")
-            st.write(detail["review_queue_item"])
+            _render_kv_card(
+                "Review status",
+                [
+                    ("Status", "Needs a quick human check"),
+                    (
+                        "Why",
+                        "; ".join(
+                            _friendly_review_reason(reason)
+                            for reason in detail["review_queue_item"].get("reasons", [])
+                        )
+                        or "No review reason recorded.",
+                    ),
+                ],
+            )
 
     st.markdown("**Grounded Evidence**")
     _render_citations(bundle, evidence_for_module(bundle, module_path), f"module-{module_path}")
 
 
-def _render_overview(bundle, selected_module: str) -> None:
+def _module_options(bundle) -> list[str]:
+    return [
+        item.get("file_path", "")
+        for item in bundle.semantic_hotspots
+        if item.get("file_path")
+    ] or [module.path for module in bundle.module_graph.all_modules()]
+
+
+def _dataset_options(bundle) -> list[str]:
+    return sorted(record["dataset"] for record in dataset_records(bundle))
+
+
+def _hotspot_table_records(bundle, limit: int = 20) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for item in bundle.semantic_hotspots[:limit]:
+        records.append(
+            {
+                "file_path": item.get("file_path", ""),
+                "hotspot_fusion_score": float(item.get("hotspot_fusion_score", 0.0) or 0.0),
+                "purpose": item.get("purpose", ""),
+            }
+        )
+    return records
+
+
+def _render_overview(bundle) -> None:
     metrics = build_overview_metrics(bundle)
     st.markdown(
         """
         <div class="hero-card">
           <div class="hero-title">Brownfield Cartographer Dashboard</div>
           <p class="hero-copy">
-            A visual, evidence-first map of repository structure, data flow, semantics, and live
-            query answers built entirely from the saved <code>.cartography</code> artifacts.
+            A cleaner, evidence-first view of repository structure, data flow, semantic meaning,
+            and grounded questions built from the saved <code>.cartography</code> artifacts.
           </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    metric_cols = st.columns(6)
-    metric_cols[0].metric("Total Files", metrics["total_files"])
-    metric_cols[1].metric("Datasets", metrics["datasets"])
-    metric_cols[2].metric("Transformations", metrics["transformations"])
-    metric_cols[3].metric("Semantic Domains", metrics["semantic_domains"])
-    metric_cols[4].metric("Hotspots", metrics["hotspots"])
-    metric_cols[5].metric("Drift Flags", metrics["documentation_drift"])
-
-    st.markdown(
-        "<p class='section-copy'>The overview combines signals from all four completed phases so a non-technical reader can see what matters first.</p>",
-        unsafe_allow_html=True,
+    _render_term_row(
+        [
+            "module",
+            "dataset",
+            "lineage",
+            "transformation",
+            "hotspot",
+            "documentation drift",
+        ]
     )
+
+    top_metrics = st.columns(3)
+    top_metrics[0].metric("Total Files", metrics["total_files"])
+    top_metrics[1].metric("Datasets", metrics["datasets"])
+    top_metrics[2].metric("Transformations", metrics["transformations"])
+
+    bottom_metrics = st.columns(3)
+    bottom_metrics[0].metric("Semantic Domains", metrics["semantic_domains"])
+    bottom_metrics[1].metric("Hotspots", metrics["hotspots"])
+    bottom_metrics[2].metric("Drift Flags", metrics["documentation_drift"])
 
     module_rows = module_records(bundle)
     dataset_rows = dataset_records(bundle)
@@ -373,8 +1109,6 @@ def _render_overview(bundle, selected_module: str) -> None:
     dataset_counts: dict[str, int] = {}
     for row in dataset_rows:
         dataset_counts[row["dataset_type"]] = dataset_counts.get(row["dataset_type"], 0) + 1
-
-    drift_counts = metrics["drift_counts"]
 
     top_row = st.columns(2)
     with top_row[0]:
@@ -390,34 +1124,44 @@ def _render_overview(bundle, selected_module: str) -> None:
             config={"displaylogo": False},
         )
 
-    bottom_row = st.columns(2)
-    with bottom_row[0]:
-        st.plotly_chart(
-            _bar_figure(
-                [row["domain"] for row in domain_rows],
-                [row["business_logic_total"] for row in domain_rows],
-                "Semantic Domains by Business Logic Weight",
-                color="#1d4ed8",
-            ),
-            use_container_width=True,
-            config={"displaylogo": False},
-        )
-    with bottom_row[1]:
-        st.plotly_chart(
-            _donut_figure(
-                drift_counts.keys(),
-                drift_counts.values(),
-                "Documentation Drift Summary",
-            ),
-            use_container_width=True,
-            config={"displaylogo": False},
-        )
+    st.plotly_chart(
+        _bar_figure(
+            [row["domain"] for row in domain_rows],
+            [row["business_logic_total"] for row in domain_rows],
+            "Semantic Domains by Business Logic Weight",
+            color="#1d4ed8",
+        ),
+        use_container_width=True,
+        config={"displaylogo": False},
+    )
 
+    st.markdown("### What to look at first")
+    start_cols = st.columns(3)
+    for column, item in zip(start_cols, hotspot_rows[:3], strict=False):
+        with column:
+            _render_story_card(
+                item.get("file_path", "unknown"),
+                item.get("purpose", "No purpose summary available."),
+            )
+
+    if bundle.semantic_review_queue:
+        st.markdown("### Needs a quick human check")
+        st.markdown(
+            "<p class='graph-note'>These files are worth a short review because the saved evidence shows missing docs, likely drift, or lower-confidence interpretation.</p>",
+            unsafe_allow_html=True,
+        )
+        _render_review_preview(bundle.semantic_review_queue)
+
+    st.markdown("### Hotspot leaderboard")
+    st.markdown(
+        "<p class='graph-note'>These files are the strongest onboarding starting points because they combine graph importance, business logic, and downstream impact.</p>",
+        unsafe_allow_html=True,
+    )
     st.plotly_chart(
         _bar_figure(
             [item.get("file_path", "") for item in hotspot_rows],
             [float(item.get("hotspot_fusion_score", 0.0) or 0.0) for item in hotspot_rows],
-            "Hotspot Leaderboard",
+            "Most important files for onboarding",
             color="#c07d1f",
             orientation="h",
             text_format=".2f",
@@ -426,21 +1170,31 @@ def _render_overview(bundle, selected_module: str) -> None:
         config={"displaylogo": False},
     )
 
-    overview_tabs = st.tabs(["CODEBASE", "Onboarding Brief", "Evidence Viewer"])
+    overview_tabs = st.tabs(["Onboarding brief", "FDE Day-One", "Evidence viewer"])
     with overview_tabs[0]:
-        st.markdown(bundle.codebase_markdown or "_CODEBASE.md is not available yet._")
-    with overview_tabs[1]:
         st.markdown(bundle.onboarding_brief_markdown or "_Onboarding brief is not available yet._")
+    with overview_tabs[1]:
+        _render_day_one_question_set(bundle, getattr(bundle, "fde_day_one_answers", {}), "fde-day-one")
     with overview_tabs[2]:
-        _render_module_viewer(bundle, selected_module, "Module Evidence Viewer")
+        module_options = _module_options(bundle)
+        selected_module = (
+            st.selectbox(
+                "Choose a module to inspect",
+                module_options,
+                key="overview-module",
+            )
+            if module_options
+            else ""
+        )
+        _render_module_viewer(bundle, selected_module, "Selected module")
 
 
-def _render_phase1(bundle, selected_module: str) -> None:
+def _render_phase1(bundle) -> None:
     stats = bundle.surveyor_stats
-    st.title("Phase 1 - Structure")
-    st.markdown(
-        "<p class='section-copy'>Surveyor maps the repository structure, import graph, hub modules, and git-driven architectural churn.</p>",
-        unsafe_allow_html=True,
+    _render_page_intro(
+        "Structural",
+        "Surveyor maps how files relate to one another, which ones act as central hubs, and where change activity is concentrated.",
+        [("Module", "module"), ("Hub", "hub"), ("Git velocity", "git velocity")],
     )
 
     metric_cols = st.columns(5)
@@ -450,55 +1204,73 @@ def _render_phase1(bundle, selected_module: str) -> None:
     metric_cols[3].metric("dbt Refs", stats.get("dbt_ref_edges", 0))
     metric_cols[4].metric("Cycle Clusters", stats.get("circular_dependency_clusters", 0))
 
-    st.markdown("**Interactive module graph**")
-    st.caption(
-        "Drag, zoom, hover, and click inside the network to inspect local topology. Use the module explorer below for grounded evidence and provenance."
+    st.markdown("### Full repository structure map")
+    st.markdown(
+        "<p class='graph-note'>This is the main structure view. Zoom and pan directly in the graph, then use the tabs below for summaries and the selected-module deep dive.</p>",
+        unsafe_allow_html=True,
     )
     if bundle.module_graph_html:
-        components.html(bundle.module_graph_html, height=720, scrolling=True)
+        components.html(bundle.module_graph_html, height=980, scrolling=True)
     else:
         st.info("module_graph.html is not available in the selected artifact set.")
 
-    chart_cols = st.columns(2)
-    hubs = hub_records(bundle)
-    with chart_cols[0]:
-        st.plotly_chart(
-            _bar_figure(
-                [item["file_path"] for item in hubs],
-                [item["pagerank"] for item in hubs],
-                "Hub Modules by PageRank",
-                color="#0f766e",
-                orientation="h",
-                text_format=".4f",
-            ),
-            use_container_width=True,
-            config={"displaylogo": False},
+    module_options = _module_options(bundle)
+    selected_module = (
+        st.selectbox(
+            "Choose a module to inspect",
+            module_options,
+            key="phase1-module",
         )
-    with chart_cols[1]:
-        velocities = velocity_records(bundle)
-        st.plotly_chart(
-            _bar_figure(
-                [item["file_path"] for item in velocities],
-                [item["velocity"] for item in velocities],
-                "Git Velocity",
-                color="#c07d1f",
-                orientation="h",
-            ),
-            use_container_width=True,
-            config={"displaylogo": False},
+        if module_options
+        else ""
+    )
+
+    phase_tabs = st.tabs(["Key structural insights", "Selected module", "Focused dependency view"])
+    with phase_tabs[0]:
+        chart_cols = st.columns(2)
+        hubs = hub_records(bundle)
+        with chart_cols[0]:
+            st.plotly_chart(
+                _bar_figure(
+                    [item["file_path"] for item in hubs],
+                    [item["pagerank"] for item in hubs],
+                    "Most central modules",
+                    color="#0f766e",
+                    orientation="h",
+                    text_format=".4f",
+                ),
+                use_container_width=True,
+                config={"displaylogo": False},
+            )
+        with chart_cols[1]:
+            velocities = velocity_records(bundle)
+            st.plotly_chart(
+                _bar_figure(
+                    [item["file_path"] for item in velocities],
+                    [item["velocity"] for item in velocities],
+                    "Most frequently changed files",
+                    color="#c07d1f",
+                    orientation="h",
+                ),
+                use_container_width=True,
+                config={"displaylogo": False},
+            )
+    with phase_tabs[1]:
+        _render_module_viewer(bundle, selected_module, "Selected module")
+    with phase_tabs[2]:
+        st.markdown(
+            "<p class='graph-note'>This optional focused view shows only the selected module and its immediate neighbors, which keeps the main page from repeating the same picture twice.</p>",
+            unsafe_allow_html=True,
         )
-
-    st.subheader("Dependency Explorer")
-    st.graphviz_chart(build_module_focus_dot(bundle, selected_module), use_container_width=True)
-    _render_module_viewer(bundle, selected_module, "Selected Module")
+        st.graphviz_chart(build_module_focus_dot(bundle, selected_module), use_container_width=True)
 
 
-def _render_phase2(bundle, selected_dataset: str) -> None:
+def _render_phase2(bundle) -> None:
     stats = bundle.hydrologist_stats
-    st.title("Phase 2 - Data Flow")
-    st.markdown(
-        "<p class='section-copy'>Hydrologist turns SQL, YAML, Python, and dbt semantics into a lineage graph of datasets and transformations.</p>",
-        unsafe_allow_html=True,
+    _render_page_intro(
+        "Lineage",
+        "Hydrologist maps how data moves from raw inputs to downstream outputs by linking datasets and the transformations that read or produce them.",
+        [("Dataset", "dataset"), ("Lineage", "lineage"), ("Transformation", "transformation")],
     )
 
     metric_cols = st.columns(6)
@@ -509,89 +1281,118 @@ def _render_phase2(bundle, selected_dataset: str) -> None:
     metric_cols[4].metric("Transformations", stats.get("transformations_total", 0))
     metric_cols[5].metric("Dynamic", stats.get("dynamic_transformations", 0))
 
-    st.markdown("**Interactive lineage map**")
+    st.markdown("### Full lineage map")
+    st.markdown(
+        "<p class='graph-note'>This is the main lineage view and it now uses more vertical space so upstream and downstream relationships are easier to read.</p>",
+        unsafe_allow_html=True,
+    )
     if bundle.lineage_graph_html:
-        components.html(bundle.lineage_graph_html, height=720, scrolling=True)
+        components.html(bundle.lineage_graph_html, height=980, scrolling=True)
     else:
         st.info("lineage_graph.html is not available in the selected artifact set.")
 
+    datasets = _dataset_options(bundle)
+    selected_dataset = (
+        st.selectbox(
+            "Choose a dataset to inspect",
+            datasets,
+            key="phase2-dataset",
+        )
+        if datasets
+        else ""
+    )
+
     detail = dataset_detail(bundle, selected_dataset)
-    st.subheader("Dataset Explorer")
-    st.graphviz_chart(build_lineage_focus_dot(bundle, selected_dataset), use_container_width=True)
-
-    if detail is None:
-        st.warning("Select a dataset from the sidebar to inspect its lineage.")
-        return
-
-    dataset = detail["dataset"]
-    info_cols = st.columns(4)
-    info_cols[0].metric("Dataset Type", dataset.dataset_type)
-    info_cols[1].metric("Confidence", f"{dataset.confidence:.2f}")
-    info_cols[2].metric("Producers", len(detail["producers"]))
-    info_cols[3].metric("Consumers", len(detail["consumers"]))
-
-    left, right = st.columns(2)
-    with left:
-        st.markdown("**Upstream**")
-        st.write(detail["upstream"][:12] or ["No upstream nodes"])
-        st.markdown("**Producers**")
-        for transformation in detail["producers"]:
-            st.write(
-                {
-                    "id": transformation.id,
-                    "source_file": transformation.source_file,
-                    "line_range": transformation.line_range,
-                    "reads": transformation.source_datasets,
-                    "writes": transformation.target_datasets,
-                }
+    phase_tabs = st.tabs(["Selected dataset", "Focused lineage view", "Blind spots and risks"])
+    with phase_tabs[0]:
+        if detail is None:
+            st.warning("Select a dataset from the sidebar to inspect its lineage.")
+        else:
+            dataset = detail["dataset"]
+            producer_file = next(
+                (
+                    transformation.source_file
+                    for transformation in detail["producers"]
+                    if transformation.source_file
+                ),
+                dataset.source_file,
             )
-    with right:
-        st.markdown("**Downstream**")
-        st.write(detail["downstream"][:12] or ["No downstream nodes"])
-        st.markdown("**Consumers**")
-        for transformation in detail["consumers"]:
-            st.write(
-                {
-                    "id": transformation.id,
-                    "source_file": transformation.source_file,
-                    "line_range": transformation.line_range,
-                    "reads": transformation.source_datasets,
-                    "writes": transformation.target_datasets,
-                }
+            summary_sentence = (
+                f"`{dataset.name}` is a `{dataset.dataset_type}` dataset"
+                f" produced by `{producer_file}` and consumed by {len(detail['consumers'])} downstream transformation(s)."
+                if producer_file
+                else f"`{dataset.name}` is a `{dataset.dataset_type}` dataset with {len(detail['producers'])} producing transformation(s) and {len(detail['consumers'])} consuming transformation(s)."
+            )
+            st.markdown(
+                (
+                    "<div class='evidence-card'>"
+                    f"<div class='summary-path'>{escape(dataset.name)}</div>"
+                    f"<p class='summary-copy'>{escape(summary_sentence)}</p>"
+                    "</div>"
+                ),
+                unsafe_allow_html=True,
+            )
+            _render_kv_card(
+                "Dataset snapshot",
+                [
+                    ("Dataset type", dataset.dataset_type),
+                    ("Confidence", f"{dataset.confidence:.2f}"),
+                    ("Producing transformations", str(len(detail["producers"]))),
+                    ("Consuming transformations", str(len(detail["consumers"]))),
+                ],
             )
 
-    producer_file = next(
-        (transformation.source_file for transformation in detail["producers"] if transformation.source_file),
-        dataset.source_file,
+            relation_cols = st.columns(2)
+            with relation_cols[0]:
+                _render_pill_card(
+                    "Upstream inputs",
+                    detail["upstream"],
+                    "No upstream datasets or transformations were detected.",
+                )
+            with relation_cols[1]:
+                _render_pill_card(
+                    "Downstream impact",
+                    detail["downstream"],
+                    "No downstream nodes were detected for this dataset.",
+                )
+
+            transform_cols = st.columns(2)
+            with transform_cols[0]:
+                _render_transformation_cards(
+                    "Producing transformations",
+                    detail["producers"],
+                    "No producing transformations were recorded for this dataset.",
+                )
+            with transform_cols[1]:
+                _render_transformation_cards(
+                    "Consuming transformations",
+                    detail["consumers"],
+                    "No consuming transformations were recorded for this dataset.",
+                )
+    with phase_tabs[1]:
+        if detail is None:
+            st.warning("Select a dataset from the sidebar to inspect its lineage.")
+        else:
+            st.markdown(
+                "<p class='graph-note'>This simplified view focuses only on the selected dataset and the transformations directly around it.</p>",
+                unsafe_allow_html=True,
+            )
+            st.graphviz_chart(build_lineage_focus_dot(bundle, selected_dataset), use_container_width=True)
+    with phase_tabs[2]:
+        _render_lineage_health(bundle)
+
+
+def _render_phase3(bundle) -> None:
+    _render_page_intro(
+        "Semantic Insights",
+        "Semanticist explains what important files are for, groups them by business domain, and highlights where documentation or confidence is weak.",
+        [("Business logic", "business logic"), "hotspot", ("Documentation drift", "documentation drift")],
     )
-    producer_range = next(
-        (transformation.line_range for transformation in detail["producers"] if transformation.line_range),
-        (None, None),
-    )
-    if producer_file:
-        st.markdown("**Representative SQL or transformation source**")
-        snippet = load_code_snippet(bundle, producer_file, producer_range[0], producer_range[1])
-        st.code(snippet.text, language=_language_for_file(producer_file))
 
-    with st.expander("Phase 2 blind spots and risk signals"):
-        st.write(bundle.blind_spots)
-        st.write(bundle.high_risk_areas)
-
-
-def _render_phase3(bundle, selected_module: str) -> None:
-    stats = bundle.semanticist_stats
-    st.title("Phase 3 - Semantic Insights")
-    st.markdown(
-        "<p class='section-copy'>Semanticist adds purpose statements, domain clusters, business-logic concentration, hotspot scoring, and documentation-drift signals.</p>",
-        unsafe_allow_html=True,
-    )
-
-    metric_cols = st.columns(5)
-    metric_cols[0].metric("Purpose Statements", stats.get("purpose_statements_generated", 0))
-    metric_cols[1].metric("Domains", stats.get("domains_found", 0))
-    metric_cols[2].metric("Hotspots", stats.get("semantic_hotspots", 0))
-    metric_cols[3].metric("Review Queue", stats.get("review_queue_items", 0))
-    metric_cols[4].metric("Missing Docs", stats.get("documentation_missing_count", 0))
+    insight_cols = st.columns(3)
+    insight_cols[0].metric("Likely drift", build_overview_metrics(bundle)["drift_counts"].get("likely_drift", 0))
+    insight_cols[1].metric("Top hotspot score", f"{float(bundle.semantic_hotspots[0].get('hotspot_fusion_score', 0.0)):.2f}" if bundle.semantic_hotspots else "0.00")
+    insight_cols[2].metric("Domains with business logic", len([item for item in domain_records(bundle) if item["business_logic_total"] > 0]))
 
     chart_cols = st.columns(2)
     with chart_cols[0]:
@@ -621,19 +1422,20 @@ def _render_phase3(bundle, selected_module: str) -> None:
             config={"displaylogo": False},
         )
 
-    drift_labels = ["no_drift", "possible_drift", "likely_drift"]
-    drift_values = [
-        build_overview_metrics(bundle)["drift_counts"].get(label, 0) for label in drift_labels
-    ]
-    st.plotly_chart(
-        _donut_figure(drift_labels, drift_values, "Documentation Drift"),
-        use_container_width=True,
-        config={"displaylogo": False},
+    module_options = _module_options(bundle)
+    selected_module = (
+        st.selectbox(
+            "Choose a module to inspect",
+            module_options,
+            key="phase3-module",
+        )
+        if module_options
+        else ""
     )
 
     tabs = st.tabs(["Hotspots", "Review Queue", "Reading Order", "Module Evidence"])
     with tabs[0]:
-        st.dataframe(bundle.semantic_hotspots[:20], use_container_width=True, hide_index=True)
+        st.dataframe(_hotspot_table_records(bundle, limit=20), use_container_width=True, hide_index=True)
     with tabs[1]:
         st.dataframe(review_queue_records(bundle), use_container_width=True, hide_index=True)
     with tabs[2]:
@@ -643,93 +1445,74 @@ def _render_phase3(bundle, selected_module: str) -> None:
 
 
 def _render_phase4(bundle) -> None:
-    st.title("Phase 4 - Query Navigator")
-    st.markdown(
-        "<p class='section-copy'>Navigator answers codebase questions from saved graph and semantic artifacts. It does not rescan the repository when you ask a question.</p>",
-        unsafe_allow_html=True,
+    _render_page_intro(
+        "Query Navigator",
+        "Navigator answers repository questions from the saved graph and semantic artifacts. It explains the answer, shows a confidence score, and cites the supporting evidence.",
+        [("Query Navigator", "query navigator"), "dataset", "lineage", "hotspot"],
     )
 
     if "phase4_question" not in st.session_state:
         st.session_state["phase4_question"] = "What does this repository do?"
 
-    st.text_area(
-        "Ask a question about the codebase",
-        key="phase4_question",
-        height=120,
-        placeholder="Examples: What are the main data pipelines? What breaks if source.ecom.raw_orders changes?",
-    )
+    top_cols = st.columns([1.4, 0.9])
+    with top_cols[0]:
+        st.text_area(
+            "Ask a question about the codebase",
+            key="phase4_question",
+            height=120,
+            placeholder="Examples: What are the main data pipelines? What breaks if source.ecom.raw_orders changes?",
+        )
 
-    sample_cols = st.columns(4)
-    samples = [
-        "What does this repository do?",
-        "What are the main data pipelines?",
-        "Which modules contain the most business logic?",
-        "What breaks if source.ecom.raw_orders changes?",
-    ]
-    for index, sample in enumerate(samples):
-        if sample_cols[index].button(sample, use_container_width=True):
-            st.session_state["phase4_question"] = sample
+        sample_cols = st.columns(2)
+        samples = [
+            "What does this repository do?",
+            "What are the main data pipelines?",
+            "Which modules contain the most business logic?",
+            "What breaks if source.ecom.raw_orders changes?",
+        ]
+        for index, sample in enumerate(samples):
+            if sample_cols[index % 2].button(sample, use_container_width=True, key=f"sample-{index}"):
+                st.session_state["phase4_question"] = sample
+                st.rerun()
+
+        if st.button("Run Navigator", type="primary", use_container_width=True):
+            with st.spinner("Grounding the answer from saved artifacts..."):
+                result = run_navigator_query(bundle.artifact_root, st.session_state["phase4_question"])
+            st.session_state["phase4_result"] = result
+            st.cache_resource.clear()
             st.rerun()
-
-    if st.button("Run Navigator", type="primary", use_container_width=True):
-        with st.spinner("Grounding the answer from saved artifacts..."):
-            result = run_navigator_query(bundle.artifact_root, st.session_state["phase4_question"])
-        st.session_state["phase4_result"] = result
-        st.cache_resource.clear()
-        st.rerun()
 
     result = st.session_state.get("phase4_result")
     if result:
-        answer_col, gauge_col = st.columns([1.6, 0.8])
-        with answer_col:
-            st.markdown(
-                (
-                    f"<div class='evidence-card'><strong>{result['question']}</strong><br><br>"
-                    f"{result['answer']}</div>"
-                ),
-                unsafe_allow_html=True,
-            )
-            st.caption(
-                f"Query type: {result['query_type']} | Models used: {result['models_used']} | Log: {result['log_path'] or 'not written'}"
-            )
-        with gauge_col:
-            st.plotly_chart(
-                _gauge_figure(result["confidence"], "Answer Confidence"),
-                use_container_width=True,
-                config={"displaylogo": False},
-            )
-
-        st.markdown("**Supporting citations**")
-        _render_citations(bundle, result["citations"], "phase4-result")
-
-    st.subheader("Recent Query Logs")
-    if bundle.query_logs:
-        st.dataframe(bundle.query_logs[:12], use_container_width=True, hide_index=True)
+        answer_tabs = st.tabs(["Answer", "Evidence", "Recent queries"])
+        with answer_tabs[0]:
+            answer_col, gauge_col = st.columns([1.6, 0.8])
+            with answer_col:
+                st.markdown(
+                    (
+                        f"<div class='evidence-card'><strong>{result['question']}</strong><br><br>"
+                        f"{result['answer']}</div>"
+                    ),
+                    unsafe_allow_html=True,
+                )
+                st.caption(
+                    f"Query type: {result['query_type']} | Models used: {result['models_used']} | Log: {result['log_path'] or 'not written'}"
+                )
+            with gauge_col:
+                st.plotly_chart(
+                    _gauge_figure(result["confidence"], "Answer confidence"),
+                    use_container_width=True,
+                    config={"displaylogo": False},
+                )
+        with answer_tabs[1]:
+            _render_citations(bundle, result["citations"], "phase4-result")
+        with answer_tabs[2]:
+            if bundle.query_logs:
+                st.dataframe(bundle.query_logs[:12], use_container_width=True, hide_index=True)
+            else:
+                st.info("No query logs were found for this artifact set yet.")
     else:
-        st.info("No query logs were found for this artifact set yet.")
-
-
-def _render_reports(bundle) -> None:
-    st.title("Reports")
-    st.markdown(
-        "<p class='section-copy'>This page brings together the written phase reports plus the generated living-context artifacts used by the dashboard and Navigator.</p>",
-        unsafe_allow_html=True,
-    )
-
-    tab_labels = []
-    tab_content = []
-    for key in sorted(bundle.reports):
-        tab_labels.append(key.upper())
-        tab_content.append(bundle.reports[key])
-    tab_labels.extend(["CODEBASE", "ONBOARDING"])
-    tab_content.extend([bundle.codebase_markdown, bundle.onboarding_brief_markdown])
-
-    tabs = st.tabs(tab_labels)
-    for tab, content in zip(tabs, tab_content, strict=False):
-        with tab:
-            st.markdown("<div class='report-shell'>", unsafe_allow_html=True)
-            st.markdown(content or "_This report is not available in the current workspace._")
-            st.markdown("</div>", unsafe_allow_html=True)
+        st.info("Run a query to see an answer, confidence score, and grounded evidence here.")
 
 
 def main() -> None:
@@ -749,58 +1532,27 @@ def main() -> None:
     )
     bundle = _load_bundle(str(selected_root))
 
-    module_options = [
-        item.get("file_path", "")
-        for item in bundle.semantic_hotspots
-        if item.get("file_path")
-    ] or [module.path for module in bundle.module_graph.all_modules()]
-    default_module = module_options[0] if module_options else ""
-    selected_module = st.sidebar.selectbox(
-        "Evidence Viewer Module",
-        module_options,
-        index=module_options.index(default_module) if default_module in module_options else 0,
-    )
-
-    datasets = sorted(record["dataset"] for record in dataset_records(bundle))
-    selected_dataset = st.sidebar.selectbox(
-        "Dataset Explorer",
-        datasets,
-        index=0 if datasets else None,
-    ) if datasets else ""
-
     page = st.sidebar.radio(
         "Navigate",
         [
             "Repository Overview",
-            "Phase 1 - Structure",
-            "Phase 2 - Data Flow",
-            "Phase 3 - Semantic Insights",
-            "Phase 4 - Query Navigator",
-            "Reports",
+            "Structural",
+            "Lineage",
+            "Semantic Insights",
+            "Query Navigator",
         ],
     )
 
-    st.sidebar.markdown("---")
-    st.sidebar.markdown(
-        (
-            f"<div class='small-note'>Artifact root<br><strong>{bundle.artifact_root}</strong></div>"
-            f"<div class='small-note' style='margin-top:0.9rem;'>Saved queries<br><strong>{len(bundle.query_logs)}</strong></div>"
-        ),
-        unsafe_allow_html=True,
-    )
-
     if page == "Repository Overview":
-        _render_overview(bundle, selected_module)
-    elif page == "Phase 1 - Structure":
-        _render_phase1(bundle, selected_module)
-    elif page == "Phase 2 - Data Flow":
-        _render_phase2(bundle, selected_dataset)
-    elif page == "Phase 3 - Semantic Insights":
-        _render_phase3(bundle, selected_module)
-    elif page == "Phase 4 - Query Navigator":
+        _render_overview(bundle)
+    elif page == "Structural":
+        _render_phase1(bundle)
+    elif page == "Lineage":
+        _render_phase2(bundle)
+    elif page == "Semantic Insights":
+        _render_phase3(bundle)
+    elif page == "Query Navigator":
         _render_phase4(bundle)
-    else:
-        _render_reports(bundle)
 
 
 if __name__ == "__main__":

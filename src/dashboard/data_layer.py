@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import networkx as nx
+from pydantic import BaseModel
 
 from src.agents.archivist import Archivist
 from src.agents.navigator import Navigator
@@ -46,6 +47,45 @@ def _escape_dot(value: str) -> str:
     return value.replace("\\", "\\\\").replace("\"", "\\\"")
 
 
+def coerce_day_one_citation(item: Any) -> DayOneCitation:
+    """
+    Normalize citation-like inputs into the current DayOneCitation model.
+
+    Streamlit reloads can leave us holding Pydantic models created from an older
+    module instance, which means a plain isinstance(DayOneCitation) check is not
+    reliable. This helper accepts:
+      - current DayOneCitation instances
+      - dictionaries
+      - foreign Pydantic models exposing model_dump()
+      - simple attribute-based citation-like objects
+    """
+    if isinstance(item, DayOneCitation):
+        return item
+    if isinstance(item, dict):
+        return DayOneCitation.model_validate(item)
+    if isinstance(item, BaseModel):
+        return DayOneCitation.model_validate(item.model_dump(mode="json"))
+
+    candidate_fields = (
+        "source_phase",
+        "file_path",
+        "line_start",
+        "line_end",
+        "extraction_method",
+        "description",
+        "evidence_type",
+    )
+    if all(hasattr(item, field_name) for field_name in candidate_fields):
+        return DayOneCitation.model_validate(
+            {
+                field_name: getattr(item, field_name)
+                for field_name in candidate_fields
+            }
+        )
+
+    return DayOneCitation.model_validate(item)
+
+
 @dataclass
 class CodeSnippet:
     file_path: str
@@ -69,6 +109,7 @@ class DashboardBundle:
     semantic_enrichment: dict[str, Any] = field(default_factory=dict)
     semantic_index: dict[str, Any] = field(default_factory=dict)
     day_one_answers: dict[str, Any] = field(default_factory=dict)
+    fde_day_one_answers: dict[str, Any] = field(default_factory=dict)
     reading_order: list[dict[str, Any]] = field(default_factory=list)
     semantic_review_queue: list[dict[str, Any]] = field(default_factory=list)
     semantic_hotspots: list[dict[str, Any]] = field(default_factory=list)
@@ -120,6 +161,7 @@ def load_dashboard_bundle(artifact_root: Path) -> DashboardBundle:
         semantic_enrichment=ctx.semantic_enrichment,
         semantic_index=ctx.semantic_index,
         day_one_answers=ctx.day_one_answers,
+        fde_day_one_answers=ctx.fde_day_one_answers,
         reading_order=ctx.reading_order,
         semantic_review_queue=ctx.semantic_review_queue,
         semantic_hotspots=ctx.semantic_hotspots,
@@ -291,6 +333,19 @@ def review_queue_records(bundle: DashboardBundle) -> list[dict[str, Any]]:
 
 def reading_order_records(bundle: DashboardBundle, limit: int = 15) -> list[dict[str, Any]]:
     return bundle.reading_order[:limit]
+
+
+def hotspot_records(bundle: DashboardBundle, limit: int = 20) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for item in bundle.semantic_hotspots[:limit]:
+        records.append(
+            {
+                "file_path": item.get("file_path", ""),
+                "hotspot_fusion_score": float(item.get("hotspot_fusion_score", 0.0) or 0.0),
+                "purpose": item.get("purpose", ""),
+            }
+        )
+    return records
 
 
 def module_detail(bundle: DashboardBundle, module_path: str) -> Optional[dict[str, Any]]:

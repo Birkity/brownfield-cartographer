@@ -1,0 +1,176 @@
+{
+  "prompt_version": "fde-day-one-v1",
+  "questions": [
+    {
+      "question": "What is the primary data ingestion path?",
+      "answer": "The primary ingestion path starts from source.ecom.raw_products, then moves through `models/staging/stg_products.sql` into model.stg_products.",
+      "cited_files": [
+        "models/staging/__sources.yml",
+        "models/staging/stg_products.sql"
+      ],
+      "citations": [
+        {
+          "source_phase": "phase1",
+          "file_path": "models/staging/__sources.yml",
+          "line_start": 3,
+          "line_end": 20,
+          "extraction_method": "phase1_symbol",
+          "description": "Dataset `source.ecom.raw_products` is defined or produced from this file.",
+          "evidence_type": "lineage"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 14,
+          "line_end": 28,
+          "extraction_method": "phase2_lineage",
+          "description": "Column renaming (sku\u2192product_id, name\u2192product_name) and transformation logic (cents_to_dollars, coalesce for boolean flags)",
+          "evidence_type": "lineage"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Source reference to ecom.raw_products",
+          "evidence_type": "lineage"
+        }
+      ],
+      "confidence": 0.82
+    },
+    {
+      "question": "What are the 3-5 most critical output datasets/endpoints?",
+      "answer": "The most critical output datasets are `model.customers` via `models/marts/customers.sql`, `model.metricflow_time_spine` via `models/marts/metricflow_time_spine.sql`, `model.products` via `models/marts/products.sql`, `model.supplies` via `models/marts/supplies.sql`, `model.locations` via `models/marts/locations.sql`. They are prioritized because they are final sinks produced by the highest-ranked modules.",
+      "cited_files": [
+        "models/marts/customers.sql",
+        "models/marts/metricflow_time_spine.sql",
+        "models/marts/products.sql",
+        "models/marts/supplies.sql",
+        "models/marts/locations.sql"
+      ],
+      "citations": [
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/customers.sql",
+          "line_start": 20,
+          "line_end": 26,
+          "extraction_method": "phase2_lineage",
+          "description": "Aggregates lifetime order counts, spending metrics, and identifies repeat buyers",
+          "evidence_type": "hotspot"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "models/marts/metricflow_time_spine.sql",
+          "line_start": 7,
+          "line_end": 7,
+          "extraction_method": "phase1_symbol",
+          "description": "Generates base dates using dbt_date.get_base_dates for time series analysis",
+          "evidence_type": "hotspot"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/products.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "Selects all fields from stg_products without transformation logic",
+          "evidence_type": "hotspot"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/supplies.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "Selects all fields from stg_supplies without transformation logic",
+          "evidence_type": "hotspot"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/locations.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase2_lineage",
+          "description": "SQL selects all data from stg_locations model indicating it's creating a standardized view for downstream consumption",
+          "evidence_type": "hotspot"
+        }
+      ],
+      "confidence": 0.84
+    },
+    {
+      "question": "What is the blast radius if the most critical module fails?",
+      "answer": "If `models/staging/stg_products.sql` fails, its direct outputs model.stg_products stop updating, and the downstream blast radius includes model.customers, model.order_items, model.orders, model.products.",
+      "cited_files": [
+        "models/staging/stg_products.sql"
+      ],
+      "citations": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 14,
+          "line_end": 28,
+          "extraction_method": "phase2_lineage",
+          "description": "Column renaming (sku\u2192product_id, name\u2192product_name) and transformation logic (cents_to_dollars, coalesce for boolean flags)",
+          "evidence_type": "hotspot"
+        },
+        {
+          "source_phase": "phase3",
+          "file_path": "models/staging/stg_products.sql",
+          "line_start": 5,
+          "line_end": 5,
+          "extraction_method": "phase1_symbol",
+          "description": "Source reference to ecom.raw_products",
+          "evidence_type": "hotspot"
+        }
+      ],
+      "confidence": 0.8
+    },
+    {
+      "question": "Where is the business logic concentrated vs. distributed?",
+      "answer": "Business logic is most concentrated in `mart` modules and then spreads across `staging`, `config`, `macro`.",
+      "cited_files": [
+        "models/marts/order_items.yml",
+        "macros/cents_to_dollars.sql",
+        "models/marts/customers.sql"
+      ],
+      "citations": [
+        {
+          "source_phase": "phase3",
+          "file_path": "models/marts/order_items.yml",
+          "line_start": 43,
+          "line_end": 87,
+          "extraction_method": "phase1_symbol",
+          "description": "semantic_models section defines order_item entity with revenue measures and food/drink categorization logic",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase1",
+          "file_path": "macros/cents_to_dollars.sql",
+          "line_start": 3,
+          "line_end": 21,
+          "extraction_method": "phase1_symbol",
+          "description": "Macro definition with adapter-specific implementations for converting cents to dollars: default__cents_to_dollars, postgres__cents_to_dollars, bigquery__cents_to_dollars, fabric__cents_to_dollars",
+          "evidence_type": "semantic"
+        },
+        {
+          "source_phase": "phase2",
+          "file_path": "models/marts/customers.sql",
+          "line_start": 20,
+          "line_end": 26,
+          "extraction_method": "phase2_lineage",
+          "description": "Aggregates lifetime order counts, spending metrics, and identifies repeat buyers",
+          "evidence_type": "semantic"
+        }
+      ],
+      "confidence": 0.78
+    },
+    {
+      "question": "What has changed most frequently in the last 90 days (git velocity map)?",
+      "answer": "No high-velocity files were detected in the configured git-velocity window. This run uses the Surveyor velocity window, so the answer is limited to the saved run configuration.",
+      "cited_files": [],
+      "citations": [],
+      "confidence": 0.45
+    }
+  ]
+}
