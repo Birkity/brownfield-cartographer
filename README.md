@@ -13,7 +13,7 @@ Ingests any local repository or GitHub URL and produces a queryable knowledge gr
 | 1 | Surveyor (Static Structure) | Complete |
 | 2 | Hydrologist (Data Lineage) | Complete |
 | 3 | Semanticist (LLM Purpose Analysis) | Complete |
-| 4 | Archivist + Navigator | Planned |
+| 4 | Archivist + Navigator | Complete |
 
 ---
 
@@ -127,9 +127,22 @@ uv run cartographer lineage-summary ./.cartography/jaffle-shop
 uv run cartographer lineage-summary ./.cartography/jaffle-shop --node source.ecom.raw_orders
 ```
 
+### Navigator query mode
+
+```bash
+uv run cartographer query ./.cartography/jaffle-shop "What does this repository do?"
+uv run cartographer query ./.cartography/jaffle-shop "What are the main data pipelines?"
+uv run cartographer query ./.cartography/jaffle-shop "Which modules contain the most business logic?"
+uv run cartographer query ./.cartography/jaffle-shop "What breaks if source.ecom.raw_orders changes?"
+```
+
+Use `--json-output` to print the structured answer object directly. Query logs are written to
+`.cartography/<repo-name>/queries/` and Phase 4 answers are served from saved artifacts rather
+than rescanning the repository.
+
 ---
 
-## Ollama Setup (Phase 3)
+## Ollama Setup (Phase 3 / Phase 4)
 
 Phase 3 requires Ollama running locally with at least one of these models:
 
@@ -163,6 +176,23 @@ The upgraded Semanticist now adds:
 
 When exact evidence cannot be grounded honestly, the pipeline leaves line ranges as
 `null` and surfaces the result in the review queue instead of fabricating citations.
+
+---
+
+## Phase 4 Highlights
+
+Phase 4 adds the interactive repository question-answering layer:
+
+- `Archivist` loads Phase 1-3 artifacts, generates `CODEBASE.md`, and writes `onboarding_brief.md`
+- `Navigator` answers repository questions from the saved module graph, lineage graph, and semantic outputs
+- answers include a grounded explanation, structured citations, and a confidence score
+- query logs are stored under `.cartography/<repo-name>/queries/`
+- query routing uses the existing local Ollama setup:
+  - `qwen3-coder:480b-cloud` for code reasoning and dependency analysis
+  - `deepseek-v3.1:671b-cloud` for final explanation synthesis
+
+Navigator answers keep the citations grounded in retrieved evidence. The LLM can improve wording
+and synthesis, but it does not invent file paths or line ranges.
 
 ---
 
@@ -212,6 +242,14 @@ All artifacts are written to `.cartography/` (or the directory you specify with 
 |------|----------|-------------|
 | `semantic_hotspots.json` | `.cartography/<repo-name>/` | Ranked hotspot fusion output combining PageRank, git velocity, lineage fan-out, and business logic score |
 
+### Phase 4 - `<repo-name>/`
+
+| File | Location | Description |
+|------|----------|-------------|
+| `CODEBASE.md` | repo root | Living context summary for AI-agent injection and human onboarding |
+| `onboarding_brief.md` | repo root | Markdown version of the Day-One answers with citations |
+| `queries/` | repo root | Structured query logs for every Navigator answer |
+
 ### Expected output for jaffle-shop
 
 Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 produce:
@@ -244,6 +282,9 @@ Since jaffle-shop is primarily SQL + YAML (a dbt project), Phase 1 + Phase 2 pro
 - `cartographer lineage-summary ./.cartography/jaffle-shop --node source.ecom.raw_orders` prints the saved source/sink sets plus the downstream blast radius for a concrete dataset.
 
 ## Project Structure
+
+Phase 4 adds `src/agents/archivist.py`, `src/agents/navigator.py`, and
+`reports/phase4.md` on top of the existing Surveyor, Hydrologist, and Semanticist pipeline.
 
 ```
 src/
@@ -318,6 +359,11 @@ By default artifacts are written to `.cartography/<repo-name>/` so multiple repo
 ```
 
 To write to an exact directory (bypass auto-subfolder): `--output-dir ./my-output`
+
+Phase 4 also writes:
+- `.cartography/<repo-name>/CODEBASE.md`
+- `.cartography/<repo-name>/onboarding_brief.md`
+- `.cartography/<repo-name>/queries/*.json`
 
 To analyse multiple repos side-by-side:
 ```bash
@@ -402,9 +448,9 @@ Aggregated risk signals for onboarding engineers:
 - **High fan-out transforms** — produce many output datasets
 - **Dynamic hotspots** — incomplete lineage, needs manual tracing
 
-> See [reports/phase1.md](reports/phase1.md) and [reports/phase2.md](reports/phase2.md)
-> for full field references and interpretation guides, including annotated samples from
-> the jaffle-shop run.
+> See [reports/phase1.md](reports/phase1.md), [reports/phase2.md](reports/phase2.md),
+> [reports/phase3.md](reports/phase3.md), and [reports/phase4.md](reports/phase4.md)
+> for full field references, interpretation guides, and query examples from the jaffle-shop run.
 
 ---
 
@@ -455,7 +501,7 @@ The HTML visualization opens in any browser — no server needed, fully self-con
 
 ---
 
-## Inspecting The New Semantic Outputs
+## Inspecting The New Semantic And Query Outputs
 
 After a run, these commands are the quickest way to inspect the new Phase 3 outputs:
 
@@ -464,6 +510,9 @@ cat .cartography/<repo-name>/semantic_hotspots.json
 cat .cartography/<repo-name>/semantics/day_one_answers.json
 cat .cartography/<repo-name>/module_graph/module_graph_modules.json
 cat .cartography/<repo-name>/semantics/semantic_review_queue.json
+cat .cartography/<repo-name>/CODEBASE.md
+cat .cartography/<repo-name>/onboarding_brief.md
+ls .cartography/<repo-name>/queries
 ```
 
 What to look for:
@@ -475,6 +524,9 @@ What to look for:
 - Day-One `citations` objects with `file_path`, `line_start`, `line_end`, and `evidence_type`
 - hotspot ranking breakdowns in `semantic_hotspots.json`
 - review queue entries in `semantic_review_queue.json`
+- living context in `CODEBASE.md`
+- onboarding markdown in `onboarding_brief.md`
+- per-question structured logs in `queries/`
 
 ---
 

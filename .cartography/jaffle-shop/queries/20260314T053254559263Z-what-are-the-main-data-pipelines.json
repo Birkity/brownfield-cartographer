@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-03-14T05:32:54.559702+00:00",
+  "artifact_root": ".cartography\\jaffle-shop",
+  "query_type": "main_pipelines",
+  "models_used": {
+    "synthesis": "deepseek-v3.1:671b-cloud"
+  },
+  "answer": {
+    "question": "What are the main data pipelines?",
+    "answer": "Based on the retrieved evidence, the main data pipelines process raw e-commerce data through staging models to analytical marts. The key flows are: 1) Raw orders (from sources like seed.raw_orders or source.ecom.raw_orders) \u2192 stg_orders (with transformations like currency conversion) \u2192 orders mart \u2192 order_items mart; 2) Raw products (e.g., seed.raw_products) \u2192 stg_products \u2192 supplies mart; 3) Raw customers (e.g., seed.raw_customers) \u2192 customers mart. The evidence references 6 source datasets feeding into 13 transformations, but specific details for some pipelines (e.g., raw_stores, raw_items) are incomplete.",
+    "confidence": 0.8,
+    "citations": [
+      {
+        "source_phase": "phase1",
+        "file_path": "models/staging/__sources.yml",
+        "line_start": 3,
+        "line_end": 20,
+        "extraction_method": "phase1_symbol",
+        "description": "Defines 6 source data entities for raw e-commerce data, establishing data origins",
+        "evidence_type": "lineage"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_orders.sql",
+        "line_start": 14,
+        "line_end": 16,
+        "extraction_method": "phase2_lineage",
+        "description": "Transforms raw order data with currency conversion and timestamp truncation, showing first transformation step",
+        "evidence_type": "semantic"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/marts/orders.sql",
+        "line_start": 15,
+        "line_end": 40,
+        "extraction_method": "llm_inference",
+        "description": "Creates denormalized order view combining order data with item information, showing downstream data flow",
+        "evidence_type": "semantic"
+      }
+    ]
+  }
+}
