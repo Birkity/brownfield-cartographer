@@ -399,12 +399,22 @@ class TestPhase5Dashboard(unittest.TestCase):
             json.dumps({"high_risk_areas": []}, indent=2),
             encoding="utf-8",
         )
+        pyvis_stub = (
+            "<html><body><div class='card'><div id='mynetwork'></div></div>"
+            "<script>"
+            "var network={setOptions:function(){},fit:function(){},moveTo:function(){},redraw:function(){}};"
+            "var container=document.getElementById('mynetwork');"
+            "var data={nodes:[],edges:[]};"
+            "var options={};"
+            "network = new vis.Network(container, data, options);"
+            "</script></body></html>"
+        )
         (self.artifact_root / "module_graph" / "module_graph.html").write_text(
-            "<html><body>module graph</body></html>",
+            pyvis_stub,
             encoding="utf-8",
         )
         (self.artifact_root / "data_lineage" / "lineage_graph.html").write_text(
-            "<html><body>lineage graph</body></html>",
+            pyvis_stub,
             encoding="utf-8",
         )
         (self.artifact_root / "CODEBASE.md").write_text("# CODEBASE\n", encoding="utf-8")
@@ -445,6 +455,9 @@ class TestPhase5Dashboard(unittest.TestCase):
             bundle.fde_day_one_answers["questions"][0]["question"],
             "What is the primary data ingestion path?",
         )
+        self.assertIn("network.setOptions", bundle.module_graph_html)
+        self.assertIn("height: 1320px", bundle.module_graph_html)
+        self.assertIn("height: 1380px", bundle.lineage_graph_html)
 
     def test_focus_graphs_include_selected_nodes(self) -> None:
         bundle = load_dashboard_bundle(self.artifact_root)

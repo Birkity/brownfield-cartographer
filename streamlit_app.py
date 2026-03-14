@@ -1210,7 +1210,7 @@ def _render_phase1(bundle) -> None:
         unsafe_allow_html=True,
     )
     if bundle.module_graph_html:
-        components.html(bundle.module_graph_html, height=980, scrolling=True)
+        components.html(bundle.module_graph_html, height=1320, scrolling=True)
     else:
         st.info("module_graph.html is not available in the selected artifact set.")
 
@@ -1287,7 +1287,7 @@ def _render_phase2(bundle) -> None:
         unsafe_allow_html=True,
     )
     if bundle.lineage_graph_html:
-        components.html(bundle.lineage_graph_html, height=980, scrolling=True)
+        components.html(bundle.lineage_graph_html, height=1380, scrolling=True)
     else:
         st.info("lineage_graph.html is not available in the selected artifact set.")
 

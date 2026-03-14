@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
+import re
 from typing import Any, Callable, Optional
 
 import networkx as nx
@@ -123,6 +124,227 @@ class DashboardBundle:
     lineage_graph_html: str = ""
 
 
+_GRAPH_DISPLAY_PROFILES: dict[str, dict[str, Any]] = {
+    "module": {
+        "height": 1320,
+        "background": "radial-gradient(circle at top, #ffffff 0%, #f3f7f6 58%, #edf3f2 100%)",
+        "node_font_size": 18,
+        "edge_font_size": 13,
+        "spring_length": 250,
+        "scale": 0.82,
+    },
+    "lineage": {
+        "height": 1380,
+        "background": "radial-gradient(circle at top, #ffffff 0%, #f5f8f7 54%, #edf4f2 100%)",
+        "node_font_size": 19,
+        "edge_font_size": 14,
+        "spring_length": 310,
+        "scale": 0.9,
+    },
+}
+
+
+def _enhance_pyvis_html(html: str, graph_kind: str) -> str:
+    if not html or "mynetwork" not in html or "vis.Network" not in html:
+        return html
+
+    profile = _GRAPH_DISPLAY_PROFILES.get(graph_kind, _GRAPH_DISPLAY_PROFILES["module"])
+    options = {
+        "nodes": {
+            "borderWidth": 3,
+            "borderWidthSelected": 5,
+            "shadow": {
+                "enabled": True,
+                "color": "rgba(15, 23, 42, 0.18)",
+                "size": 18,
+                "x": 2,
+                "y": 4,
+            },
+            "font": {
+                "color": "#10212b",
+                "size": profile["node_font_size"],
+                "face": "Trebuchet MS, Segoe UI, sans-serif",
+                "strokeWidth": 6,
+                "strokeColor": "#f8fbfa",
+                "bold": {
+                    "color": "#10212b",
+                    "size": profile["node_font_size"] + 1,
+                    "face": "Trebuchet MS, Segoe UI, sans-serif",
+                    "strokeWidth": 6,
+                    "strokeColor": "#f8fbfa",
+                },
+            },
+        },
+        "edges": {
+            "width": 3,
+            "selectionWidth": 5,
+            "shadow": {
+                "enabled": True,
+                "color": "rgba(15, 23, 42, 0.12)",
+                "size": 8,
+                "x": 1,
+                "y": 1,
+            },
+            "font": {
+                "color": "#334155",
+                "size": profile["edge_font_size"],
+                "align": "middle",
+                "strokeWidth": 4,
+                "strokeColor": "#f8fbfa",
+                "face": "Trebuchet MS, Segoe UI, sans-serif",
+            },
+            "smooth": {
+                "type": "dynamic",
+                "roundness": 0.18,
+            },
+        },
+        "physics": {
+            "barnesHut": {
+                "gravitationalConstant": -10000,
+                "centralGravity": 0.18,
+                "springLength": profile["spring_length"],
+                "springConstant": 0.025,
+                "damping": 0.18,
+                "avoidOverlap": 1.0,
+            },
+            "minVelocity": 0.2,
+            "stabilization": {
+                "iterations": 350,
+            },
+        },
+        "interaction": {
+            "hover": True,
+            "tooltipDelay": 80,
+            "navigationButtons": True,
+            "keyboard": {
+                "enabled": True,
+                "bindToWindow": False,
+            },
+            "multiselect": True,
+            "zoomView": True,
+            "dragView": True,
+        },
+    }
+    options_json = json.dumps(options)
+    injected_markup = f"""
+<style>
+html, body {{
+    margin: 0;
+    padding: 0;
+    background: #f3f7f6;
+}}
+body {{
+    overflow: hidden;
+}}
+.card {{
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}}
+#mynetwork {{
+    width: 100% !important;
+    height: {profile["height"]}px !important;
+    min-height: {profile["height"]}px !important;
+    background: {profile["background"]} !important;
+    border: 1px solid #d7e3e0 !important;
+    border-radius: 18px !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65) !important;
+}}
+.vis-tooltip {{
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid #d7e3e0 !important;
+    border-radius: 14px !important;
+    color: #10212b !important;
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.16) !important;
+}}
+div.vis-network div.vis-navigation div.vis-button {{
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12) !important;
+}}
+div.vis-network div.vis-navigation div.vis-button:hover {{
+    background: #ecfeff !important;
+    border-color: #0f766e !important;
+}}
+div.vis-network div.vis-navigation div.vis-button:after {{
+    color: #10212b !important;
+    font-size: 24px !important;
+}}
+div[style*='position:fixed'],
+div[style*='position:fixed'] *,
+div[style*='position: fixed'],
+div[style*='position: fixed'] * {{
+    color: #10212b !important;
+}}
+</style>
+<script>
+(function() {{
+    var graphEnhanced = false;
+    function enhanceGraph() {{
+        if (graphEnhanced) {{
+            return;
+        }}
+        var container = document.getElementById("mynetwork");
+        if (!container) {{
+            return;
+        }}
+        graphEnhanced = true;
+        document.body.style.background = "#f3f7f6";
+        var fixedPanels = document.querySelectorAll("div[style*='position:fixed']");
+        fixedPanels.forEach(function(panel) {{
+            panel.style.background = "rgba(255, 255, 255, 0.96)";
+            panel.style.color = "#10212b";
+            panel.style.border = "1px solid #d7e3e0";
+            panel.style.borderRadius = "14px";
+            panel.style.boxShadow = "0 18px 36px rgba(15, 23, 42, 0.14)";
+        }});
+        if (typeof network !== "undefined" && network && typeof network.setOptions === "function") {{
+            network.setOptions({options_json});
+            setTimeout(function() {{
+                try {{
+                    network.redraw();
+                    network.fit({{ animation: {{ duration: 420, easingFunction: "easeInOutQuad" }} }});
+                    network.moveTo({{ scale: {profile["scale"]} }});
+                }} catch (error) {{}}
+            }}, 140);
+        }}
+    }}
+    if (document.readyState === "complete") {{
+        setTimeout(enhanceGraph, 40);
+    }} else {{
+        window.addEventListener("load", function() {{
+            setTimeout(enhanceGraph, 40);
+        }});
+    }}
+    setTimeout(enhanceGraph, 400);
+}})();
+</script>
+"""
+
+    css_patterns = [
+        (r"height:\s*100vh;", f"height: {profile['height']}px;"),
+        (r"background-color:\s*#0D1117;", "background-color: #f3f7f6;"),
+        (r"border:\s*1px solid lightgray;", "border: 1px solid #d7e3e0;"),
+    ]
+    enhanced_html = html
+    for pattern, replacement in css_patterns:
+        enhanced_html = re.sub(pattern, replacement, enhanced_html)
+
+    color_replacements = {
+        "#E6EDF3": "#10212b",
+        "#FFFFFF": "#10212b",
+        "#8B949E": "#334155",
+    }
+    for old_color, new_color in color_replacements.items():
+        enhanced_html = enhanced_html.replace(old_color, new_color)
+
+    if "</body>" in enhanced_html:
+        return enhanced_html.replace("</body>", injected_markup + "\n</body>")
+    return enhanced_html + injected_markup
+
+
 def discover_artifact_roots(base_dir: Path) -> list[Path]:
     if (base_dir / "module_graph" / "module_graph.json").exists():
         return [base_dir]
@@ -171,11 +393,13 @@ def load_dashboard_bundle(artifact_root: Path) -> DashboardBundle:
         reports=reports,
         codebase_markdown=_load_markdown(archivist.codebase_md_path),
         onboarding_brief_markdown=_load_markdown(archivist.onboarding_brief_path),
-        module_graph_html=_load_markdown(
-            archivist.artifact_root / "module_graph" / "module_graph.html"
+        module_graph_html=_enhance_pyvis_html(
+            _load_markdown(archivist.artifact_root / "module_graph" / "module_graph.html"),
+            "module",
         ),
-        lineage_graph_html=_load_markdown(
-            archivist.artifact_root / "data_lineage" / "lineage_graph.html"
+        lineage_graph_html=_enhance_pyvis_html(
+            _load_markdown(archivist.artifact_root / "data_lineage" / "lineage_graph.html"),
+            "lineage",
         ),
     )
 
