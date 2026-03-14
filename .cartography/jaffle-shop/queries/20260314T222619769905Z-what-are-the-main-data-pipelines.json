@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-03-14T22:26:19.770118+00:00",
+  "artifact_root": "C:\\Users\\Ab\\OneDrive\\Desktop\\10 Academy\\Week 4\\brownfield-cartographer\\.cartography\\jaffle-shop",
+  "query_type": "main_pipelines",
+  "models_used": {
+    "synthesis": "deepseek-v3.1:671b-cloud"
+  },
+  "answer": {
+    "question": "What are the main data pipelines?",
+    "answer": "Based on the evidence, the main data pipelines flow from raw e-commerce source data through staging models to analytical marts. The key pipelines identified are: 1) Raw orders data (from source.ecom.raw_orders) is transformed in a staging model (stg_orders) using currency conversion and timestamp truncation, then flows into an orders mart and an order_items mart. 2) Raw products data (from source.ecom.raw_products) is transformed in a staging model (stg_products) and flows into a supplies mart. 3) Raw customers data (from source.ecom.raw_customers) flows directly into a customers mart. The lineage shows 6 source datasets feeding into 13 transformation models, with data originating from entities like customers, orders, products, items, stores, and supplies.",
+    "confidence": 0.875,
+    "citations": [
+      {
+        "source_phase": "phase1",
+        "file_path": "models/staging/__sources.yml",
+        "line_start": 3,
+        "line_end": 20,
+        "extraction_method": "phase1_symbol",
+        "description": "Defines 6 source data entities for raw e-commerce data, establishing data origins",
+        "evidence_type": "lineage"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_orders.sql",
+        "line_start": 14,
+        "line_end": 16,
+        "extraction_method": "phase2_lineage",
+        "description": "Transforms raw order data with currency conversion and timestamp truncation, showing first transformation step",
+        "evidence_type": "semantic"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/marts/orders.sql",
+        "line_start": 15,
+        "line_end": 40,
+        "extraction_method": "llm_inference",
+        "description": "Creates denormalized order view combining order data with item information, showing downstream data flow",
+        "evidence_type": "semantic"
+      }
+    ]
+  }
+}

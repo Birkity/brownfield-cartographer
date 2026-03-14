@@ -1453,6 +1453,9 @@ def _render_phase4(bundle) -> None:
 
     if "phase4_question" not in st.session_state:
         st.session_state["phase4_question"] = "What does this repository do?"
+    pending_question = st.session_state.pop("phase4_pending_question", None)
+    if pending_question is not None:
+        st.session_state["phase4_question"] = pending_question
 
     top_cols = st.columns([1.4, 0.9])
     with top_cols[0]:
@@ -1472,7 +1475,7 @@ def _render_phase4(bundle) -> None:
         ]
         for index, sample in enumerate(samples):
             if sample_cols[index % 2].button(sample, use_container_width=True, key=f"sample-{index}"):
-                st.session_state["phase4_question"] = sample
+                st.session_state["phase4_pending_question"] = sample
                 st.rerun()
 
         if st.button("Run Navigator", type="primary", use_container_width=True):
