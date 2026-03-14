@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-03-14T05:33:21.486690+00:00",
+  "artifact_root": ".cartography\\jaffle-shop",
+  "query_type": "business_logic_hotspots",
+  "models_used": {
+    "synthesis": "deepseek-v3.1:671b-cloud"
+  },
+  "answer": {
+    "question": "Which modules contain the most business logic?",
+    "answer": "Based on the retrieved evidence, the modules with the highest concentration of business logic are the staging models `models/staging/stg_products.sql`, `models/staging/stg_orders.sql`, and `models/staging/stg_supplies.sql`. This is indicated by their high 'hotspot_fusion_score' (0.684, 0.659, 0.658 respectively) and their 'business_logic_score' (0.7, 0.8, 0.6). These models perform core transformations like column renaming, currency conversion, generating surrogate keys, and calculating boolean flags to prepare raw data for analytics. While marts models like `order_items.sql` and `orders.sql` also have high business logic scores (0.8), their overall hotspot scores are lower, suggesting the foundational business logic is densest in the staging layer.",
+    "confidence": 0.875,
+    "citations": [
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_products.sql",
+        "line_start": 14,
+        "line_end": 28,
+        "extraction_method": "phase2_lineage",
+        "description": "Column renaming (sku\u2192product_id, name\u2192product_name) and transformation logic (cents_to_dollars, coalesce for boolean flags)",
+        "evidence_type": "hotspot"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_products.sql",
+        "line_start": 5,
+        "line_end": 5,
+        "extraction_method": "phase1_symbol",
+        "description": "Source reference to ecom.raw_products",
+        "evidence_type": "hotspot"
+      },
+      {
+        "source_phase": "phase2",
+        "file_path": "models/staging/stg_products.sql",
+        "line_start": 1,
+        "line_end": 34,
+        "extraction_method": "phase2_lineage",
+        "description": "Transformation dbt_model reads source.ecom.raw_products and writes model.stg_products",
+        "evidence_type": "hotspot"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_orders.sql",
+        "line_start": 14,
+        "line_end": 16,
+        "extraction_method": "phase2_lineage",
+        "description": "Field renaming: id \u2192 order_id, store_id \u2192 location_id, customer \u2192 customer_id",
+        "evidence_type": "hotspot"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_orders.sql",
+        "line_start": 19,
+        "line_end": 24,
+        "extraction_method": "phase2_lineage",
+        "description": "Currency conversion using cents_to_dollars macro for subtotal, tax_paid, and order_total",
+        "evidence_type": "hotspot"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_orders.sql",
+        "line_start": 27,
+        "line_end": 27,
+        "extraction_method": "phase2_lineage",
+        "description": "Timestamp truncation using dbt.date_trunc('day','ordered_at')",
+        "evidence_type": "hotspot"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_supplies.sql",
+        "line_start": 14,
+        "line_end": 14,
+        "extraction_method": "phase1_symbol",
+        "description": "dbt_utils.generate_surrogate_key(['id', 'sku']) creates supply_uuid",
+        "evidence_type": "hotspot"
+      },
+      {
+        "source_phase": "phase3",
+        "file_path": "models/staging/stg_supplies.sql",
+        "line_start": 22,
+        "line_end": 22,
+        "extraction_method": "phase1_symbol",
+        "description": "cents_to_dollars('cost') as supply_cost converts cost format",
+        "evidence_type": "hotspot"
+      }
+    ]
+  }
+}

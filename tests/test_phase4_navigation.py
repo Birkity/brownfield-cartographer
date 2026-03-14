@@ -147,6 +147,45 @@ def _build_phase4_artifacts(root: Path) -> None:
         },
     )
     _write_json(
+        root / "semantics" / "semantic_enrichment.json",
+        {
+            "purpose_statements": [
+                {
+                    "file_path": "models/staging/stg_orders.sql",
+                    "purpose_statement": stg_orders.purpose_statement,
+                    "business_logic_score": stg_orders.business_logic_score,
+                    "confidence": 0.9,
+                    "evidence": [
+                        {
+                            "file_path": "models/staging/stg_orders.sql",
+                            "line_start": 10,
+                            "line_end": 20,
+                            "source_phase": "phase3",
+                            "extraction_method": "llm_inference",
+                            "description": stg_orders.purpose_statement,
+                        }
+                    ],
+                },
+                {
+                    "file_path": "models/marts/orders.sql",
+                    "purpose_statement": orders.purpose_statement,
+                    "business_logic_score": orders.business_logic_score,
+                    "confidence": 0.95,
+                    "evidence": [
+                        {
+                            "file_path": "models/marts/orders.sql",
+                            "line_start": 12,
+                            "line_end": 32,
+                            "source_phase": "phase3",
+                            "extraction_method": "llm_inference",
+                            "description": orders.purpose_statement,
+                        }
+                    ],
+                },
+            ]
+        },
+    )
+    _write_json(
         root / "semantics" / "semantic_index.json",
         {
             "modules": {
@@ -319,6 +358,22 @@ class Phase4NavigationTests(unittest.TestCase):
         self.assertIn("model.orders", result.response.answer)
         self.assertTrue(any(citation.file_path == "models/staging/stg_orders.sql" for citation in result.response.citations))
         self.assertTrue(all(citation.file_path for citation in result.response.citations))
+
+    @patch("src.agents.navigator.OllamaClient.is_available", return_value=False)
+    def test_navigator_supports_find_implementation_and_explain_module(self, _mock_available) -> None:
+        artifact_root = self._make_artifact_root()
+        navigator = Navigator(artifact_root)
+
+        implementation = navigator.answer_question("Where is order reporting logic?", log_query=False)
+        module_explanation = navigator.answer_question("Explain models/marts/orders.sql", log_query=False)
+
+        self.assertEqual(implementation.query_type, "find_implementation")
+        self.assertTrue(implementation.response.citations)
+        self.assertEqual(implementation.response.citations[0].file_path, "models/marts/orders.sql")
+
+        self.assertEqual(module_explanation.query_type, "explain_module")
+        self.assertIn("Builds the orders mart", module_explanation.response.answer)
+        self.assertTrue(module_explanation.response.citations)
 
 
 if __name__ == "__main__":

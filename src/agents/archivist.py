@@ -66,6 +66,7 @@ class ArchivistContext:
     artifact_root: Path
     module_graph: KnowledgeGraph
     lineage_graph: KnowledgeGraph
+    semantic_enrichment: dict[str, Any] = field(default_factory=dict)
     semantic_index: dict[str, Any] = field(default_factory=dict)
     day_one_answers: dict[str, Any] = field(default_factory=dict)
     reading_order: list[dict[str, Any]] = field(default_factory=list)
@@ -119,6 +120,7 @@ class Archivist:
                 lineage_graph=KnowledgeGraph.load_lineage_artifact(
                     self.artifact_root / "data_lineage" / "lineage_graph.json"
                 ),
+                semantic_enrichment=_load_json(semantics_dir / "semantic_enrichment.json", {}),
                 semantic_index=_load_json(semantics_dir / "semantic_index.json", {}),
                 day_one_answers=_load_json(semantics_dir / "day_one_answers.json", {}),
                 reading_order=_load_json(semantics_dir / "reading_order.json", {}).get("reading_order", []),
@@ -489,21 +491,40 @@ class Archivist:
                 summary=f"Module `{resolved}` was not found in the saved module graph.",
                 confidence=0.0,
             )
+        purpose_entry = self._purpose_artifact_entry(resolved)
+        semantic_index_entry = self.context.semantic_index.get("modules", {}).get(resolved, {})
+        purpose_text = (
+            module.purpose_statement
+            or module.semantic_summary
+            or purpose_entry.get("purpose_statement", "")
+            or semantic_index_entry.get("purpose", "")
+            or "No semantic summary was available."
+        )
+        business_logic_score = (
+            module.business_logic_score
+            or float(purpose_entry.get("business_logic_score", 0.0))
+            or float(semantic_index_entry.get("business_logic_score", 0.0))
+        )
+        semantic_confidence = (
+            module.semantic_confidence
+            or float(purpose_entry.get("confidence", 0.0))
+            or float(semantic_index_entry.get("confidence", 0.0))
+        )
         return RetrievedContext(
             query_type="explain_module",
             entity=resolved,
             summary=(
                 f"`{resolved}` is a {module.role} module. "
-                f"{module.purpose_statement or module.semantic_summary or 'No semantic summary was available.'} "
+                f"{purpose_text} "
                 f"It contains {len(module.functions)} functions, {len(module.classes)} classes, "
-                f"and a business-logic score of {module.business_logic_score:.2f}."
+                f"and a business-logic score of {business_logic_score:.2f}."
             ),
             citations=self.module_citations(resolved, limit=6),
-            confidence=max(module.semantic_confidence, 0.5) if module.semantic_evidence else 0.4,
+            confidence=max(semantic_confidence, 0.5) if self.module_citations(resolved, limit=1) else 0.4,
             facts={
                 "module_path": resolved,
                 "role": module.role,
-                "business_logic_score": module.business_logic_score,
+                "business_logic_score": business_logic_score,
                 "imports": [imp.module for imp in module.imports[:8]],
             },
         )
@@ -573,6 +594,14 @@ class Archivist:
             return []
         evidence = list(module.semantic_evidence)
         if not evidence:
+            purpose_entry = self._purpose_artifact_entry(module_path)
+            raw_evidence = purpose_entry.get("evidence", []) if purpose_entry else []
+            for item in raw_evidence:
+                try:
+                    evidence.append(SemanticEvidence.model_validate(item))
+                except Exception:
+                    continue
+        if not evidence:
             evidence.extend(
                 SemanticEvidence(
                     source_phase="phase1",
@@ -597,6 +626,12 @@ class Archivist:
             for item in evidence
         ]
         return self._dedupe_citations(citations, limit=limit)
+
+    def _purpose_artifact_entry(self, module_path: str) -> dict[str, Any]:
+        for item in self.context.semantic_enrichment.get("purpose_statements", []):
+            if isinstance(item, dict) and item.get("file_path") == module_path:
+                return item
+        return {}
 
     def transformation_citation(self, transformation: Any, dataset_name: Optional[str] = None) -> DayOneCitation:
         description = (

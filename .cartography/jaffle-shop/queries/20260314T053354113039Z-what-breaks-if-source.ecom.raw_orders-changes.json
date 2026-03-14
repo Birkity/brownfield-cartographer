@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-13T13:45:16.798625+00:00",
+  "timestamp": "2026-03-14T05:33:54.113419+00:00",
   "artifact_root": ".cartography\\jaffle-shop",
   "query_type": "blast_radius",
   "models_used": {
@@ -8,8 +8,8 @@
   },
   "answer": {
     "question": "What breaks if source.ecom.raw_orders changes?",
-    "answer": "Changes to source.ecom.raw_orders will directly break the staging model stg_orders.sql, which reads from it. This then propagates to break multiple downstream marts models: customers.sql, order_items.sql, and orders.sql, as they depend on stg_orders or other models that depend on it. Specifically, the downstream impacted models are model.customers, model.order_items, model.orders, and model.stg_orders.",
-    "confidence": 0.95,
+    "answer": "Changes to source.ecom.raw_orders would break all downstream models that depend on it. The immediate break would occur in stg_orders.sql (the direct consumer), which would then propagate to the marts layer: customers.sql, order_items.sql, and orders.sql. This would impact the final models model.customers, model.order_items, and model.orders. The evidence does not specify the nature of potential breaks (e.g., schema changes, data type mismatches, or missing columns), so the exact failure modes are unknown.",
+    "confidence": 0.9,
     "citations": [
       {
         "source_phase": "phase2",

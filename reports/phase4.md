@@ -211,21 +211,25 @@ Combined suite run on March 13, 2026:
 
 Result:
 
-- `19 tests passed`
+- `20 tests passed`
 
 ### End-to-end verification
 
 Verified against `.cartography/jaffle-shop`:
 
+- a fresh one-shot `cartographer analyze ... --output-dir .cartography/jaffle-shop` run completed on March 14, 2026
 - `CODEBASE.md` exists
 - `onboarding_brief.md` exists
 - query logs are written to `queries/`
 - example Navigator queries return structured answers with grounded citations
 - query execution loads saved artifacts and does not require source-file rescanning
 
-Note:
+Fresh pipeline summary from that run:
 
-- a full `cartographer analyze` run still spends most of its wall time in Phase 3 LLM inference
-  for the 31 semantic-module passes on jaffle-shop
-- Phase 4 itself was validated end to end against the saved Phase 1-3 artifacts, which is the
-  intended runtime behavior for interactive querying
+- Phase 1: 33 files scanned, 11 dbt ref edges, 0 cycles
+- Phase 2: 25 datasets, 13 transformations, 30 lineage edges
+- Phase 3: 31 purpose statements, 5 domains, 25 review-queue items
+- Phase 4: `CODEBASE.md` and `onboarding_brief.md` generated successfully
+
+The full run took about `729` seconds end to end, with most wall time still spent in the
+Phase 3 LLM passes across the 31 semantic modules.
